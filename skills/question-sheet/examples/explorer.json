@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "id": "visual-explorer-demo",
+  "revision": "1",
+  "title": "判断点を読み、必要なら全体へ",
+  "description": "強調図と表で回答し、全体図は必要なときに開けます。",
+  "context": "合成の相談です。回答による外部操作はありません。",
+  "explorers": [
+    {
+      "id": "architecture",
+      "spec": {
+        "schema_version": 1,
+        "diagram_type": "architecture",
+        "meta": {
+          "title": "送信は保存後に行う",
+          "subtitle": "合成データ・比較用",
+          "animation": "none",
+          "quality_profile": "showcase",
+          "visual_preset": "signal-flow",
+          "legend": {
+            "mode": "auto"
+          }
+        },
+        "components": [
+          {
+            "id": "web",
+            "type": "frontend",
+            "label": "入力画面",
+            "pos": [
+              60,
+              180
+            ],
+            "size": [
+              170,
+              70
+            ]
+          },
+          {
+            "id": "api",
+            "type": "backend",
+            "label": "受付API",
+            "pos": [
+              330,
+              180
+            ],
+            "size": [
+              170,
+              70
+            ]
+          },
+          {
+            "id": "db",
+            "type": "database",
+            "label": "回答保存",
+            "pos": [
+              600,
+              180
+            ],
+            "size": [
+              170,
+              70
+            ]
+          },
+          {
+            "id": "notify",
+            "type": "external",
+            "label": "通知先",
+            "pos": [
+              870,
+              180
+            ],
+            "size": [
+              170,
+              70
+            ]
+          }
+        ],
+        "connections": [
+          {
+            "from": "web",
+            "to": "api",
+            "label": "回答送信"
+          },
+          {
+            "from": "api",
+            "to": "db",
+            "label": "保存"
+          },
+          {
+            "from": "db",
+            "to": "notify",
+            "label": "保存成功後"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ownership",
+      "spec": {
+        "schema_version": 2,
+        "diagram_type": "workflow",
+        "meta": {
+          "title": "実装と確認の担当",
+          "subtitle": "合成データ・比較用",
+          "animation": "none",
+          "quality_profile": "showcase",
+          "visual_preset": "signal-flow",
+          "legend": {
+            "mode": "auto",
+            "entries": {
+              "backend": {
+                "label": "作業"
+              }
+            }
+          }
+        },
+        "lanes": [
+          {
+            "id": "work",
+            "label": "作業の順と担当"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "spec",
+            "lane": "work",
+            "col": 0,
+            "type": "backend",
+            "label": "仕様整理",
+            "sublabel": "本人"
+          },
+          {
+            "id": "build",
+            "lane": "work",
+            "col": 1,
+            "type": "backend",
+            "label": "画面実装",
+            "sublabel": "共同担当"
+          },
+          {
+            "id": "test",
+            "lane": "work",
+            "col": 2,
+            "type": "backend",
+            "label": "結果検証",
+            "sublabel": "本人"
+          },
+          {
+            "id": "approve",
+            "lane": "work",
+            "col": 3,
+            "type": "backend",
+            "label": "公開確認",
+            "sublabel": "確認担当"
+          }
+        ],
+        "mainPath": [
+          "spec",
+          "build",
+          "test",
+          "approve"
+        ],
+        "edges": [
+          {
+            "from": "spec",
+            "to": "build"
+          },
+          {
+            "from": "build",
+            "to": "test"
+          },
+          {
+            "from": "test",
+            "to": "approve"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dependency",
+      "spec": {
+        "schema_version": 2,
+        "diagram_type": "workflow",
+        "meta": {
+          "title": "着手できる作業と待ち",
+          "subtitle": "合成データ・比較用",
+          "animation": "none",
+          "quality_profile": "showcase",
+          "visual_preset": "signal-flow",
+          "legend": {
+            "mode": "auto",
+            "entries": {
+              "backend": {
+                "label": "作業"
+              }
+            }
+          }
+        },
+        "lanes": [
+          {
+            "id": "self",
+            "label": "本人"
+          },
+          {
+            "id": "other",
+            "label": "相手先"
+          }
+        ],
+        "nodes": [
+          {
+            "id": "draft",
+            "lane": "self",
+            "col": 0,
+            "type": "backend",
+            "label": "仮データ準備"
+          },
+          {
+            "id": "access",
+            "lane": "other",
+            "col": 1,
+            "type": "backend",
+            "label": "権限発行"
+          },
+          {
+            "id": "connect",
+            "lane": "self",
+            "col": 2,
+            "type": "backend",
+            "label": "接続確認"
+          },
+          {
+            "id": "release",
+            "lane": "self",
+            "col": 3,
+            "type": "backend",
+            "label": "利用開始"
+          }
+        ],
+        "mainPath": [
+          "draft",
+          "access",
+          "connect",
+          "release"
+        ],
+        "edges": [
+          {
+            "from": "draft",
+            "to": "access"
+          },
+          {
+            "from": "access",
+            "to": "connect",
+            "fromSide": "right",
+            "toSide": "bottom"
+          },
+          {
+            "from": "connect",
+            "to": "release"
+          }
+        ]
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "architecture",
+      "title": "保存に失敗した場合、通知先へ送ってよいですか？",
+      "summary": "構成と通知",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "保存成功を確認するまで通知しない"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "保存成功が通知の条件です。回答文を変更しても、この初期案の図は変わりません。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "入力画面"
+          },
+          {
+            "id": "s1",
+            "label": "受付API"
+          },
+          {
+            "id": "s2",
+            "label": "回答保存"
+          },
+          {
+            "id": "s3",
+            "label": "通知先"
+          }
+        ],
+        "focus": [
+          "s2"
+        ],
+        "table": [
+          [
+            "保存成功",
+            "通知する"
+          ],
+          [
+            "保存失敗",
+            "通知しない"
+          ]
+        ]
+      },
+      "explorer": "architecture"
+    },
+    {
+      "id": "ownership",
+      "title": "本人が行う作業はどこまでですか？",
+      "summary": "担当と受け渡し",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "仕様整理と結果検証を行い、公開確認は確認担当へ渡す"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "本人の担当は仕様整理と結果検証。公開確認は確認担当へ渡します。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "仕様整理",
+            "role": "本人"
+          },
+          {
+            "id": "s1",
+            "label": "画面実装",
+            "role": "共同担当"
+          },
+          {
+            "id": "s2",
+            "label": "結果検証",
+            "role": "本人"
+          },
+          {
+            "id": "s3",
+            "label": "公開確認",
+            "role": "確認担当"
+          }
+        ],
+        "focus": [
+          "s0",
+          "s2"
+        ],
+        "table": [
+          [
+            "本人",
+            "仕様整理・結果検証"
+          ],
+          [
+            "共同担当",
+            "画面実装"
+          ],
+          [
+            "確認担当",
+            "公開確認"
+          ]
+        ]
+      },
+      "explorer": "ownership"
+    },
+    {
+      "id": "dependency",
+      "title": "権限が未発行の間、どこまで進めますか？",
+      "summary": "順序と待ち",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "仮データを準備し、権限発行を待って接続確認へ進む"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "仮データは先に準備できます。接続確認は権限発行後です。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "仮データ準備"
+          },
+          {
+            "id": "s1",
+            "label": "権限発行"
+          },
+          {
+            "id": "s2",
+            "label": "接続確認"
+          },
+          {
+            "id": "s3",
+            "label": "利用開始"
+          }
+        ],
+        "focus": [
+          "s1"
+        ],
+        "table": [
+          [
+            "今できる",
+            "仮データ準備"
+          ],
+          [
+            "待つもの",
+            "相手先の権限発行"
+          ],
+          [
+            "発行後",
+            "接続確認・利用開始"
+          ]
+        ]
+      },
+      "explorer": "dependency"
+    }
+  ]
+}

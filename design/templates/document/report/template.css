@@ -1,0 +1,82 @@
+/* 報告書。頁の上端に濃紺の署名帯、題名の下に太い罫線、章に番号と縦線 */
+
+/* 署名行は頁の余白まで広げた濃紺の帯。紙は置かない */
+.ds-signature {
+  margin: calc(var(--doc-page-pad-y) * -1) calc(var(--doc-page-pad-x) * -1) 0;
+  padding: var(--space-sm) var(--doc-page-pad-x);
+  border-bottom: 0;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  letter-spacing: 0.08em;
+}
+
+.ds-head {
+  padding-bottom: var(--space-gap);
+  border-bottom: 3px solid var(--color-text);
+}
+
+.ds-head h1 {
+  letter-spacing: 0.02em;
+}
+
+.ds-summary {
+  border: 0;
+  border-left: var(--space-xs) solid var(--color-primary);
+  background: var(--color-surface);
+}
+
+/* 章の番号(01, 02 …)と左の縦線 */
+.ds-main {
+  counter-reset: report-section;
+}
+
+.ds-main > section > h2 {
+  counter-increment: report-section;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding: var(--space-xs) 0 var(--space-xs) var(--space-sm);
+  border-left: var(--space-xs) solid var(--color-primary);
+  background: var(--color-surface);
+}
+
+.ds-main > section > h2::before {
+  content: counter(report-section, decimal-leading-zero);
+  color: var(--color-primary-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 目次は左の列に、縦線で区切った索引にする。
+   画面に貼り付けない(60。貼り付けると同じ列の下にある用語の上まで動いて重なる) */
+.ds-toc {
+  padding: 0 var(--space-md) 0 0;
+  border-right: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.ds-toc ol {
+  padding-left: 0;
+  list-style: none;
+  counter-reset: report-toc;
+}
+
+.ds-toc li {
+  counter-increment: report-toc;
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-toc li::before {
+  content: counter(report-toc, decimal-leading-zero) " ";
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-table th {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ds-foot {
+  border-top: 3px solid var(--color-text);
+}

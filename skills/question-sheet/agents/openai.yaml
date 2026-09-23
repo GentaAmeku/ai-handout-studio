@@ -1,0 +1,4 @@
+interface:
+  display_name: "質問票"
+  short_description: "一覧と図解で質問にまとめて答える"
+  default_prompt: "$question-sheet で質問を一覧と詳細の回答画面にしてください。"

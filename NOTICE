@@ -1,0 +1,47 @@
+This project is licensed under the MIT License (see LICENSE). It also includes
+the following third-party material.
+
+## Civic template (design/templates/slide/civic, document/civic, sheet/civic)
+
+The "Civic" template's design values (color steps, type scale, border widths,
+corner radius, spacing) are copied and adapted from the CSS of the Digital
+Agency of Japan's Design System example components:
+https://github.com/digital-go-jp/design-system-example-components-html
+
+This project is not produced or endorsed by the Digital Agency of Japan. The
+values were adapted to fit this project's slide/document/question-sheet
+layouts (choice of type scale, the slide's 12-column grid and page types,
+and colors adjusted to meet this project's contrast checks).
+
+The example-components-html repository is provided under the MIT License:
+
+```
+MIT License
+
+Copyright (c) 2025 デジタル庁
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Fonts
+
+This project bundles the following fonts via their npm Fontsource packages
+(`@fontsource-variable/noto-sans-jp`, `@fontsource-variable/noto-sans-mono`,
+`@fontsource/zen-maru-gothic`). Each is distributed under the SIL Open Font
+License, Version 1.1.

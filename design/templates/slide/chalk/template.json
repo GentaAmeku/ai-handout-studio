@@ -1,0 +1,60 @@
+{
+  "label": "Chalk",
+  "description": "薄灰の地に細い外枠と黒い点線の区切り。カードはオレンジ・ピンク・紫を順にまわす。表紙と章扉は中央寄せで余白を大きく取る。勉強会と研修向け。同梱の絵は PPTX には撮った画像で入る",
+  "tokens": {
+    "color": {
+      "bg": "#ececec",
+      "text": "#000000",
+      "muted": "#333333",
+      "primary": "#d9530a",
+      "accent2": "#dc1f80",
+      "accent3": "#8a00f5",
+      "surface": "#f3f3f3",
+      "tint": "#ffe3d1",
+      "border": "#c4c4c4",
+      "lavender": "#f5e4ef",
+      "success": "#166534",
+      "warning": "#92400e",
+      "primaryStrong": "#b84408",
+      "link": "#b84408",
+      "linkVisited": "#b84408",
+      "linkHover": "#b84408",
+      "linkActive": "#b84408"
+    },
+    "size": {
+      "kicker": 15,
+      "h1": 48,
+      "h2": 36,
+      "body": 19,
+      "cover": 64,
+      "cardTitle": 22,
+      "kpi": 72,
+      "small": 14
+    },
+    "radius": {
+      "base": 12,
+      "sm": 6,
+      "card": 14
+    },
+    "shadow": {
+      "card": "none"
+    },
+    "space": {
+      "slide": 72
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "rounded"
+    }
+  }
+}

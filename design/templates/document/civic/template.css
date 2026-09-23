@@ -1,0 +1,98 @@
+/* Civic。値は部品集の CSS(design-system-example-components-html、MIT)を写した。
+   出典と MIT の表示はリポジトリの NOTICE に置く */
+
+/* ---------- 見出し ---------- */
+/* h1(ds-head)は tokens の pageTitle/heading で足りる。h2・h3 の行の高さは lineHeight.subheading、
+   h3 の大きさは size.h3。字間は段ごとの値を持たないのでここで指定する */
+
+h2 {
+  line-height: var(--lh-subheading);
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-subheading);
+  letter-spacing: 0.02em;
+}
+
+.ds-main > section > h2 {
+  padding-left: 0.5em;
+  border-left: 0.33em solid var(--color-primary);
+}
+
+/* ---------- リンク ---------- */
+/* 本文のリンクはこの段では見送り(§8 の3)。目次と html ブロックだけに当たる */
+
+a:hover {
+  text-decoration-thickness: 3px;
+}
+
+a:focus-visible {
+  outline: 4px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-focus-ring);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
+}
+
+/* ---------- 目次 ---------- */
+
+.ds-toc {
+  border: 1px solid var(--color-border);
+  padding: var(--space-sm) var(--space-gap) var(--space-gap) var(--space-md);
+}
+
+.ds-toc .ds-label {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  color: var(--color-text);
+}
+
+.ds-toc a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+/* ---------- 表 ---------- */
+
+.ds-table {
+  --table-border-width: 0px;
+  --table-radius: 0px;
+  --table-head-bg: var(--color-chip);
+  --table-head-rule-width: 1px;
+  --table-head-rule-color: var(--color-rule);
+  --table-cell-pad-y: 20px;
+  --table-cell-pad-x: 16px;
+}
+
+/* ---------- 注記 ---------- */
+
+/* 通知バナーは種類に関係なく地は白(部品集の通知バナーは常に白地。
+   帯だけ色を変える「色つきの帯」の型は tokens の *Tint を bg と同じ白にして表す)。
+   注意(warning)の帯だけ色が違う件は、共通の document.css の .ds-notice-warning が
+   color.warningAccent から引く(93。枠は color.warning のまま) */
+.ds-note,
+.ds-alert,
+.ds-notice {
+  --notice-border-width: 2px;
+  --notice-bar-width: 8px;
+  --notice-radius: var(--radius);
+}
+
+/* ---------- 引用 ---------- */
+
+.ds-quote {
+  border-left: 8px solid var(--color-quote);
+  padding: 8px 16px 8px 24px;
+}
+
+/* ---------- コード ---------- */
+
+pre.ds-code {
+  border: 0;
+  border-radius: 0;
+}
+
+pre.ds-code code {
+  line-height: 1.5;
+}

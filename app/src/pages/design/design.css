@@ -1,0 +1,364 @@
+/* デザインページ。右の調整パネルは編集画面のサイドパネル(editor.css の side-panel・prop-*)をそのまま使う */
+
+.design {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100vh;
+}
+
+.design__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  min-height: 56px;
+  padding: var(--space-xs) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.design__title {
+  margin: 0 var(--space-sm) 0 0;
+  font-size: var(--fs-card-title);
+  line-height: var(--lh-heading);
+}
+
+.design__back {
+  gap: 4px;
+}
+
+.design__default {
+  margin-left: auto;
+}
+
+.design__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--edit-side-width);
+  min-height: 0;
+}
+
+.design__main {
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-surface);
+}
+
+.design__side .form-error {
+  white-space: pre-wrap;
+}
+
+/* 文字の大きさ。今の値と「100% に戻す」、スライダー、目盛り */
+
+.text-scale__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.text-scale__value {
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-scale__reset {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-primary-strong);
+  font: inherit;
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+
+.text-scale__reset:disabled {
+  color: var(--color-muted);
+  cursor: default;
+}
+
+.text-scale__reset:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.text-scale__range {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--color-primary);
+}
+
+.text-scale__ticks {
+  position: relative;
+  height: 1.5em;
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+/* 両端の目盛りが欄からはみ出さないよう、位置と同じ割合だけ左へ寄せる */
+.text-scale__tick {
+  position: absolute;
+  left: var(--tick);
+  transform: translateX(calc(var(--tick) * -1));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 面のページ */
+
+.design-surface {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.design-surface--slide {
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+}
+
+.design-surface__stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--space-sm);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--space-md);
+}
+
+.design-surface__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--fs-small);
+}
+
+.design-surface__meta {
+  color: var(--color-muted);
+}
+
+/* 見本の舞台。倍率が画面より大きいときは舞台の中でスクロールする */
+
+.design-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.design-stage--slide {
+  display: grid;
+  place-items: center;
+}
+
+.design-stage--slide:not(.design-stage--fit) {
+  place-items: start;
+}
+
+.design-stage__box {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+}
+
+.design-stage__box--slide {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-canvas);
+}
+
+.design-stage__scaler,
+.design-stage__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.design-stage__frame {
+  border: 0;
+  background: var(--color-bg);
+}
+
+.design-stage--frame .design-stage__box {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.design-stage--empty {
+  display: grid;
+  place-items: center;
+  min-height: 96px;
+  padding: var(--space-md);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  text-align: center;
+}
+
+/* 調整パネルの欄 */
+
+.design-subtitle {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+
+/* 値の欄。区分ごとに罫線で1行ずつ区切り、名前・変数名と入力・使う場所を段に分ける */
+
+.design__side .prop-section {
+  gap: var(--space-md);
+}
+
+.design__side .prop-list {
+  display: grid;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+}
+
+.design-checks {
+  display: grid;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.design-checks__row {
+  display: grid;
+  gap: 4px;
+}
+
+.design-checks__ok {
+  margin: 0;
+  font-size: var(--fs-small);
+}
+
+.design-checks__list {
+  margin: 0;
+  padding-left: var(--space-md);
+  color: var(--color-danger);
+  font-size: var(--fs-small);
+}
+
+/* ---------- レイアウトの選択(質問票は文字の切り替え、文書は縮図のカード) ---------- */
+
+.skeleton-group {
+  display: grid;
+  gap: var(--space-xs);
+  margin: 0 0 var(--space-md);
+  padding: 0;
+  border: 0;
+}
+
+.skeleton-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+  gap: var(--space-sm);
+}
+
+.skeleton-card {
+  display: grid;
+  gap: 4px;
+  padding: var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.skeleton-card:hover {
+  border-color: var(--color-primary);
+}
+
+.skeleton-card:has(input:checked) {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+  background: var(--color-tint);
+}
+
+.skeleton-card:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.skeleton-card__figure {
+  display: block;
+  aspect-ratio: 16 / 10;
+}
+
+.skeleton-card__label {
+  font-size: var(--fs-small);
+  line-height: var(--lh-heading);
+}
+
+/* 質問票の骨格と一覧の位置。つないだ2つの切り替え */
+.skeleton-segments {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-segment {
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-bg);
+  text-align: center;
+  cursor: pointer;
+}
+
+.skeleton-segment + .skeleton-segment {
+  border-left: 1px solid var(--color-border);
+}
+
+.skeleton-segment:hover {
+  color: var(--color-primary);
+}
+
+.skeleton-segment:has(input:checked) {
+  background: var(--color-tint);
+  color: var(--color-primary-strong);
+  font-weight: 600;
+}
+
+.skeleton-segment:has(input:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.skeleton-doc {
+  display: grid;
+  gap: 3px;
+  height: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.skeleton-doc__area {
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: var(--color-lavender);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.skeleton-doc__area--main {
+  background: var(--color-tint);
+}
+
+/* ---------- テンプレートの一覧 ---------- */
+
+/* 見本の1枚目だけを写真のカードにして並べる。1440px の画面で4列ほど */
+/* 写真のカード(components/PhotoCard.tsx)本体の見た目は app.css の .photo-card* が持つ。
+   ここはテンプレートの一覧だけの見た目(既定の ★ を常に出す)だけを足す */
+
+/* 既定の ★ は塗りで、いつも右上の角に出す */
+.template-card__action--default[aria-pressed="true"] {
+  color: var(--color-primary);
+  cursor: default;
+  opacity: 1;
+}

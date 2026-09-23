@@ -1,0 +1,111 @@
+{
+  "label": "Civic",
+  "description": "申請フォームの形。白地に濃い青の選択肢、高さのそろった記入欄、見出しの横の「※必須」、黄と黒のフォーカス、番号の丸でたどる質問の一覧",
+  "tokens": {
+    "color": {
+      "bg": "#ffffff",
+      "text": "#333333",
+      "heading": "#1a1a1a",
+      "muted": "#666666",
+      "primary": "#0017c1",
+      "primaryStrong": "#00118f",
+      "onPrimary": "#ffffff",
+      "accent2": "#0066be",
+      "accent3": "#006f83",
+      "surface": "#f2f2f2",
+      "chip": "#e6e6e6",
+      "tint": "#e8f1fe",
+      "lavender": "#d9e6ff",
+      "border": "#949494",
+      "danger": "#ec0000",
+      "dangerTint": "#ffffff",
+      "success": "#197a4b",
+      "successTint": "#ffffff",
+      "warning": "#927200",
+      "warningTint": "#ffffff",
+      "link": "#00118f",
+      "linkVisited": "#8b008b",
+      "linkHover": "#0017c1",
+      "linkActive": "#c74700",
+      "focus": "#000000",
+      "focusRing": "#ffd43d",
+      "rule": "#000000",
+      "quote": "#767676",
+      "primaryHoverTint": "#c5d7fb",
+      "primaryPressed": "#000060",
+      "warningAccent": "#ffc700"
+    },
+    "font": {
+      "mono": ["Noto Sans Mono Variable", "Noto Sans Mono", "monospace"]
+    },
+    "size": {
+      "kicker": 16,
+      "h1": 32,
+      "h2": 24,
+      "body": 16,
+      "cardTitle": 18,
+      "small": 14,
+      "pageTitle": 32,
+      "ui": 16,
+      "label": 17
+    },
+    "lineHeight": {
+      "body": 1.7,
+      "heading": 1.5,
+      "display": 1.4,
+      "dense": 1.3
+    },
+    "letterSpacing": {
+      "body": "0.02em",
+      "heading": "0.01em",
+      "display": "0"
+    },
+    "fontWeight": {
+      "body": 400,
+      "heading": 700
+    },
+    "space": {
+      "xs": 8,
+      "sm": 12,
+      "md": 16,
+      "gap": 24,
+      "card": 24
+    },
+    "radius": {
+      "base": 12,
+      "sm": 8,
+      "card": 16
+    },
+    "shadow": {
+      "card": "none",
+      "canvas": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  },
+  "checks": {
+    "strictContrast": true,
+    "minFontSize": 14
+  },
+  "layout": {
+    "base": "focus",
+    "width": 1280,
+    "list": {
+      "width": 280,
+      "side": "right"
+    },
+    "content": null
+  }
+}

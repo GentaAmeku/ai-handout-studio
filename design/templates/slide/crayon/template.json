@@ -1,0 +1,61 @@
+{
+  "label": "Crayon",
+  "description": "薄灰の地に黄・青・ピンク。見出しは丸ゴシック、カードは黒い枠で3色をまわす。絵を置く余白を広く取り、ページを手描きの枠で囲む(枠は PPTX には撮った画像で入る)。学びと研修向け。同梱の絵は PPTX には撮った画像で入る",
+  "tokens": {
+    "color": {
+      "bg": "#eaeaea",
+      "text": "#111111",
+      "muted": "#3f3f3f",
+      "primary": "#1f5aa8",
+      "accent2": "#a87b00",
+      "accent3": "#c4239f",
+      "surface": "#f7f7f7",
+      "tint": "#f5c84c",
+      "border": "#cfcfcf",
+      "lavender": "#8cb7f0",
+      "chip": "#ec74c0",
+      "success": "#166534",
+      "warning": "#92400e",
+      "primaryStrong": "#174a8c",
+      "link": "#174a8c",
+      "linkVisited": "#174a8c",
+      "linkHover": "#174a8c",
+      "linkActive": "#174a8c"
+    },
+    "size": {
+      "kicker": 15,
+      "h1": 50,
+      "h2": 38,
+      "body": 19,
+      "cover": 66,
+      "cardTitle": 23,
+      "kpi": 80,
+      "small": 14
+    },
+    "font": {
+      "display": ["Zen Maru Gothic"]
+    },
+    "radius": {
+      "base": 20,
+      "sm": 10,
+      "card": 24
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "rounded"
+    }
+  }
+}

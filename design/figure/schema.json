@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-handout-studio/design/figure/schema.json",
+  "title": "ai-handout-studio — 流れの図",
+  "description": "縦の連鎖・枝分かれ・合流だけを持つ図。座標も色も書かない。戻る線は、木の形なので構造として書けない。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["figure", "caption", "flow"],
+  "properties": {
+    "figure": {
+      "description": "入力の版。今は 1 だけ。",
+      "const": 1
+    },
+    "caption": {
+      "description": "figcaption に出す文。図が何の関係を示しているかを言葉で書く。省けない。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "flow": {
+      "description": "上から下への連鎖。要素が fork を持つと、そこで横に分かれ、次の要素へ合流する。",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 9,
+      "items": { "$ref": "#/$defs/node" }
+    }
+  },
+  "$defs": {
+    "kind": {
+      "description": "種別。形で出す。step=段（角丸長方形） / branch=分かれ目（六角形） / outside=外（破線の枠） / store=保管（円筒）。既定は step。",
+      "enum": ["step", "branch", "outside", "store"]
+    },
+    "label": {
+      "description": "箱に入れる文。上限は字幅で決まる（step / outside / store は 10 字幅、branch は 8 字幅）。",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "leaf": {
+      "description": "枝分かれの先。ここからさらに分かれることはできない。",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label"],
+      "properties": {
+        "label": { "$ref": "#/$defs/label" },
+        "kind": { "$ref": "#/$defs/kind" }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label"],
+      "properties": {
+        "label": { "$ref": "#/$defs/label" },
+        "kind": { "$ref": "#/$defs/kind" },
+        "fork": {
+          "description": "横に並べる枝。2つか3つ。次の要素があれば、そこへ合流する。",
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/leaf" }
+        }
+      }
+    }
+  }
+}

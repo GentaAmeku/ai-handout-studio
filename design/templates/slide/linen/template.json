@@ -1,0 +1,50 @@
+{
+  "label": "Linen",
+  "description": "生成りの地に細い罫線。見出しを細くし、表紙は右に淡い面を置く。落ち着いた発表向け。同梱の絵は PPTX には撮った画像で入る",
+  "tokens": {
+    "color": {
+      "bg": "#fbfaf7",
+      "text": "#292524",
+      "muted": "#6b645c",
+      "primary": "#8a5a2b",
+      "primaryStrong": "#6f4722",
+      "surface": "#f3efe8",
+      "tint": "#e8dfd1",
+      "border": "#e4ddd2",
+      "lavender": "#f3efe8",
+      "chip": "#efe9df"
+    },
+    "size": {
+      "kicker": 14,
+      "h1": 44,
+      "h2": 34,
+      "body": 18,
+      "cover": 60,
+      "cardTitle": 21,
+      "kpi": 72,
+      "small": 13
+    },
+    "radius": {
+      "base": 4,
+      "sm": 2,
+      "card": 4
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "minimal"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "bar"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  }
+}

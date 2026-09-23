@@ -1,0 +1,175 @@
+/* 研修。薄灰の地に細い外枠と黒い点線。影は使わず、カードだけ3色をまわす */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+.ds-heading__text {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+/* ページの内側に細い外枠 */
+.ds-decoration__shape--1 {
+  display: block;
+  inset: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+/* 1px の枠と角丸の面。カード・数値・手順の箱は、1つ目から順にオレンジ・ピンク・紫 */
+.ds-card,
+.ds-kpi,
+.ds-two-col__column,
+.ds-process__step {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+
+.ds-card {
+  --card-bg: var(--color-surface);
+  --card-border-width: 1px;
+  --card-radius: var(--radius-card);
+  --card-shadow: none;
+  --card-border-color: var(--color-primary);
+}
+
+.ds-card:nth-child(3n + 2),
+.ds-kpi:nth-child(3n + 2),
+.ds-process__step:nth-child(3n + 2) {
+  --card-border-color: var(--color-accent2);
+  --step-color: var(--color-accent2);
+}
+
+.ds-card:nth-child(3n + 3),
+.ds-kpi:nth-child(3n + 3),
+.ds-process__step:nth-child(3n + 3) {
+  --card-border-color: var(--color-accent3);
+  --step-color: var(--color-accent3);
+}
+
+/* 数字を太くする。色は下の nth-child でまわす */
+.ds-kpi__value {
+  font-weight: 800;
+}
+
+.ds-card:nth-child(3n + 1),
+.ds-kpi:nth-child(3n + 1),
+.ds-process__step:nth-child(3n + 1) {
+  --step-color: var(--color-primary);
+}
+
+.ds-card:nth-child(3n + 2) .ds-icon,
+.ds-kpi:nth-child(3n + 2) .ds-kpi__value {
+  color: var(--color-accent2);
+}
+
+.ds-card:nth-child(3n + 3) .ds-icon,
+.ds-kpi:nth-child(3n + 3) .ds-kpi__value {
+  color: var(--color-accent3);
+}
+
+.ds-kpi:nth-child(3n + 1) .ds-kpi__value {
+  color: var(--color-primary);
+}
+
+.ds-kpi {
+  border-top: var(--space-xs) solid var(--step-color);
+}
+
+.ds-process__number,
+.ds-bullets--number .ds-bullets__item::before {
+  background: var(--step-color, var(--color-primary));
+  color: var(--color-on-primary);
+}
+
+.ds-heading__kicker {
+  color: var(--color-primary);
+}
+
+/* 本文のページは、フッターの上に黒い点線を1本引く */
+&.ds-slide--content .ds-decoration__shape--2 {
+  display: block;
+  top: calc(100% - var(--space-slide) + var(--space-sm));
+  left: var(--space-slide);
+  right: var(--space-slide);
+  border-top: 2px dotted var(--color-text);
+}
+
+/* 表紙と締めは中央寄せ。上に3色の小さな札を並べ、余白を大きく取る */
+&:is(.ds-slide--cover, .ds-slide--closing, .ds-slide--section) {
+  .ds-heading {
+    align-items: center;
+    text-align: center;
+  }
+
+  .ds-text {
+    /* biome-ignore lint/complexity/noImportantStyles: 本文ブロックの寄せは style 属性で入っている */
+    text-align: center !important;
+  }
+
+  .ds-footer {
+    justify-content: center;
+  }
+}
+
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  /* 絵(x448〜832・y400〜616)の下に、点線の枠の面を敷く */
+  .ds-decoration__shape--6 {
+    display: block;
+    top: 384px;
+    left: 416px;
+    width: 448px;
+    height: 248px;
+    border: 2px dotted var(--color-text);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .ds-decoration__shape--3,
+  .ds-decoration__shape--4,
+  .ds-decoration__shape--5 {
+    display: block;
+    top: calc(var(--space-slide) * 2);
+    width: calc(var(--space-slide) * 0.75);
+    height: var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .ds-decoration__shape--3 {
+    left: calc(50% - var(--space-slide) * 1.25);
+    background: var(--color-primary);
+  }
+
+  .ds-decoration__shape--4 {
+    left: calc(50% - var(--space-slide) * 0.375);
+    background: var(--color-accent2);
+  }
+
+  .ds-decoration__shape--5 {
+    left: calc(50% + var(--space-slide) * 0.5);
+    background: var(--color-accent3);
+  }
+}
+
+/* 章扉は左右に黒い点線 */
+&.ds-slide--section {
+  .ds-decoration__shape--2,
+  .ds-decoration__shape--3 {
+    display: block;
+    top: 50%;
+    width: 18%;
+    border-top: 2px dotted var(--color-text);
+  }
+
+  .ds-decoration__shape--2 {
+    left: var(--space-slide);
+  }
+
+  .ds-decoration__shape--3 {
+    right: var(--space-slide);
+  }
+}

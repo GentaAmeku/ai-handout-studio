@@ -1,0 +1,42 @@
+{
+  "label": "報告書",
+  "description": "角のない用紙に濃紺の署名帯。目次を左に置き、章に番号と太い縦線を付ける。設計書・調査報告向け",
+  "tokens": {
+    "color": {
+      "bg": "#ffffff",
+      "text": "#0f172a",
+      "muted": "#475569",
+      "primary": "#1e3a8a",
+      "primaryStrong": "#1e3a8a",
+      "surface": "#eef1f6",
+      "tint": "#dde4f3",
+      "border": "#cbd3e1"
+    },
+    "radius": {
+      "base": 2,
+      "sm": 2,
+      "card": 0
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "striped",
+      "params": {
+        "density": "compact"
+      }
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "bar"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  },
+  "layout": {
+    "columns": [220, 660],
+    "areas": [["toc", "main"], ["aside", "main"]]
+  }
+}

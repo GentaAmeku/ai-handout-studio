@@ -1,0 +1,27 @@
+{
+  "label": "AI Handout Studio Design",
+  "tokens": {
+    "color": {
+      "bg": "#ffffff",
+      "text": "#1e293b",
+      "muted": "#64748b",
+      "primary": "#3b82f6",
+      "surface": "#f8fafc",
+      "tint": "#dbeafe"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "rounded"
+    }
+  }
+}

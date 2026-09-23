@@ -1,0 +1,9 @@
+{
+  "figure": 1,
+  "caption": "検査が落とす例。check.sh がこの入力で deliver.mjs の終了コードを確かめる。",
+  "flow": [
+    { "label": "tokens.css と document.css を読む" },
+    { "label": "分かれ目", "kind": "branch" },
+    { "label": "残す", "kind": "storage" }
+  ]
+}

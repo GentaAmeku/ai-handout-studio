@@ -1,0 +1,73 @@
+/* 書類。二重線の題名と罫線の記入欄を組む。画面全体を用紙で囲むのはやめた */
+
+.ds-board-heading {
+  padding-bottom: var(--space-md);
+  border-bottom: 3px double var(--color-text);
+}
+
+.ds-board-heading > .ds-signature {
+  padding-bottom: var(--space-md);
+}
+
+.ds-board h1 {
+  letter-spacing: 0.12em;
+}
+
+/* 問いは枠をやめ、罫線で区切る */
+.ds-question-card {
+  padding: 0;
+  border: 0;
+}
+
+.ds-question-count {
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--color-text);
+  color: var(--color-text);
+}
+
+.ds-question-summary {
+  border-left: 3px solid var(--color-text);
+  background: var(--color-surface);
+}
+
+/* 回答は記入欄。見出しは網掛けの帯、選択肢は下線の行 */
+.ds-answer-section {
+  padding: 0;
+  border: 1px solid var(--color-text);
+}
+
+.ds-answer-section h3 {
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border-bottom: 1px solid var(--color-text);
+  background: var(--color-surface);
+  font-size: var(--fs-body);
+}
+
+.ds-answer-section > :not(h3) {
+  margin-inline: var(--space-md);
+}
+
+.ds-answer-section > :last-child {
+  margin-bottom: var(--space-md);
+}
+
+.ds-answer-section .ds-choice {
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-answer-section .ds-choice:has(input:checked) {
+  border-bottom-color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.ds-answer-section .ds-input {
+  border: 0;
+  border-bottom: 1px solid var(--color-text);
+  background: transparent;
+}
+
+.ds-page-navigation {
+  border-top-color: var(--color-text);
+}

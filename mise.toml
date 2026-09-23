@@ -1,0 +1,4 @@
+# Node と pnpm の版はここだけが持つ。package.json の packageManager に書き写さない。
+[tools]
+node = "24.15.0"
+pnpm = "11.9.0"

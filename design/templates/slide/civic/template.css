@@ -1,0 +1,273 @@
+/* 公共の案内。白地に濃い青、灰の細い枠と罫。影と飾りは使わない。
+   値は template.json の tokens から引き、部品の見た目(縦棒・罫・番号の丸)だけをここで写す */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+/* 見出し。肩は太字の本文色、題の左に字の 1/3 幅の縦棒(疑似要素は PPTX に出ないので辺の枠で描く) */
+.ds-heading {
+  gap: 0;
+}
+
+.ds-heading__kicker {
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+}
+
+.ds-heading[data-level="1"] {
+  padding-left: calc(var(--fs-h1) / 3 + var(--fs-h1) / 2);
+  border-left: calc(var(--fs-h1) / 3) solid var(--color-primary);
+}
+
+.ds-heading[data-level="1"] .ds-heading__text {
+  letter-spacing: var(--ls-display);
+}
+
+.ds-heading[data-level="2"] {
+  padding-left: calc(var(--fs-h2) / 3 + var(--fs-h2) / 2);
+  border-left: calc(var(--fs-h2) / 3) solid var(--color-primary);
+}
+
+/* 箇条書き。黒丸は本文色の丸、番号は「1.」を 32px のぶら下げで */
+.ds-bullets {
+  gap: var(--space-xs);
+}
+
+.ds-bullets__item {
+  padding-left: calc(var(--space-card) + var(--space-xs));
+}
+
+.ds-bullets--disc .ds-bullets__item::before {
+  left: calc(var(--space-xs) + var(--space-xs) / 2);
+  width: 8px;
+  height: 8px;
+  background: var(--color-text);
+}
+
+.ds-bullets--number .ds-bullets__item::before {
+  content: counter(ds-bullets) ".";
+  display: block;
+  top: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
+  translate: none;
+}
+
+/* カード。白地に 1px の灰の枠、角丸 16、内側は上下 16・左右 24。影は付けない */
+.ds-card {
+  --card-bg: var(--color-bg);
+  --card-border-width: 1px;
+  --card-border-color: var(--color-border);
+  --card-radius: var(--radius-card);
+  --card-shadow: none;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-card);
+}
+
+.ds-card__title {
+  line-height: 1.5;
+  letter-spacing: var(--ls-heading);
+  color: var(--color-heading);
+}
+
+/* 数値。カードと同じ枠に、表示用の大きな字 */
+.ds-kpi {
+  gap: 0;
+  padding: var(--space-md) var(--space-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+}
+
+.ds-kpi__value {
+  line-height: var(--lh-display);
+  letter-spacing: var(--ls-display);
+}
+
+.ds-kpi__label {
+  color: var(--color-heading);
+}
+
+.ds-kpi__note {
+  line-height: 1.6;
+}
+
+/* 見出しと本文の組。地を塗らず、列の間に 1px の縦罫 */
+.ds-two-col {
+  gap: 0;
+}
+
+.ds-two-col__column {
+  padding: 0 var(--space-card);
+  border-radius: 0;
+  background: transparent;
+}
+
+.ds-two-col__column:first-child {
+  padding-left: 0;
+}
+
+.ds-two-col__column + .ds-two-col__column {
+  border-left: 1px solid var(--color-border);
+}
+
+.ds-two-col__title {
+  padding-bottom: 0;
+  border-bottom: 0;
+  line-height: 1.5;
+  letter-spacing: var(--ls-heading);
+  color: var(--color-heading);
+}
+
+/* 手順。番号の丸(44px・枠 2px・番号 20 の太字)を中央に置き、丸の中心を次の段の中心まで 1px の線でつなぐ */
+.ds-process {
+  gap: 0;
+}
+
+.ds-process__step {
+  align-items: center;
+  gap: 0;
+  padding: 0 var(--space-md);
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+}
+
+.ds-process__link {
+  position: absolute;
+  top: calc(22px + var(--space-xs) / 2);
+  right: auto;
+  left: 50%;
+  width: 100%;
+  height: 0;
+  border: 0;
+  border-top: 1px solid var(--color-text);
+  transform: none;
+}
+
+.ds-process__number {
+  position: relative;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  margin: calc(var(--space-xs) / 2);
+  padding-bottom: 2px;
+  border: 2px solid var(--color-text);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-kicker);
+  line-height: 1.5;
+}
+
+.ds-process__title {
+  margin-top: var(--space-md);
+  line-height: 1.5;
+  letter-spacing: var(--ls-heading);
+  color: var(--color-heading);
+}
+
+.ds-process__body {
+  margin-top: var(--space-xs);
+}
+
+/* 表。見出しは灰の地と太字、見出しの下に黒の 1px、行の罫は 1px の灰、偶数行に縞。外枠と角丸は付けない */
+.ds-table {
+  --table-border-width: 0px;
+  --table-radius: 0px;
+  --table-head-bg: var(--color-chip);
+  --table-stripe-bg: var(--color-surface);
+  --table-head-rule-color: var(--color-rule);
+  --table-cell-pad-y: var(--space-sm);
+  --table-cell-pad-x: var(--space-md);
+}
+
+.ds-table th {
+  color: var(--color-heading);
+}
+
+.ds-table tbody tr:last-child td {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 画像。1px の灰の枠で囲み、角は付けない。キャプションは下に 8px 空けて */
+.ds-image__frame {
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+.ds-footer {
+  line-height: 1.6;
+}
+
+/* 章扉。全面を濃い青に塗り、字は白。章番号を肩に大きく置く */
+&.ds-slide--section {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  .ds-heading {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .ds-heading__kicker {
+    font-size: var(--fs-card-title);
+    color: var(--color-on-primary);
+  }
+
+  .ds-heading .ds-heading__text {
+    color: var(--color-on-primary);
+  }
+
+  .ds-footer,
+  .ds-text {
+    color: var(--color-on-primary);
+  }
+}
+
+/* 表紙と締め。上端に 8px の帯、組織名は左下 */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  .ds-decoration__shape--1 {
+    display: block;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--space-xs);
+    background: var(--color-primary);
+  }
+
+  .ds-org {
+    top: auto;
+    bottom: calc(var(--space-slide) + var(--space-xs));
+    left: var(--space-slide);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .ds-heading[data-level="1"] .ds-heading__text {
+    font-size: var(--fs-cover);
+  }
+}
+
+/* 表紙の題は縦棒の代わりに下に 4px の線 */
+&.ds-slide--cover .ds-heading[data-level="1"] {
+  padding-left: 0;
+  padding-bottom: var(--space-md);
+  border-left: 0;
+  border-bottom: 4px solid var(--color-primary);
+}
+
+&.ds-slide--closing .ds-heading[data-level="1"] {
+  padding-left: calc(var(--fs-cover) / 3 + var(--fs-cover) / 2);
+  border-left-width: calc(var(--fs-cover) / 3);
+}

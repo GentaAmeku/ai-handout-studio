@@ -1,0 +1,22 @@
+/* 書き出し用ページ。1スライド = 1ページ(1280x720) */
+
+@page {
+  size: 1280px 720px;
+  margin: 0;
+}
+
+.print-root {
+  width: 1280px;
+  background: var(--color-bg);
+}
+
+.print-page {
+  width: 1280px;
+  height: 720px;
+  overflow: hidden;
+  break-after: page;
+}
+
+.print-page:last-child {
+  break-after: auto;
+}

@@ -1,0 +1,25 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.DS_Store
+
+# 手元だけの作業の決まり。CLAUDE.md からは読まず、CLAUDE.local.md から読む
+CLAUDE.local.md
+.dev
+
+# 手元の設定。mise の絶対パスなど、環境ごとに違う値を持つので git に入れない。
+# .claude/commands/(clone したあとの /studio-setup)は git に入れる
+.claude/launch.json
+.claude/settings.local.json
+.claude/worktrees/
+
+# 資料データはアプリコードと分ける。
+# 質問票の回答には会話の内容が入るので、これも git に入れない
+workspace/decks/
+workspace/sheets/
+workspace/documents/
+# お気に入り。資料の id の並びで、資料と同じく git に入れない
+workspace/favorites.json
+# 利用者ごとの設定(組織名・言語・任意の機能)。無ければ既定値で読む
+workspace/profile.json
+

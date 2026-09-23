@@ -1,0 +1,109 @@
+/* 質問票と HTML 資料の1件。資料一覧のカードは app.css の .photo-card* */
+
+/* 1件の画面 */
+
+.page-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  text-decoration: none;
+}
+
+.page-back:hover {
+  color: var(--color-primary-strong);
+}
+
+/* 質問票の1件のページ。上の帯1本(.viewer__bar)と情報の1行の下を、全部見本にする */
+.handout-detail {
+  display: grid;
+  /* 列は画面の幅まで。中身(帯・見本)に押し広げられて横に流れないようにする */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100vh;
+}
+
+/* 上の帯のテンプレート・表示の倍率の欄。HTML 資料の編集画面の帯と同じ形 */
+.handout-bar__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
+/* 題名に場所を残すため、選択欄は長い表示名でも広がりすぎないようにする */
+.handout-bar__field .input {
+  width: auto;
+  max-width: 180px;
+}
+
+.handout-toolbar__field {
+  display: grid;
+  gap: 4px;
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+/* 105。上の帯の下の細い1行。カードから外した ID・レイアウト・問数・回答・作成日時・更新日時 */
+.handout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--space-gap);
+  margin: 0;
+  padding: var(--space-xs) calc(var(--space-md) + 4px);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+.handout-meta__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.handout-meta__item strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.handout-meta code {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: inherit;
+}
+
+/* 見本。書き出すものと同じ1枚の HTML を、帯の下いっぱいに出す */
+.handout-detail__stage {
+  min-height: 0;
+  padding: var(--space-sm) var(--space-md) var(--space-md);
+  background: var(--color-surface);
+}
+
+.handout-preview {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+}
+
+.handout-preview .design-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 枠と角は外の .handout-preview が持つ */
+.handout-preview .design-stage__box {
+  border: 0;
+  border-radius: 0;
+}

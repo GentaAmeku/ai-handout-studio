@@ -1,0 +1,467 @@
+{
+  "id": "dev_block_catalog",
+  "title": "ブロック一覧（確認用）",
+  "theme": "default",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "status": "draft",
+  "meta": {
+    "createdAt": "2026-09-15T00:00:00Z",
+    "updatedAt": "2026-09-15T00:00:00Z"
+  },
+  "slides": [
+    {
+      "id": "c01",
+      "layout": "cover",
+      "blocks": [
+        {
+          "id": "k01",
+          "type": "heading",
+          "x": 64,
+          "y": 176,
+          "w": 820,
+          "h": 240,
+          "props": {
+            "kicker": "AI Handout Studio",
+            "text": "資料づくりを、\n翌日提出できる速さに",
+            "level": 1
+          }
+        },
+        {
+          "id": "k02",
+          "type": "text",
+          "x": 64,
+          "y": 432,
+          "w": 820,
+          "h": 48,
+          "props": {
+            "text": "描画確認用のデッキ"
+          }
+        },
+        {
+          "id": "k03",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c02",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k04",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 192,
+          "props": {
+            "kicker": "heading / card-grid",
+            "text": "自分の資料を、\n自分の手で速く仕上げる",
+            "level": 1
+          }
+        },
+        {
+          "id": "k05",
+          "type": "card-grid",
+          "x": 64,
+          "y": 256,
+          "w": 1152,
+          "h": 176,
+          "props": {
+            "columns": 2,
+            "items": [
+              {
+                "title": "MISSION",
+                "body": "AIに骨子を任せ、\n仕上げは画面で自分が行う",
+                "icon": "target"
+              },
+              {
+                "title": "VISION",
+                "body": "どの資料も、翌日には\n提出できる状態にする",
+                "icon": "trending-up"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k06",
+          "type": "card-grid",
+          "x": 64,
+          "y": 456,
+          "w": 1152,
+          "h": 176,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "骨子",
+                "body": "AIがJSONで下書きする",
+                "icon": "book-open"
+              },
+              {
+                "title": "仕上げ",
+                "body": "画面で配置と文言を直す",
+                "icon": "settings"
+              },
+              {
+                "title": "書き出し",
+                "body": "PDFとPPTXで渡す",
+                "icon": "circle-check"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k07",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c03",
+      "layout": "section",
+      "blocks": [
+        {
+          "id": "k08",
+          "type": "heading",
+          "x": 64,
+          "y": 264,
+          "w": 1152,
+          "h": 170,
+          "props": {
+            "kicker": "02",
+            "text": "数値と進め方",
+            "level": 1
+          }
+        },
+        {
+          "id": "k09",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c04",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k10",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "kpi-row / process",
+            "text": "数値と手順",
+            "level": 2
+          }
+        },
+        {
+          "id": "k11",
+          "type": "kpi-row",
+          "x": 64,
+          "y": 168,
+          "w": 1152,
+          "h": 432,
+          "props": {
+            "items": [
+              {
+                "value": "30分",
+                "label": "骨子づくり",
+                "note": "テンプレートから"
+              },
+              {
+                "value": "[[要確認]]",
+                "label": "仕上げ",
+                "note": "画面での手直し"
+              },
+              {
+                "value": "4形式",
+                "label": "書き出し",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k13",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c08",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k27",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "process",
+            "text": "手順を並べる",
+            "level": 2
+          }
+        },
+        {
+          "id": "k12",
+          "type": "process",
+          "x": 64,
+          "y": 168,
+          "w": 1152,
+          "h": 400,
+          "props": {
+            "steps": [
+              {
+                "title": "骨子",
+                "body": "目的と読者を伝える"
+              },
+              {
+                "title": "生成",
+                "body": "AIがJSONを作る"
+              },
+              {
+                "title": "仕上げ",
+                "body": "画面で直す"
+              },
+              {
+                "title": "書き出し",
+                "body": "PDFで提出する"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k28",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c05",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k14",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "two-col / table",
+            "text": "左右と表",
+            "level": 2
+          }
+        },
+        {
+          "id": "k15",
+          "type": "two-col",
+          "x": 64,
+          "y": 152,
+          "w": 1152,
+          "h": 216,
+          "props": {
+            "left": {
+              "title": "できること",
+              "body": "テンプレートから作成する\nAIで骨子を作る"
+            },
+            "right": {
+              "title": "しないこと",
+              "body": "共同編集\nクラウド同期"
+            }
+          }
+        },
+        {
+          "id": "k16",
+          "type": "table",
+          "x": 64,
+          "y": 376,
+          "w": 1152,
+          "h": 284,
+          "props": {
+            "headers": ["形式", "方法", "合格条件"],
+            "rows": [
+              ["PDF", "同じHTMLを印刷", "1スライド1ページ"],
+              ["PNG", "各スライドを撮影", "画面と一致"],
+              ["PPTX", "DOMを実測して再構成", "文字が選択・編集できる"]
+            ]
+          }
+        },
+        {
+          "id": "k17",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c06",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k18",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "bullets / text / image / 未知の type",
+            "text": "箇条書き・本文・画像",
+            "level": 2
+          }
+        },
+        {
+          "id": "k19",
+          "type": "bullets",
+          "x": 64,
+          "y": 160,
+          "w": 560,
+          "h": 176,
+          "props": {
+            "marker": "disc",
+            "items": [
+              "1枚1メッセージにする",
+              "余白は左右64px",
+              "箇条書きは3〜5項目"
+            ]
+          }
+        },
+        {
+          "id": "k20",
+          "type": "text",
+          "x": 64,
+          "y": 360,
+          "w": 560,
+          "h": 104,
+          "props": {
+            "text": "本文ブロック。改行は\nそのまま描く。"
+          }
+        },
+        {
+          "id": "k21",
+          "type": "image",
+          "x": 656,
+          "y": 160,
+          "w": 560,
+          "h": 320,
+          "props": {
+            "src": "assets/sample.svg",
+            "fit": "contain",
+            "caption": "assets/ からの相対パスで読む画像"
+          }
+        },
+        {
+          "id": "k22",
+          "type": "timeline",
+          "x": 656,
+          "y": 496,
+          "w": 560,
+          "h": 128,
+          "props": {}
+        },
+        {
+          "id": "k23",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c07",
+      "layout": "closing",
+      "blocks": [
+        {
+          "id": "k24",
+          "type": "heading",
+          "x": 64,
+          "y": 240,
+          "w": 1152,
+          "h": 120,
+          "props": {
+            "kicker": "次の話",
+            "text": "ありがとうございました",
+            "level": 1
+          }
+        },
+        {
+          "id": "k25",
+          "type": "text",
+          "x": 64,
+          "y": 384,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "text": "[[要確認]] までにご連絡します"
+          }
+        },
+        {
+          "id": "k26",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

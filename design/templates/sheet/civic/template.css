@@ -1,0 +1,593 @@
+/* Civic。申請フォームの形。白地に、罫で区切った問いと、形のそろった記入欄を組む。
+   4つのレイアウト(focus・overview・all・print)で同じ部品の見た目を使う。
+   寸法(丸 44・選択肢 26・記入欄 48・ボタン 56 など)は元の部品の値で、ここにだけ置く */
+
+.ds-board {
+  --step-size: 44px;
+  --step-margin: 4px;
+  --step-line-top: 32px;
+  --choice-box: 32px;
+  --radio-size: 26px;
+  --radio-dot: 12px;
+  --checkbox-size: 24px;
+  --check-mark: 14px;
+  --field-height: 48px;
+  --button-height: 48px;
+  --button-height-lg: 56px;
+  --button-min: 96px;
+  --button-min-lg: 136px;
+  --ring-width: 4px;
+  --ring-gap: 2px;
+  --notice-chip: 8px;
+}
+
+/* ---------- 地と見出し ---------- */
+
+body:has(> .ds-board) {
+  background: var(--color-bg);
+}
+
+.ds-board h1 {
+  color: var(--color-heading);
+  letter-spacing: var(--ls-heading);
+}
+
+.ds-board-heading {
+  padding-bottom: var(--space-gap);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-board :is(h2, h3) {
+  color: var(--color-heading);
+}
+
+/* ---------- 問い ---------- */
+/* 枠で囲まず、白地に題と本文を置く */
+
+.ds-question-card {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.ds-question-count {
+  margin-bottom: var(--space-xs);
+  padding: 0;
+  border: 0;
+  color: var(--color-muted);
+  font-size: var(--fs-ui);
+  font-weight: var(--fw-body);
+}
+
+.ds-question-card h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
+}
+
+.ds-question-summary {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  font-weight: var(--fw-heading);
+}
+
+.ds-badge {
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-small);
+}
+
+/* 全問を並べるときは、問いと問いの間に罫を引く */
+.ds-question-list > .ds-question-content + .ds-question-content {
+  padding-top: calc(var(--space-gap) * 2);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---------- 回答の組 ---------- */
+/* 題 → ※必須 / ※任意 → 補足 → 回答欄。回答のまとまりは枠で囲まず、上に 1px の罫を引く */
+
+.ds-answer-section {
+  padding: var(--space-gap) 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+}
+
+.ds-answer-section h3 {
+  margin-bottom: var(--space-xs);
+  font-size: var(--fs-label);
+  line-height: var(--lh-heading);
+}
+
+.ds-subtle {
+  color: var(--color-muted);
+}
+
+.ds-answer-section > .ds-subtle {
+  margin: var(--space-xs) 0 0;
+}
+
+.ds-answer-section h3 .ds-subtle {
+  font-size: var(--fs-body);
+}
+
+.ds-field {
+  display: grid;
+  gap: var(--space-xs);
+  margin: var(--space-gap) 0 0;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-body);
+}
+
+.ds-requirement {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+}
+
+/* ラベルの字と「※必須」を1行に置き、回答欄はその下 */
+.ds-field:has(> .ds-requirement) {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--space-xs);
+}
+
+/* ---------- 選択肢(ラジオ・チェックボックス) ---------- */
+/* 縦に並べ、丸と四角は自前で描く。選ぶと濃い青 */
+
+.ds-answer-section .ds-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: var(--space-xs) 0 0;
+}
+
+.ds-answer-section .ds-choice {
+  align-items: start;
+  width: fit-content;
+  min-height: 0;
+  padding: var(--space-xs) 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: var(--lh-dense);
+  letter-spacing: 0;
+}
+
+.ds-answer-section .ds-choice:has(input:checked) {
+  background: transparent;
+  font-weight: var(--fw-body);
+}
+
+.ds-answer-section .ds-choice > span {
+  padding-top: calc((var(--choice-box) - var(--fs-body) * 1.3) / 2);
+}
+
+.ds-choice input:is([type="radio"], [type="checkbox"]) {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  margin: calc((var(--choice-box) - var(--radio-size)) / 2);
+  width: var(--radio-size);
+  height: var(--radio-size);
+  border: 2px solid var(--color-muted);
+  border-radius: 50%;
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.ds-choice input[type="checkbox"] {
+  margin: calc((var(--choice-box) - var(--checkbox-size)) / 2);
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border-radius: 11%;
+}
+
+.ds-choice input:is([type="radio"], [type="checkbox"])::before {
+  content: "";
+  display: none;
+}
+
+.ds-choice input[type="radio"]:checked {
+  border-color: var(--color-primary);
+}
+
+.ds-choice input[type="radio"]:checked::before {
+  display: block;
+  width: var(--radio-dot);
+  height: var(--radio-dot);
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.ds-choice input[type="checkbox"]:checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.ds-choice input[type="checkbox"]:checked::before {
+  display: block;
+  width: var(--check-mark);
+  height: var(--check-mark);
+  background: var(--color-on-primary);
+  clip-path: path(
+    "M5.6,11.2L12.65,4.15L11.25,2.75L5.6,8.4L2.75,5.55L1.35,6.95L5.6,11.2Z"
+  );
+  scale: calc((var(--checkbox-size) - 4px) / var(--check-mark));
+}
+
+@media (hover: hover) {
+  .ds-choice:hover input:is([type="radio"], [type="checkbox"]) {
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 calc((var(--choice-box) - var(--radio-size)) / 2)
+      var(--color-border);
+  }
+
+  .ds-choice:hover input[type="checkbox"] {
+    box-shadow: 0 0 0 calc((var(--choice-box) - var(--checkbox-size)) / 2)
+      var(--color-border);
+  }
+
+  .ds-choice:hover input:checked {
+    border-color: var(--color-primary-strong);
+  }
+
+  .ds-choice:hover input[type="checkbox"]:checked {
+    background: var(--color-primary-strong);
+  }
+}
+
+/* ---------- 記入欄 ---------- */
+
+.ds-input {
+  box-sizing: border-box;
+  margin-top: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-heading);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+}
+
+.ds-answer-section .ds-input {
+  background: var(--color-bg);
+}
+
+input.ds-input,
+select.ds-input {
+  height: var(--field-height);
+  line-height: 1;
+}
+
+textarea.ds-input {
+  padding: var(--space-md);
+}
+
+input.ds-input[type="file"] {
+  height: auto;
+  padding: var(--space-sm);
+}
+
+@media (hover: hover) {
+  .ds-input:hover {
+    border-color: var(--color-focus);
+  }
+}
+
+/* 「※必須」のある組では、回答欄を2列にまたがせる */
+.ds-field:has(> .ds-requirement) > .ds-input {
+  grid-column: 1 / -1;
+}
+
+/* ---------- ボタン ---------- */
+/* 塗り(次へ・回答をコピー)と枠線(前へ・そのほか) */
+
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: var(--button-min);
+  min-height: var(--button-height);
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-primary);
+  font-size: var(--fs-ui);
+  font-weight: var(--fw-heading);
+  line-height: 1;
+  letter-spacing: var(--ls-body);
+  text-underline-offset: 3px;
+}
+
+.ds-button-primary {
+  border: 4px double transparent;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ds-page-navigation .ds-button,
+.ds-button[data-copy] {
+  min-width: var(--button-min-lg);
+  min-height: var(--button-height-lg);
+  padding: var(--space-sm) var(--space-md);
+}
+
+@media (hover: hover) {
+  .ds-button:not(:disabled):hover {
+    background: var(--color-primary-hover-tint);
+    color: var(--color-primary-strong);
+    text-decoration: underline;
+  }
+
+  .ds-button-primary:not(:disabled):hover {
+    background: var(--color-primary-strong);
+    color: var(--color-on-primary);
+  }
+}
+
+/* 塗りのボタンを押した地。hover とは別に、押している間だけ濃くする */
+.ds-button-primary:not(:disabled):active {
+  background: var(--color-primary-pressed);
+}
+
+.ds-button:disabled {
+  border-color: currentcolor;
+  background: var(--color-bg);
+  color: var(--color-border);
+}
+
+.ds-button-primary:disabled {
+  border-color: transparent;
+  background: var(--color-border);
+  color: var(--color-surface);
+}
+
+.ds-sidebar-toggle[aria-expanded="true"] {
+  border-color: currentcolor;
+  background: var(--color-tint);
+}
+
+/* ---------- 質問の一覧(focus・overview) ---------- */
+/* 縦のステップ表示。番号の丸をつなぐ線、今の問いは二重の輪、答えた問いは灰の地 */
+
+.ds-question-sidebar {
+  /* 丸のフォーカスの輪が一覧の端で切れないだけの余白 */
+  padding: var(--ring-width);
+  border: 0;
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+.ds-question-sidebar h2 {
+  font-size: var(--fs-card-title);
+}
+
+.ds-question-nav {
+  gap: 0;
+  margin-bottom: var(--space-gap);
+}
+
+.ds-question-nav li {
+  position: relative;
+}
+
+/* つなぐ線。丸の中心を通る 1px の縦線を、丸の白い地で切る */
+.ds-question-nav li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--step-margin) + var(--step-size) / 2);
+  border-left: 1px solid var(--color-text);
+}
+
+.ds-question-nav li:first-child::before {
+  top: var(--step-line-top);
+}
+
+.ds-question-nav li:last-child::before {
+  bottom: auto;
+  height: var(--step-line-top);
+}
+
+.ds-question-nav li:only-child::before {
+  display: none;
+}
+
+.ds-question-link {
+  position: relative;
+  grid-template-columns: calc(var(--step-size) + var(--step-margin) * 2) minmax(
+      0,
+      1fr
+    );
+  column-gap: var(--space-md);
+  padding: 0 0 var(--space-gap);
+  border-radius: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+.ds-question-nav li:last-child .ds-question-link {
+  padding-bottom: 0;
+}
+
+.ds-question-link:hover,
+.ds-question-link[aria-current] {
+  background: transparent;
+}
+
+.ds-question-number {
+  grid-row: 1 / span 2;
+  display: grid;
+  place-content: center;
+  box-sizing: border-box;
+  width: var(--step-size);
+  height: var(--step-size);
+  margin: var(--step-margin);
+  padding: 0 2px 2px;
+  border: 2px solid var(--color-text);
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: calc(var(--fs-body) * 1.25);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+}
+
+.ds-question-link:has([data-complete="true"]) .ds-question-number {
+  background: var(--color-surface);
+}
+
+@media (hover: hover) {
+  .ds-question-link:hover .ds-question-number {
+    outline: 1px solid var(--color-text);
+  }
+}
+
+.ds-question-link[aria-current] .ds-question-number {
+  color: var(--color-text);
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-bg);
+}
+
+.ds-question-name {
+  /* 題の1行目を丸の中心にそろえる(4 + 44 / 2 - 行の半分) */
+  padding-top: var(--space-sm);
+  font-weight: var(--fw-heading);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.ds-question-link:hover .ds-question-name {
+  text-decoration-thickness: 3px;
+}
+
+.ds-question-link .ds-status {
+  margin-top: 0;
+  color: var(--color-muted);
+  white-space: normal;
+}
+
+.ds-question-link[aria-current] .ds-status {
+  color: var(--color-muted);
+}
+
+.ds-question-link .ds-status[data-complete="true"] {
+  color: var(--color-success);
+}
+
+/* ---------- 画面下の帯 ---------- */
+
+.ds-page-navigation {
+  padding: var(--space-md) 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  border-radius: 0;
+}
+
+.ds-page-progress {
+  color: var(--color-text);
+}
+
+/* ---------- 注記・表・引用 ---------- */
+
+.ds-notice {
+  --notice-border-width: 2px;
+  --notice-bar-width: 2px;
+  --notice-radius: var(--radius);
+  --notice-bg: var(--color-bg);
+  padding: var(--space-md) var(--space-gap) var(--space-md)
+    calc(var(--space-gap) + var(--notice-chip));
+  /* 帯の色は notice-bar-color。既定は枠と同じ notice-color(93 の前と同じ見え方) */
+  box-shadow: inset var(--notice-chip) 0 0 0
+    var(--notice-bar-color, var(--notice-color));
+  font-size: var(--fs-body);
+}
+
+/* 注意の帯だけ色を変える。枠は notice-color(warning)のまま */
+.ds-notice-warning {
+  --notice-bar-color: var(--color-warning-accent);
+}
+
+.ds-table {
+  --table-head-bg: var(--color-chip);
+  --table-radius: 0px;
+  --table-col-rule-width: 1px;
+  --table-head-rule-color: var(--color-rule);
+}
+
+.ds-table th {
+  color: var(--color-heading);
+}
+
+.ds-quote {
+  padding: var(--space-xs) var(--space-md) var(--space-xs) var(--space-gap);
+  border-left: var(--notice-chip) solid var(--color-quote);
+}
+
+/* ---------- 紙に書き込む(print) ---------- */
+/* 印は枠 2px。記入欄は罫 */
+
+.ds-print-options li {
+  font-size: var(--fs-body);
+}
+
+.ds-print-options li::before {
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border: 2px solid var(--color-muted);
+  border-radius: 11%;
+  box-sizing: border-box;
+}
+
+.ds-print-options[data-type="single"] li::before {
+  width: var(--radio-size);
+  height: var(--radio-size);
+  border-radius: 50%;
+}
+
+.ds-answer-lines {
+  border-top: 1px solid var(--color-muted);
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 calc(var(--answer-line) - 1px),
+    var(--color-muted) calc(var(--answer-line) - 1px) var(--answer-line)
+  );
+}
+
+/* ---------- フォーカス ---------- */
+/* 黒 4px の輪を 2px 離して描き、その間を黄で埋める。今の問いの輪などより後に書いて勝たせる */
+
+.ds-button:focus-visible,
+.ds-input:focus-visible,
+.ds-choice input:focus-visible,
+.ds-board summary:focus-visible,
+.ds-question-link:focus-visible .ds-question-number,
+.ds-table-scroll:focus-visible {
+  outline: var(--ring-width) solid var(--color-focus);
+  outline-offset: var(--ring-gap);
+  box-shadow: 0 0 0 var(--ring-gap) var(--color-focus-ring);
+}
+
+.ds-choice:has(input:focus-visible),
+.ds-question-link:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}
+
+.ds-board summary:focus-visible {
+  background: var(--color-focus-ring);
+}

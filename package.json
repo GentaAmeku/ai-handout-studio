@@ -1,0 +1,59 @@
+{
+  "name": "ai-handout-studio",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "ai-handout-studio": "scripts/cli.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "prepare": "pnpm design:build",
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "start": "vite preview",
+    "test:export": "vitest run --config vitest.export.config.ts",
+    "test:skills": "node --test skills/question-sheet/tests/*.test.mjs",
+    "deck:check": "tsx scripts/deck-check.ts",
+    "schema:export": "tsx scripts/export-schema.ts && biome format --write skills/ai-handout-studio/deck.schema.json skills/ai-handout-studio/patch.schema.json skills/ai-handout-studio/document.schema.json skills/ai-handout-studio/document-patch.schema.json",
+    "design:build": "tsx scripts/design-build.ts"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@fontsource-variable/noto-sans-jp": "^5.3.0",
+    "@fontsource-variable/noto-sans-mono": "^5.3.0",
+    "@fontsource/zen-maru-gothic": "^5.3.0",
+    "@hono/node-server": "^2.1.1",
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-router": "^1.170.36",
+    "hono": "^4.13.7",
+    "lucide-react": "^1.46.0",
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.13",
+    "@testing-library/react": "^16.3.3",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^26.5.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "jsdom": "^30.0.1",
+    "jszip": "^3.10.2",
+    "playwright": "^1.63.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "label": "Lumen",
+  "description": "薄灰の地に、白い大きな角丸の板を並べる。紫を差し色にして影をつけず、KPI の数字を大きくする。提案・報告向け。PPTX にもそのまま出る。同梱の絵は PPTX には撮った画像で入る",
+  "tokens": {
+    "color": {
+      "bg": "#f3f4f7",
+      "text": "#111111",
+      "muted": "#5f6470",
+      "primary": "#6c35ff",
+      "primaryStrong": "#5a25e6",
+      "surface": "#ffffff",
+      "tint": "#dccefe",
+      "border": "#d9d9d9",
+      "lavender": "#ffffff",
+      "chip": "#ececec"
+    },
+    "size": {
+      "kicker": 15,
+      "h1": 52,
+      "h2": 38,
+      "body": 19,
+      "cover": 68,
+      "cardTitle": 23,
+      "kpi": 88,
+      "small": 14
+    },
+    "radius": {
+      "base": 24,
+      "sm": 12,
+      "card": 28
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "minimal"
+    },
+    "card": {
+      "variant": "filled"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "rounded"
+    }
+  }
+}

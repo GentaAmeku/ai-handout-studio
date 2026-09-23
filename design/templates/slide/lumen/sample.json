@@ -1,0 +1,352 @@
+{
+  "label": "Lumen",
+  "meta": {
+    "audience": "資料を作る人",
+    "tags": ["見本"]
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "notes": "左に題と一言、右に同梱の絵。題は板の幅の半分を超える大きさにする",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 64,
+          "y": 160,
+          "w": 736,
+          "h": 272,
+          "props": {
+            "kicker": "AI HANDOUT STUDIO",
+            "text": "資料づくりを、\n翌日提出できる速さに",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 64,
+          "y": 456,
+          "w": 736,
+          "h": 72,
+          "props": {
+            "text": "自分の資料を、自分の手で速く仕上げる"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "image",
+          "x": 848,
+          "y": 208,
+          "w": 368,
+          "h": 276,
+          "props": {
+            "src": "assets/hero.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "section",
+      "notes": "章扉。章番号と題だけを置き、テンプレートの全面の色を見せる",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 64,
+          "y": 272,
+          "w": 736,
+          "h": 176,
+          "props": {
+            "kicker": "01",
+            "text": "作る流れ",
+            "level": 2
+          }
+        },
+        {
+          "id": "b06",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "notes": "数字を主役にした1枚。下に一言を添えて、下半分を空けない",
+      "blocks": [
+        {
+          "id": "b07",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "かかる時間",
+            "text": "30分で骨子、3回で仕上げ",
+            "level": 2
+          }
+        },
+        {
+          "id": "b08",
+          "type": "kpi-row",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 320,
+          "props": {
+            "items": [
+              {
+                "value": "30分",
+                "label": "骨子づくり",
+                "note": "テンプレートから"
+              },
+              {
+                "value": "3回",
+                "label": "画面での手直し",
+                "note": "1枚あたり"
+              },
+              {
+                "value": "4形式",
+                "label": "書き出し",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b09",
+          "type": "text",
+          "x": 64,
+          "y": 520,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "手を動かすのは、画面で直す3回ぶんだけ。"
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "content",
+      "notes": "2列。片側に絵、もう片側に部品を置く",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "分担",
+            "text": "AIと自分で、持ち場を分ける",
+            "level": 2
+          }
+        },
+        {
+          "id": "b12",
+          "type": "card-grid",
+          "x": 64,
+          "y": 176,
+          "w": 656,
+          "h": 432,
+          "props": {
+            "columns": 2,
+            "items": [
+              {
+                "title": "骨子",
+                "body": "AIがJSONで下書きする",
+                "icon": "book-open"
+              },
+              {
+                "title": "仕上げ",
+                "body": "画面で配置と文言を直す",
+                "icon": "settings"
+              },
+              {
+                "title": "見た目",
+                "body": "テンプレートを選び替える",
+                "icon": "sparkles"
+              },
+              {
+                "title": "書き出し",
+                "body": "PDFとPPTXで渡す",
+                "icon": "circle-check"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b13",
+          "type": "image",
+          "x": 768,
+          "y": 224,
+          "w": 448,
+          "h": 336,
+          "props": {
+            "src": "assets/idea.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "content",
+      "notes": "比較の1枚。表の下に一言を添える",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "渡す形",
+            "text": "4つの形と、その合格条件",
+            "level": 2
+          }
+        },
+        {
+          "id": "b16",
+          "type": "table",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 288,
+          "props": {
+            "headers": ["形式", "方法", "合格条件"],
+            "rows": [
+              ["PDF", "同じHTMLを印刷する", "1スライド1ページ"],
+              ["PNG", "1枚ずつ撮る", "画面と一致する"],
+              ["PPTX", "DOMを実測して組み直す", "文字が選べて直せる"],
+              ["HTML", "1ファイルにまとめる", "開くだけで読める"]
+            ]
+          }
+        },
+        {
+          "id": "b17",
+          "type": "text",
+          "x": 64,
+          "y": 512,
+          "w": 1152,
+          "h": 56,
+          "props": {
+            "text": "どの形も、正本の deck.json ひとつから作る。"
+          }
+        },
+        {
+          "id": "b18",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "closing",
+      "notes": "締め。一言と絵を並べる",
+      "blocks": [
+        {
+          "id": "b19",
+          "type": "heading",
+          "x": 64,
+          "y": 216,
+          "w": 736,
+          "h": 176,
+          "props": {
+            "kicker": "おしまい",
+            "text": "まずは1枚、作ってみる",
+            "level": 1
+          }
+        },
+        {
+          "id": "b20",
+          "type": "text",
+          "x": 64,
+          "y": 416,
+          "w": 736,
+          "h": 64,
+          "props": {
+            "text": "見た目を選んで、骨子から始める"
+          }
+        },
+        {
+          "id": "b21",
+          "type": "image",
+          "x": 848,
+          "y": 208,
+          "w": 368,
+          "h": 276,
+          "props": {
+            "src": "assets/path.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b22",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

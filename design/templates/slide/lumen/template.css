@@ -1,0 +1,123 @@
+/* 明るい板。影も枠も使わず、白い板と紫の差し色だけで区切る */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+.ds-heading__text {
+  letter-spacing: -0.01em;
+}
+
+.ds-heading__kicker {
+  color: var(--color-primary);
+  letter-spacing: 0.12em;
+}
+
+.ds-bullets--number .ds-bullets__item::before,
+.ds-process__number {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* 数字を極太にして目立たせる */
+.ds-kpi__value {
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+.ds-kpi,
+.ds-two-col__column,
+.ds-process__step {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+}
+
+/* 表紙と締めは右に淡い紫の板を敷き、その上に絵を置く。板は絵より一回り大きい */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  .ds-decoration__shape--1 {
+    display: block;
+    top: 176px;
+    right: 32px;
+    width: 432px;
+    height: 340px;
+    border-radius: var(--radius-card);
+    background: var(--color-tint);
+  }
+
+  /* 題の上に紫の短い線 */
+  .ds-decoration__shape--2 {
+    display: block;
+    top: calc(var(--space-slide) * 1.75);
+    left: var(--space-slide);
+    width: calc(var(--space-slide) * 1.5);
+    height: var(--space-xs);
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
+  }
+
+  /* 右下に白い大きな円 */
+  .ds-decoration__shape--3 {
+    display: block;
+    right: calc(var(--space-slide) * -1);
+    bottom: calc(var(--space-slide) * -1.5);
+    width: calc(var(--space-slide) * 4);
+    height: calc(var(--space-slide) * 4);
+    border-radius: 9999px;
+    background: var(--color-surface);
+  }
+}
+
+/* 本文は見出しの上に紫の短い線、右下に淡い紫の大きな円 */
+&.ds-slide--content {
+  .ds-decoration__shape--4 {
+    display: block;
+    top: calc(var(--space-slide) / 2);
+    left: var(--space-slide);
+    width: calc(var(--space-slide) * 1.5);
+    height: var(--space-xs);
+    border-radius: var(--radius-sm);
+    background: var(--color-primary);
+  }
+
+  .ds-decoration__shape--5 {
+    display: block;
+    right: calc(var(--space-slide) * -1.5);
+    bottom: calc(var(--space-slide) * -1.5);
+    width: calc(var(--space-slide) * 3.5);
+    height: calc(var(--space-slide) * 3.5);
+    border-radius: 9999px;
+    background: var(--color-tint);
+  }
+}
+
+/* 章扉は紫の全面。右上に一段濃い円を重ねる */
+&.ds-slide--section {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  .ds-decoration__shape--6 {
+    display: block;
+    top: calc(var(--space-slide) * -1.5);
+    right: calc(var(--space-slide) * -1.5);
+    width: calc(var(--space-slide) * 6);
+    height: calc(var(--space-slide) * 6);
+    border-radius: 9999px;
+    background: var(--color-primary-strong);
+  }
+
+  .ds-heading__text,
+  .ds-heading__kicker,
+  .ds-org,
+  .ds-footer {
+    color: var(--color-on-primary);
+  }
+
+  .ds-card,
+  .ds-kpi,
+  .ds-two-col__column,
+  .ds-process__step,
+  .ds-table {
+    color: var(--color-text);
+  }
+}

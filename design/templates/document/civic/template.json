@@ -1,0 +1,81 @@
+{
+  "label": "Civic",
+  "description": "公共機関の資料でよく見る組み。本文16/1.7、見出しに肩と左の縦棒、罫つきの表、帯つきの注記、左の目次",
+  "tokens": {
+    "color": {
+      "text": "#333333",
+      "heading": "#1a1a1a",
+      "muted": "#666666",
+      "primary": "#0017c1",
+      "primaryStrong": "#00118f",
+      "surface": "#f2f2f2",
+      "chip": "#e6e6e6",
+      "tint": "#e8f1fe",
+      "lavender": "#d9e6ff",
+      "border": "#949494",
+      "danger": "#ec0000",
+      "dangerTint": "#ffffff",
+      "success": "#197a4b",
+      "successTint": "#ffffff",
+      "warning": "#927200",
+      "warningTint": "#ffffff",
+      "accent2": "#0066be",
+      "accent3": "#006f83",
+      "link": "#00118f",
+      "linkVisited": "#8b008b",
+      "linkHover": "#0017c1",
+      "linkActive": "#c74700",
+      "focus": "#000000",
+      "focusRing": "#ffd43d",
+      "rule": "#000000",
+      "quote": "#767676",
+      "warningAccent": "#ffc700"
+    },
+    "size": {
+      "pageTitle": 36,
+      "cardTitle": 28,
+      "ui": 16,
+      "small": 14,
+      "h3": 20
+    },
+    "lineHeight": {
+      "body": 1.7,
+      "heading": 1.4,
+      "subheading": 1.5
+    },
+    "letterSpacing": {
+      "body": "0.02em",
+      "heading": "0.01em"
+    },
+    "radius": {
+      "base": 12,
+      "sm": 8,
+      "card": 16
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  },
+  "checks": {
+    "strictContrast": true,
+    "minFontSize": 14
+  },
+  "layout": {
+    "columns": [220, 640],
+    "areas": [["toc", "main"], ["aside", "main"]]
+  }
+}

@@ -1,0 +1,208 @@
+/* HTML 資料の編集画面。3列。左はセクションとブロックの並び、中央はプレビュー、右は中身の欄 */
+
+.document-editor {
+  --outline-width: 280px;
+}
+
+.document-editor__body {
+  grid-template-columns: var(--outline-width) minmax(0, 1fr) var(
+      --edit-side-width
+    );
+}
+
+.document-bar__template {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
+.document-bar__template .input {
+  width: auto;
+}
+
+/* 左の列 */
+
+.outline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  overflow-y: auto;
+  padding: var(--space-md) var(--space-sm);
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.outline__front,
+.outline__heading,
+.outline__block-button {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  width: 100%;
+  padding: 6px var(--space-xs);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.outline__front:hover,
+.outline__heading:hover,
+.outline__block-button:hover {
+  background: var(--color-surface);
+}
+
+.outline__front[aria-current="true"],
+.outline__heading[aria-current="true"],
+.outline__block-button[aria-current="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-tint);
+}
+
+.outline__sections {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outline__section {
+  padding-top: var(--space-xs);
+}
+
+.outline__heading {
+  font-weight: 600;
+}
+
+.outline__heading[data-level="3"] {
+  padding-left: var(--space-md);
+  font-weight: 400;
+}
+
+.outline__number {
+  flex: none;
+  min-width: 1.5em;
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+.outline__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outline__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding-left: var(--space-sm);
+  list-style: none;
+}
+
+.outline__block-button {
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+.outline__block-type {
+  flex: none;
+  font-weight: 600;
+}
+
+/* つまみ・選ぶボタン・削除を1行に並べる */
+.outline__row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 選ぶボタンは、つまみと削除の残りの幅だけを使う。100% のままだと横にはみ出す */
+.outline__row > .outline__heading,
+.outline__row > .outline__block-button {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+/* つまみ。掴んでいる間は指の形にする */
+.outline__grip {
+  flex: none;
+  width: 20px;
+  color: var(--color-border);
+  cursor: grab;
+  touch-action: none;
+}
+
+.outline__grip:active {
+  cursor: grabbing;
+}
+
+.outline__row:hover .outline__grip {
+  color: var(--color-muted);
+}
+
+.outline__delete {
+  flex: none;
+  width: 24px;
+  color: var(--color-muted);
+}
+
+.outline__delete:hover {
+  color: var(--color-danger);
+}
+
+/* 掴んでいる行は浮かせる。落とし先は @dnd-kit が空けてくれる */
+.outline__section[data-dragging="true"],
+.outline__block[data-dragging="true"] {
+  position: relative;
+  z-index: 1;
+  opacity: 0.85;
+}
+
+/* 中央のプレビュー。書き出すものと同じ1枚を、保存のたびに読み直す */
+
+.document-preview {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-surface);
+}
+
+.document-preview .design-stage {
+  flex: 1;
+  min-height: 0;
+}
+
+.document-preview__note {
+  margin: 0;
+  padding: var(--space-xs) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-tint);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+/* 履歴の版に出すセクションの並び */
+
+.version-sections ol {
+  margin: 0;
+  padding-left: var(--space-md);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+.version-sections li[data-level="3"] {
+  padding-left: var(--space-sm);
+}

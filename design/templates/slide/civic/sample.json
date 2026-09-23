@@ -1,0 +1,353 @@
+{
+  "label": "Civic",
+  "meta": {
+    "audience": "資料を作る人",
+    "tags": ["見本"]
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "notes": "左に題と一言、右に同梱の絵。上端の帯と題の下の線はテンプレートが描く。座標は12列の格子(列48・溝48・左右の余白88)",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 88,
+          "y": 152,
+          "w": 720,
+          "h": 248,
+          "props": {
+            "kicker": "AI HANDOUT STUDIO",
+            "text": "資料づくりを、\n翌日提出できる速さに",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "自分の資料を、自分の手で速く仕上げる"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/hero.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "section",
+      "notes": "章扉。全面の濃い青に章番号と題だけを置く",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 88,
+          "y": 272,
+          "w": 816,
+          "h": 128,
+          "props": {
+            "kicker": "01",
+            "text": "作る流れ",
+            "level": 1
+          }
+        },
+        {
+          "id": "b06",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "notes": "数字を主役にした1枚。数字は枠のカードに入れ、下に一言を添える",
+      "blocks": [
+        {
+          "id": "b07",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "かかる時間",
+            "text": "30分で骨子、3回で仕上げ",
+            "level": 1
+          }
+        },
+        {
+          "id": "b08",
+          "type": "kpi-row",
+          "x": 88,
+          "y": 184,
+          "w": 1104,
+          "h": 256,
+          "props": {
+            "items": [
+              {
+                "value": "30分",
+                "label": "骨子づくり",
+                "note": "テンプレートから"
+              },
+              {
+                "value": "3回",
+                "label": "画面での手直し",
+                "note": "1枚あたり"
+              },
+              {
+                "value": "4形式",
+                "label": "書き出し",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b09",
+          "type": "text",
+          "x": 88,
+          "y": 472,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "text": "手を動かすのは、画面で直す3回ぶんだけ。"
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "content",
+      "notes": "2列。左5列に絵、右6列に番号つきの箇条書き",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "分担",
+            "text": "AIと自分で、持ち場を分ける",
+            "level": 1
+          }
+        },
+        {
+          "id": "b12",
+          "type": "image",
+          "x": 88,
+          "y": 192,
+          "w": 432,
+          "h": 324,
+          "props": {
+            "src": "assets/idea.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b13",
+          "type": "bullets",
+          "x": 664,
+          "y": 224,
+          "w": 528,
+          "h": 264,
+          "props": {
+            "items": [
+              "目的と読者をAIに伝える",
+              "骨子はJSONで返ってくる",
+              "画面で配置と文言を直す",
+              "見た目はテンプレートで替える",
+              "PDFとPPTXで渡す"
+            ],
+            "marker": "number"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "content",
+      "notes": "流れと比較。番号の丸でつなぐ手順と、罫と縞の表",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "流れと形",
+            "text": "4つの手順で、3つの形に渡す",
+            "level": 1
+          }
+        },
+        {
+          "id": "b16",
+          "type": "process",
+          "x": 88,
+          "y": 176,
+          "w": 1104,
+          "h": 176,
+          "props": {
+            "steps": [
+              {
+                "title": "伝える",
+                "body": "目的と読者を書く"
+              },
+              {
+                "title": "組む",
+                "body": "骨子はJSONで"
+              },
+              {
+                "title": "直す",
+                "body": "画面で手直し"
+              },
+              {
+                "title": "渡す",
+                "body": "PDFとPPTXで"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b17",
+          "type": "table",
+          "x": 88,
+          "y": 384,
+          "w": 1104,
+          "h": 248,
+          "props": {
+            "headers": ["形式", "方法", "合格条件"],
+            "rows": [
+              ["PDF", "同じHTMLを印刷する", "1スライド1ページ"],
+              ["PPTX", "DOMを実測して組み直す", "文字が選べて直せる"],
+              ["HTML", "1ファイルにまとめる", "開くだけで読める"]
+            ]
+          }
+        },
+        {
+          "id": "b18",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "closing",
+      "notes": "締め。上端の帯、縦棒つきの一言と絵",
+      "blocks": [
+        {
+          "id": "b19",
+          "type": "heading",
+          "x": 88,
+          "y": 168,
+          "w": 720,
+          "h": 232,
+          "props": {
+            "kicker": "おしまい",
+            "text": "まずは1枚、\n作ってみる",
+            "level": 1
+          }
+        },
+        {
+          "id": "b20",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "見た目を選んで、骨子から始める"
+          }
+        },
+        {
+          "id": "b21",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/path.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b22",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

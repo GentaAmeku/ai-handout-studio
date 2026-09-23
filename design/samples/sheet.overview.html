@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- 生成物。design/ の JSON から pnpm design:build で作る。手で直さない -->
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<title>質問票の見本(overview)</title>
+<link rel="stylesheet" href="../dist/fonts.css" />
+<link rel="stylesheet" href="../dist/sheet/tokens.css" />
+<link rel="stylesheet" href="../dist/document.css" />
+<link rel="stylesheet" href="../dist/interaction.css" />
+</head>
+<body>
+<main class="ds-board" data-layout="focus" id="app"><header class="ds-board-heading"><div class="ds-signature"><span>組織名</span></div><div class="ds-board-title"><h1>更新の進め方を決める</h1><p class="ds-subtle">合成の見本です。検証結果と変更範囲を確認してから、回答を選んでください。</p></div><div class="ds-board-actions"><button type="button" class="ds-button">下書きを保存</button><button type="button" class="ds-button ds-sidebar-toggle" aria-controls="question-sidebar" aria-expanded="true">質問一覧を閉じる</button></div></header><div class="ds-board-layout"><aside id="question-sidebar" class="ds-question-sidebar"><h2>質問一覧</h2><p class="ds-subtle" aria-live="polite"><span data-done-count="">1</span> / 4 問 入力済み</p><nav aria-label="質問一覧"><ol class="ds-question-nav"><li><button type="button" class="ds-question-link"><span class="ds-question-number">01</span><span class="ds-question-name">どの案で更新を進めますか</span><span class="ds-status" data-complete="true">✓ 入力済み</span></button></li><li><button type="button" class="ds-question-link" aria-current="step"><span class="ds-question-number">02</span><span class="ds-question-name">どこで人の確認を挟みますか</span><span class="ds-status" data-complete="false">初期値あり</span></button></li><li><button type="button" class="ds-question-link"><span class="ds-question-number">03</span><span class="ds-question-name">反映の前に何を確かめますか</span><span class="ds-status" data-complete="false">未入力</span></button></li><li><button type="button" class="ds-question-link"><span class="ds-question-number">04</span><span class="ds-question-name">一覧の見た目はどちらに寄せますか</span><span class="ds-status" data-complete="false">未入力</span></button></li></ol></nav><button type="button" class="ds-button">回答一覧</button></aside><section class="ds-question-content" data-question="1" data-qid="approval" data-qtype="single" data-qtitle="どこで人の確認を挟みますか" aria-labelledby="question-heading"><article class="ds-question-card"><p class="ds-question-count">質問 2 / 4</p><div class="ds-question-title-row"><h2 id="question-heading" tabindex="-1">どこで人の確認を挟みますか</h2></div><p class="ds-question-summary">AIが作った修正を、本番へ反映するまでの流れです。</p><div class="ds-inline-visual"><!-- ai-handout-studio 図の生成器の出力。手で直さず、入力の JSON を直して作り直す。 -->
+<figure class="ds-figure">
+  <div class="ds-figure-frame">
+    <svg width="374" height="234" viewBox="-1 -1 374 234" role="img" aria-label="上から下へ流れる図。「修正とテスト」から「人が確認」へ。「人が確認」から「修正を続ける」「本番へ反映」の2つへ分かれる。">
+      <line class="ds-link" x1="186" y1="48" x2="186" y2="84"/>
+      <polygon class="ds-arrow" points="182,84 190,84 186,92"/>
+      <line class="ds-link" x1="186" y1="140" x2="186" y2="162"/>
+      <line class="ds-link" x1="88" y1="162" x2="284" y2="162"/>
+      <line class="ds-link" x1="88" y1="162" x2="88" y2="176"/>
+      <polygon class="ds-arrow" points="84,176 92,176 88,184"/>
+      <line class="ds-link" x1="284" y1="162" x2="284" y2="176"/>
+      <polygon class="ds-arrow" points="280,176 288,176 284,184"/>
+      <rect class="ds-node" x="98" y="0" width="176" height="48"/>
+      <text x="186" y="29" text-anchor="middle">修正とテスト</text>
+      <polygon class="ds-node" points="112,92 260,92 274,116 260,140 112,140 98,116"/>
+      <text x="186" y="121" text-anchor="middle">人が確認</text>
+      <rect class="ds-node" x="0" y="184" width="176" height="48"/>
+      <text x="88" y="213" text-anchor="middle">修正を続ける</text>
+      <rect class="ds-node" x="196" y="184" width="176" height="48"/>
+      <text x="284" y="213" text-anchor="middle">本番へ反映</text>
+    </svg>
+  </div>
+  <figcaption>初期案は、人の確認が済むまで本番へ進みません。</figcaption>
+</figure></div><div class="ds-notice ds-notice-info"><span class="ds-notice-label">ⓘ 情報</span><p>図は初期案を示しています。回答を書き換えても図は変わりません。</p></div><div class="ds-notice ds-notice-warning"><span class="ds-notice-label">⚠ 注意</span><p>この回答だけで本番への反映を許可するものではありません。</p></div></article><div class="ds-answer-section"><h3>あなたの回答</h3><fieldset class="ds-options"><legend class="ds-sr-only">回答の選択肢</legend><label class="ds-choice"><input type="radio" name="approval" value="before" data-mutation="" checked><span>本番へ反映する前に確認する（推奨）</span></label><label class="ds-choice"><input type="radio" name="approval" value="after" data-mutation=""><span>反映後に結果を確認する</span></label></fieldset><label class="ds-field">回答文<textarea class="ds-input" rows="3" maxlength="20000" data-mutation="" data-note="">本番へ反映する前に確認する（推奨）</textarea></label><p class="ds-subtle">選択すると回答文が入ります。文章は自由に編集できます。</p></div><p class="ds-error" role="alert" hidden=""></p></section></div><nav class="ds-page-navigation" aria-label="質問の移動"><button type="button" class="ds-button">前へ</button><p class="ds-page-progress" aria-live="polite"><span data-progress="">質問 2 / 4</span><span><span data-done-count="">1</span> 問入力済み</span></p><button type="button" class="ds-button ds-button-primary">次の質問へ</button></nav><footer class="ds-board-tools"><p class="ds-subtle" role="status" aria-live="polite">下書きは保存されています。</p><details><summary>保存した下書きを読み込む</summary><input type="file" accept=".json,application/json" class="ds-input" aria-label="下書きJSONを読み込む" data-mutation=""></details><p class="ds-subtle">合成の相談です。回答による外部操作はありません。</p></footer></main>
+</body>
+</html>

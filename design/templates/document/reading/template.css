@@ -1,0 +1,73 @@
+/* 読み物。題名と見出しを中央に寄せる。紙を置かず地に直接組むのは共通の document.css */
+
+.ds-signature,
+.ds-foot {
+  justify-content: center;
+  gap: var(--space-md);
+  border: 0;
+  letter-spacing: 0.12em;
+}
+
+.ds-head {
+  text-align: center;
+}
+
+.ds-head h1 {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* 題名の下に短い線 */
+.ds-head::after {
+  content: "";
+  display: block;
+  width: calc(var(--space-gap) * 2);
+  height: 2px;
+  margin: var(--space-gap) auto 0;
+  background: var(--color-primary);
+}
+
+/* 要約は上下の罫線だけの引用にする */
+.ds-summary {
+  border: 0;
+  border-block: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+}
+
+/* 目次は1行に並べる */
+.ds-toc {
+  text-align: center;
+}
+
+.ds-toc ol {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-xs) var(--space-gap);
+  padding-left: 0;
+  list-style: none;
+}
+
+.ds-main > section > h2 {
+  margin-top: var(--space-gap);
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.ds-main > section > h2::after {
+  content: "";
+  display: block;
+  width: var(--space-gap);
+  height: 1px;
+  margin: var(--space-sm) auto 0;
+  background: var(--color-muted);
+}
+
+.ds-aside {
+  margin-top: var(--space-gap);
+  padding-top: var(--space-gap);
+  border-top: 1px solid var(--color-border);
+}

@@ -1,0 +1,609 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "template": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "done"]
+    },
+    "lang": {
+      "type": "string",
+      "enum": ["ja", "en"]
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "audience": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+        }
+      },
+      "required": ["createdAt", "updatedAt"],
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "object",
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "required": ["org"],
+      "additionalProperties": false
+    },
+    "head": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "lede": {
+          "type": "string"
+        }
+      },
+      "required": ["title"],
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "required": ["text"],
+      "additionalProperties": false
+    },
+    "toc": {
+      "type": "string",
+      "enum": ["auto", "none"]
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]{1,100}$"
+          },
+          "heading": {
+            "type": "string"
+          },
+          "level": {
+            "anyOf": [
+              {
+                "type": "number",
+                "const": 2
+              },
+              {
+                "type": "number",
+                "const": 3
+              }
+            ]
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "text"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "bullets"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": ["items"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "ordered"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "why": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["text"],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": ["items"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "table"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "headers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "rows": {
+                          "type": "array",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "rowLabel": {
+                          "type": "boolean"
+                        },
+                        "numeric": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        }
+                      },
+                      "required": ["headers", "rows"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "cards"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "columns": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 2
+                            },
+                            {
+                              "type": "number",
+                              "const": 3
+                            }
+                          ]
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string"
+                              },
+                              "body": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["title", "body"],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": ["columns", "items"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "notice"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "enum": ["info", "success", "warning"]
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["kind", "text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "note"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "alert"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "open"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "quote"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "code"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "caption": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["text"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "figure"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "html": {
+                          "type": "string"
+                        },
+                        "caption": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["html"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "image"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "src": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "alt": {
+                          "type": "string"
+                        },
+                        "caption": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["src", "alt"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9._-]{1,100}$"
+                    },
+                    "type": {
+                      "type": "string",
+                      "const": "html"
+                    },
+                    "props": {
+                      "type": "object",
+                      "properties": {
+                        "html": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["html"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": ["id", "type", "props"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        },
+        "required": ["id", "heading", "blocks"],
+        "additionalProperties": false
+      }
+    },
+    "aside": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "glossary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "term": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": ["term", "description"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["label", "glossary"],
+      "additionalProperties": false
+    },
+    "foot": {
+      "type": "object",
+      "properties": {
+        "org": {
+          "type": "string"
+        },
+        "showPage": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["id", "title", "status", "meta", "head", "toc", "sections"],
+  "additionalProperties": false,
+  "title": "ai-handout-studio document",
+  "description": "HTML 資料(設計書・要求要件・調査結果)。文章・構造だけを持ち、色・書体・寸法は持たない。"
+}

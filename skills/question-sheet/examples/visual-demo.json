@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "id": "visual-decisions-demo",
+  "revision": "3",
+  "title": "図で比べて、方針を選ぶ",
+  "description": "3問のデモです。初期値はそのまま使えます。",
+  "context": "合成の相談です。回答しても外部の設定やタスクは変わりません。",
+  "questions": [
+    {
+      "id": "approval",
+      "title": "どこで人の確認を挟みますか",
+      "summary": "AIが作った修正を、本番へ反映するまでの流れです。",
+      "type": "single",
+      "options": [
+        {
+          "id": "before",
+          "label": "本番へ反映する前に確認する"
+        },
+        {
+          "id": "after",
+          "label": "反映後に結果を確認する"
+        }
+      ],
+      "recommended": [
+        "before"
+      ],
+      "visual": {
+        "type": "flow",
+        "figure": {
+          "figure": 1,
+          "caption": "初期案は、人の確認が済むまで本番へ進みません。",
+          "flow": [
+            {
+              "label": "修正とテスト"
+            },
+            {
+              "label": "人が確認",
+              "kind": "branch",
+              "fork": [
+                {
+                  "label": "修正を続ける"
+                },
+                {
+                  "label": "本番へ反映"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "noteLabel": "確認したい条件があれば",
+      "notices": [
+        {
+          "kind": "info",
+          "text": "図は初期案を示しています。回答を書き換えても図は変わりません。"
+        },
+        {
+          "kind": "warning",
+          "text": "この回答だけで本番への反映を許可するものではありません。"
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "結果はどの形で受け取りますか",
+      "summary": "持ち出しやすさと、回答を返す手間を比べます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "html",
+          "label": "1ファイルのHTML"
+        },
+        {
+          "id": "local",
+          "label": "ローカルの回答ページ"
+        }
+      ],
+      "recommended": [
+        "local"
+      ],
+      "visual": {
+        "type": "comparison",
+        "caption": "同じ質問画面でも、回答の戻し方が変わります。",
+        "columns": [
+          "比べる点",
+          "HTMLファイル",
+          "ローカルページ"
+        ],
+        "rows": [
+          [
+            "開き方",
+            "ファイルを開く",
+            "URLを開く"
+          ],
+          [
+            "回答の返却",
+            "コピー・保存して渡す",
+            "送信ボタンで返す"
+          ],
+          [
+            "途中から再開",
+            "下書きファイルを使う",
+            "同じページで復元する"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "handoff",
+      "title": "自分が担当する部分を選んでください",
+      "summary": "チームで並行して進め、最後にまとめて確認します。",
+      "type": "multiple",
+      "options": [
+        {
+          "id": "spec",
+          "label": "仕様を整理する"
+        },
+        {
+          "id": "build",
+          "label": "画面を実装する"
+        },
+        {
+          "id": "test",
+          "label": "結果を検証する"
+        }
+      ],
+      "recommended": [
+        "spec",
+        "test"
+      ],
+      "visual": {
+        "type": "flow",
+        "figure": {
+          "figure": 1,
+          "caption": "3つの担当を分け、最後の確認で結果を合わせます。",
+          "flow": [
+            {
+              "label": "チームの作業",
+              "fork": [
+                {
+                  "label": "仕様の整理"
+                },
+                {
+                  "label": "画面の実装"
+                },
+                {
+                  "label": "結果の検証"
+                }
+              ]
+            },
+            {
+              "label": "まとめて確認"
+            }
+          ]
+        }
+      },
+      "noteLabel": "ほかの人に任せたい部分があれば"
+    }
+  ]
+}

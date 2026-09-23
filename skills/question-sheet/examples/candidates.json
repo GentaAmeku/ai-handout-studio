@@ -1,0 +1,267 @@
+{
+  "schemaVersion": 1,
+  "id": "candidate-review-demo",
+  "revision": "2",
+  "title": "作業の候補を確認する",
+  "description": "8件の候補です。選択を変えるか、そのまま確認してください。",
+  "context": "合成データの見本です。回答しても外部のタスクは変更されません。",
+  "questions": [
+    {
+      "id": "candidate-1",
+      "title": "仕様の抜けを確認する",
+      "summary": "画面の仕様と実装を見比べ、未対応の条件を洗い出します。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 01:00",
+          "text": "画面の仕様と実装を見比べ、未対応の条件を洗い出します。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-2",
+      "title": "問い合わせの再現条件を整理する",
+      "summary": "問い合わせの手順を整理し、再現できる条件を確認します。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 02:00",
+          "text": "問い合わせの手順を整理し、再現できる条件を確認します。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-3",
+      "title": "レビュー指摘を反映する",
+      "summary": "指摘された分岐条件を直し、動作を確かめます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 03:00",
+          "text": "指摘された分岐条件を直し、動作を確かめます。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-4",
+      "title": "共有作業の担当を決める",
+      "summary": "同僚と進める作業のうち、自分が行う範囲を決めます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "skip"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 04:00",
+          "text": "同僚と進める作業のうち、自分が行う範囲を決めます。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "fields": [
+        {
+          "id": "scope",
+          "label": "自分が行う部分",
+          "requiredWhen": [
+            "register"
+          ]
+        }
+      ],
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-5",
+      "title": "依頼の目的を確かめる",
+      "summary": "何のために必要なのかを確認してから作業を決めます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "skip"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 05:00",
+          "text": "何のために必要なのかを確認してから作業を決めます。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "fields": [
+        {
+          "id": "purpose",
+          "label": "誰が何に困っているか",
+          "requiredWhen": [
+            "register"
+          ]
+        }
+      ],
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-6",
+      "title": "既存タスクへまとめる",
+      "summary": "同じ改善に関する2つの話を、1つのタスクとして扱います。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 06:00",
+          "text": "同じ改善に関する2つの話を、1つのタスクとして扱います。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visual": {
+        "type": "flow",
+        "figure": {
+          "figure": 1,
+          "caption": "同じ目的の話を、既存タスクにまとめます。",
+          "flow": [
+            {
+              "label": "相談の内容",
+              "fork": [
+                {
+                  "label": "条件の追加"
+                },
+                {
+                  "label": "確認の追加"
+                }
+              ]
+            },
+            {
+              "label": "既存タスク",
+              "kind": "store"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "candidate-7",
+      "title": "検証結果を記録する",
+      "summary": "確認できたことを既存タスクへ残します。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 07:00",
+          "text": "確認できたことを既存タスクへ残します。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    },
+    {
+      "id": "candidate-8",
+      "title": "次の相談事項を整理する",
+      "summary": "次回に確認する質問を短くまとめます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "register",
+          "label": "登録する"
+        },
+        {
+          "id": "skip",
+          "label": "登録しない"
+        }
+      ],
+      "recommended": [
+        "register"
+      ],
+      "evidence": [
+        {
+          "label": "合成の相談記録 / 担当者 / 08:00",
+          "text": "次回に確認する質問を短くまとめます。"
+        }
+      ],
+      "detail": "見本用の候補です。実際の相談やタスクの内容ではありません。",
+      "visualRationale": "作業候補を本人の対象に含めるかの確認であり、案ごとの費用や効果は比較しない。"
+    }
+  ]
+}

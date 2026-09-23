@@ -1,0 +1,16 @@
+{
+  "figure": 1,
+  "caption": "図 図を出すまで。入力の JSON は検査を通ってはじめて形になり、落ちたときは何も書かずに診断だけが出る。",
+  "flow": [
+    { "label": "入力の JSON", "kind": "store" },
+    {
+      "label": "検査を通るか",
+      "kind": "branch",
+      "fork": [
+        { "label": "貼り込む断片" },
+        { "label": "単体の HTML" },
+        { "label": "診断を出して終わる" }
+      ]
+    }
+  ]
+}

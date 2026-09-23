@@ -1,0 +1,800 @@
+{
+  "id": "deck_20260924_001",
+  "title": "How to use AI Handout Studio",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "status": "draft",
+  "meta": {
+    "createdAt": "2026-09-24T00:00:00.000Z",
+    "updatedAt": "2026-09-24T00:00:00.000Z"
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 88,
+          "y": 152,
+          "w": 720,
+          "h": 248,
+          "props": {
+            "kicker": "AI HANDOUT STUDIO",
+            "text": "How to use\nAI Handout Studio",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "Ask your agent, finish on screen, hand it out"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/hero.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "What it does",
+            "text": "Ask, finish on screen, hand out",
+            "level": 1
+          }
+        },
+        {
+          "id": "b06",
+          "type": "card-grid",
+          "x": 88,
+          "y": 200,
+          "w": 1104,
+          "h": 272,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "Ask in chat",
+                "body": "In any folder, say \"make a handout about ...\". Your agent makes it and returns a URL",
+                "icon": "message-circle"
+              },
+              {
+                "title": "Finish on screen",
+                "body": "Fix wording, layout and template on screen, or ask your agent to fix it",
+                "icon": "wrench"
+              },
+              {
+                "title": "Hand it out",
+                "body": "Export to PDF, PNG, PPTX or HTML. Share by URL or read it on a phone",
+                "icon": "rocket"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b07",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b08",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Three kinds",
+            "text": "Slides, HTML documents, question sheets",
+            "level": 1
+          }
+        },
+        {
+          "id": "b09",
+          "type": "card-grid",
+          "x": 88,
+          "y": 200,
+          "w": 1104,
+          "h": 272,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "Slides",
+                "body": "1280x720 decks for proposals, study sessions, intros and talks",
+                "icon": "chart-column"
+              },
+              {
+                "title": "HTML documents",
+                "body": "One page to read top to bottom: designs, requirements, research",
+                "icon": "file-text"
+              },
+              {
+                "title": "Question sheets",
+                "body": "Pages where your agent asks you things, including before it starts",
+                "icon": "circle-check"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "section",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 88,
+          "y": 272,
+          "w": 816,
+          "h": 128,
+          "props": {
+            "kicker": "01",
+            "text": "From request to URL",
+            "level": 1
+          }
+        },
+        {
+          "id": "b12",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b13",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Flow",
+            "text": "Intake, make, check, URL",
+            "level": 1
+          }
+        },
+        {
+          "id": "b14",
+          "type": "process",
+          "x": 88,
+          "y": 200,
+          "w": 1104,
+          "h": 200,
+          "props": {
+            "steps": [
+              {
+                "title": "Intake",
+                "body": "Asks only what is missing"
+              },
+              {
+                "title": "Make",
+                "body": "Writes JSON by the skill"
+              },
+              {
+                "title": "Check",
+                "body": "Fixes until it passes"
+              },
+              {
+                "title": "URL",
+                "body": "Returns URLs to open"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b15",
+          "type": "text",
+          "x": 88,
+          "y": 448,
+          "w": 1104,
+          "h": 96,
+          "props": {
+            "text": "State the reader, length and message up front and the sheet gets shorter or disappears. Say \"just make it\" to skip it."
+          }
+        },
+        {
+          "id": "b16",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b17",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Intake",
+            "text": "Before making it, ask only what is missing",
+            "level": 1
+          }
+        },
+        {
+          "id": "b18",
+          "type": "image",
+          "x": 88,
+          "y": 176,
+          "w": 672,
+          "h": 448,
+          "props": {
+            "src": "assets/intake.jpg",
+            "fit": "contain",
+            "caption": "The intake question sheet"
+          }
+        },
+        {
+          "id": "b19",
+          "type": "bullets",
+          "x": 792,
+          "y": 192,
+          "w": 400,
+          "h": 424,
+          "props": {
+            "items": [
+              "Asks the reader, length and title",
+              "Asks about screenshots when screens are the topic",
+              "Does not ask about templates. Name one to use it",
+              "Press \"Copy answers\" and paste into the chat"
+            ],
+            "marker": "disc"
+          }
+        },
+        {
+          "id": "b20",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b21",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Handouts",
+            "text": "Everything lands in the list",
+            "level": 1
+          }
+        },
+        {
+          "id": "b22",
+          "type": "image",
+          "x": 88,
+          "y": 176,
+          "w": 672,
+          "h": 448,
+          "props": {
+            "src": "assets/list.jpg",
+            "fit": "contain",
+            "caption": "The handout list"
+          }
+        },
+        {
+          "id": "b23",
+          "type": "bullets",
+          "x": 792,
+          "y": 192,
+          "w": 400,
+          "h": 424,
+          "props": {
+            "items": [
+              "Cards with cover photos, grouped by kind",
+              "Star a card to pin it under Favorites",
+              "Search titles with the magnifier at the top",
+              "Click a card to open the editor"
+            ],
+            "marker": "disc"
+          }
+        },
+        {
+          "id": "b24",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b25",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Edit on screen",
+            "text": "Small fixes on screen, big ones in chat",
+            "level": 1
+          }
+        },
+        {
+          "id": "b26",
+          "type": "image",
+          "x": 88,
+          "y": 176,
+          "w": 672,
+          "h": 448,
+          "props": {
+            "src": "assets/editor.jpg",
+            "fit": "contain",
+            "caption": "The slide editor"
+          }
+        },
+        {
+          "id": "b27",
+          "type": "bullets",
+          "x": 792,
+          "y": 192,
+          "w": 400,
+          "h": 424,
+          "props": {
+            "items": [
+              "Double-click the canvas to edit text",
+              "Add parts and reorder slides on screen",
+              "Ask for an edit plan in the AI panel and compare",
+              "HTML documents: edit sections and blocks too"
+            ],
+            "marker": "disc"
+          }
+        },
+        {
+          "id": "b28",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b29",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Templates",
+            "text": "Templates own the look",
+            "level": 1
+          }
+        },
+        {
+          "id": "b30",
+          "type": "image",
+          "x": 88,
+          "y": 176,
+          "w": 672,
+          "h": 448,
+          "props": {
+            "src": "assets/templates.jpg",
+            "fit": "contain",
+            "caption": "Slide templates"
+          }
+        },
+        {
+          "id": "b31",
+          "type": "bullets",
+          "x": 792,
+          "y": 192,
+          "w": 400,
+          "h": 424,
+          "props": {
+            "items": [
+              "Colors, fonts, spacing and ornaments come from the template",
+              "The one with a star is the default",
+              "Ask by name, like \"make it with Lumen\"",
+              "On screen you can change text size and layout"
+            ],
+            "marker": "disc"
+          }
+        },
+        {
+          "id": "b32",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b33",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Export",
+            "text": "Export in four formats",
+            "level": 1
+          }
+        },
+        {
+          "id": "b34",
+          "type": "table",
+          "x": 88,
+          "y": 176,
+          "w": 1104,
+          "h": 336,
+          "props": {
+            "headers": ["Format", "What you get", "Good for"],
+            "rows": [
+              ["PDF", "One slide per page", "Handing out and printing"],
+              [
+                "PNG",
+                "One 1280x720 image per slide",
+                "Pasting into chats or docs"
+              ],
+              [
+                "PPTX",
+                "Notes become speaker notes",
+                "Presenting from a slide app"
+              ],
+              ["HTML", "One HTML file to hand out", "Reading in a browser"]
+            ]
+          }
+        },
+        {
+          "id": "b35",
+          "type": "text",
+          "x": 88,
+          "y": 544,
+          "w": 1104,
+          "h": 64,
+          "props": {
+            "text": "HTML documents and question sheets export to one HTML file with the CSS inside."
+          }
+        },
+        {
+          "id": "b36",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b37",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Share",
+            "text": "To send a URL, say \"share it\"",
+            "level": 1
+          }
+        },
+        {
+          "id": "b38",
+          "type": "two-col",
+          "x": 88,
+          "y": 200,
+          "w": 1104,
+          "h": 336,
+          "props": {
+            "left": {
+              "title": "What happens",
+              "body": "Question sheets and HTML documents are published as a Claude Artifact and you get the URL. Asking again updates the same URL. Slides are not supported yet"
+            },
+            "right": {
+              "title": "Keep in mind",
+              "body": "The Artifact starts private. You choose on the Artifact page whether to make a public link. With a public link, anyone can read the names in the handout"
+            }
+          }
+        },
+        {
+          "id": "b39",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b40",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "On your phone",
+            "text": "Open it on a phone on the same Wi-Fi",
+            "level": 1
+          }
+        },
+        {
+          "id": "b41",
+          "type": "bullets",
+          "x": 88,
+          "y": 200,
+          "w": 1104,
+          "h": 360,
+          "props": {
+            "items": [
+              "Set features.lan to true and your agent adds URLs for your phone",
+              "Question sheets and HTML documents read at full size; you can answer sheets on the phone",
+              "For slides you get the editor URL, which is sized for a computer",
+              "While open to the LAN, anyone on the network can read. Skip it on shared Wi-Fi"
+            ],
+            "marker": "disc"
+          }
+        },
+        {
+          "id": "b42",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "b43",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Troubleshooting",
+            "text": "Common problems and what to do",
+            "level": 1
+          }
+        },
+        {
+          "id": "b44",
+          "type": "table",
+          "x": 88,
+          "y": 176,
+          "w": 1104,
+          "h": 456,
+          "props": {
+            "headers": ["When", "Do this"],
+            "rows": [
+              [
+                "Command not found",
+                "In the repo, type /studio-setup (Codex CLI: ask \"Set this up by following SETUP.md.\")"
+              ],
+              [
+                "Check the setup",
+                "Run ai-handout-studio doctor and read that section"
+              ],
+              [
+                "Port 5190 in use",
+                "lsof -nP -iTCP:5190 -sTCP:LISTEN shows the owner"
+              ],
+              [
+                "Phone can't open it",
+                "Check the Wi-Fi, LAN mode and the firewall"
+              ],
+              [
+                "Deleted these handouts",
+                "Run ai-handout-studio examples to add them again"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "b45",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s14",
+      "layout": "closing",
+      "blocks": [
+        {
+          "id": "b46",
+          "type": "heading",
+          "x": 88,
+          "y": 168,
+          "w": 720,
+          "h": 232,
+          "props": {
+            "kicker": "That's it",
+            "text": "Start with\none request",
+            "level": 1
+          }
+        },
+        {
+          "id": "b47",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "Begin with \"make a handout about ...\""
+          }
+        },
+        {
+          "id": "b48",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/path.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b49",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

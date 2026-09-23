@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "product-direction-demo",
+  "revision": "3",
+  "title": "次の進め方を決める",
+  "description": "3つの質問に答えてください。迷うところは詳細で比べられます。",
+  "context": "見本の質問です。実際の設定やタスクは変更しません。",
+  "questions": [
+    {
+      "id": "surface",
+      "title": "最初に使う場面はどちらですか",
+      "summary": "まず1つの場面で試し、使い勝手を確かめます。",
+      "type": "single",
+      "options": [
+        {
+          "id": "candidates",
+          "label": "候補の確認"
+        },
+        {
+          "id": "design",
+          "label": "設計の相談"
+        }
+      ],
+      "recommended": [
+        "candidates"
+      ],
+      "detail": "候補の確認では、複数件を見渡して判断する使い方を確かめられます。設計の相談は、選択肢を図で比べる使い方を確かめられます。",
+      "visual": {
+        "type": "comparison",
+        "caption": "最初に確かめたいことから選べます。",
+        "columns": [
+          "場面",
+          "確かめられること"
+        ],
+        "rows": [
+          [
+            "候補の確認",
+            "短時間で全件を確認できるか"
+          ],
+          [
+            "設計の相談",
+            "選択肢の違いを理解できるか"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "priority",
+      "title": "特に減らしたい負担は何ですか",
+      "summary": "複数選べます。",
+      "type": "multiple",
+      "options": [
+        {
+          "id": "writing",
+          "label": "回答を書く手間"
+        },
+        {
+          "id": "reading",
+          "label": "長い説明を読む負担"
+        },
+        {
+          "id": "returning",
+          "label": "前の回答へ戻る手間"
+        }
+      ],
+      "recommended": [
+        "writing",
+        "reading"
+      ],
+      "visualRationale": "本人が減らしたい負担を選ぶ質問であり、選択肢の優劣や効果は比較しない。"
+    },
+    {
+      "id": "success",
+      "title": "試したあと、どうなっていれば成功ですか",
+      "summary": "短い言葉で構いません。",
+      "type": "text",
+      "detail": "例えば「確認を途中でやめても、迷わず再開できる」など、使ったときの変化を書きます。"
+    }
+  ]
+}

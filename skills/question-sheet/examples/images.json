@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "images-demo",
+  "revision": "1",
+  "title": "資料一覧のカードの見た目を決める",
+  "description": "合成の見本です。案ごとのイメージを見比べてから選んでください。",
+  "questions": [
+    {
+      "id": "card-size",
+      "title": "資料一覧のカードの見た目はどちらにしますか",
+      "summary": "小さいカードを多く並べる案と、写真の大きいカードを少なく並べる案です。",
+      "type": "single",
+      "options": [
+        { "id": "small", "label": "案A 小さいカードを4列" },
+        { "id": "large", "label": "案B 写真の大きいカードを2列" }
+      ],
+      "recommended": ["large"],
+      "detail": "案Aは1画面に多くの資料が入りますが、中身は題名でしか見分けられません。案Bは1画面の数が減る代わりに、表紙の写真で見分けられます。",
+      "visual": {
+        "type": "images",
+        "caption": "イメージ(HTML でモックを描いて撮ったもの)",
+        "items": [
+          {
+            "src": "images/cards-a.png",
+            "label": "案A 小さいカードを4列",
+            "alt": "小さいカードが4列2段に並ぶ資料一覧のモック"
+          },
+          {
+            "src": "images/cards-b.png",
+            "label": "案B 写真の大きいカードを2列",
+            "alt": "写真の枠を持つ大きいカードが2列に並ぶ資料一覧のモック"
+          }
+        ]
+      }
+    }
+  ]
+}

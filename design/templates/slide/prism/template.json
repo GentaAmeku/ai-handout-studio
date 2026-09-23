@@ -1,0 +1,50 @@
+{
+  "label": "Prism",
+  "description": "表紙と締めは紫からミントの全面、本文は上に細いグラデの帯。見出しと数字を極太にする。事業計画向け。グラデーションは PPTX に出ないので HTML と PDF 用。同梱の絵は PPTX には撮った画像で入る",
+  "tokens": {
+    "color": {
+      "bg": "#f5f5f5",
+      "text": "#0f1a1f",
+      "muted": "#3b4650",
+      "primary": "#6a5cf5",
+      "primaryStrong": "#5648d9",
+      "surface": "#ffffff",
+      "tint": "#7fe0d0",
+      "border": "#d9d9d9",
+      "lavender": "#eeecff",
+      "chip": "#e8e8ec"
+    },
+    "size": {
+      "kicker": 15,
+      "h1": 54,
+      "h2": 40,
+      "body": 19,
+      "cover": 70,
+      "cardTitle": 24,
+      "kpi": 92,
+      "small": 14
+    },
+    "radius": {
+      "base": 8,
+      "sm": 4,
+      "card": 8
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "minimal"
+    },
+    "card": {
+      "variant": "filled"
+    },
+    "notice": {
+      "variant": "bar"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  }
+}

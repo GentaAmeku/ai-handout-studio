@@ -1,0 +1,143 @@
+/* グラデ。表紙と締めは全面、本文は上の細い帯にだけ紫からミントを使う。見出しと数字は極太 */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+.ds-heading__text {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ds-heading__kicker {
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.ds-kpi__value {
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+.ds-kpi,
+.ds-two-col__column,
+.ds-process__step {
+  background: var(--color-surface);
+}
+
+.ds-bullets--number .ds-bullets__item::before,
+.ds-process__number {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* 表紙と締めは紫からミントの全面。地が明るいので字は濃い色のままにする */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 60%, white),
+    var(--color-tint)
+  );
+}
+
+&:is(.ds-slide--cover, .ds-slide--closing) .ds-heading__kicker {
+  color: var(--color-text);
+}
+
+/* 章扉は濃い地に白い字。箱の部品だけ本文色に戻す */
+&.ds-slide--section {
+  background: var(--color-text);
+  color: var(--color-on-primary);
+
+  .ds-heading__text,
+  .ds-heading__kicker,
+  .ds-org,
+  .ds-footer {
+    color: var(--color-on-primary);
+  }
+
+  .ds-card,
+  .ds-kpi,
+  .ds-two-col__column,
+  .ds-process__step,
+  .ds-table {
+    color: var(--color-text);
+  }
+}
+
+/* 本文は上に細いグラデの帯。左は見出しの定位置に細い縦線 */
+&.ds-slide--content .ds-decoration__shape--1 {
+  display: block;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--space-xs);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-tint));
+}
+
+&.ds-slide--content .ds-decoration__shape--2 {
+  display: block;
+  top: calc(var(--space-slide) * 0.75);
+  left: calc(var(--space-slide) / 2);
+  width: 3px;
+  height: calc(var(--space-slide) * 1.5);
+  background: var(--color-primary);
+}
+
+/* 表紙と締めは右に白い面を敷き、その上に絵を置く。左は細い縦線で締める */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  .ds-decoration__shape--1 {
+    display: block;
+    top: 176px;
+    right: 32px;
+    width: 432px;
+    height: 340px;
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+  }
+
+  .ds-decoration__shape--3 {
+    display: block;
+    top: calc(var(--space-slide) * 2.5);
+    left: calc(var(--space-slide) / 2);
+    width: 3px;
+    height: calc(var(--space-slide) * 5.75);
+    background: var(--color-text);
+  }
+}
+
+/* 本文は右下に淡い紫の大きな面を沈める */
+&.ds-slide--content .ds-decoration__shape--4 {
+  display: block;
+  right: calc(var(--space-slide) * -1);
+  bottom: calc(var(--space-slide) * -1);
+  width: calc(var(--space-slide) * 4);
+  height: calc(var(--space-slide) * 4);
+  border-radius: var(--radius-card);
+  background: var(--color-lavender);
+}
+
+/* 章扉は濃い地に、紫からミントの帯と円を重ねる */
+&.ds-slide--section {
+  .ds-decoration__shape--5 {
+    display: block;
+    top: calc(var(--space-slide) * -1.5);
+    right: calc(var(--space-slide) * -1.5);
+    width: calc(var(--space-slide) * 6);
+    height: calc(var(--space-slide) * 6);
+    border-radius: 9999px;
+    background: var(--color-primary);
+    opacity: 0.5;
+  }
+
+  .ds-decoration__shape--6 {
+    display: block;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--space-xs);
+    background: linear-gradient(90deg, var(--color-primary), var(--color-tint));
+  }
+}

@@ -1,0 +1,180 @@
+/* ノート。手描きの枠と丸ゴシックの見出し。黄・青・ピンクの面に黒い枠。絵は中身として置く */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+.ds-sketch {
+  display: block;
+}
+
+.ds-sketch__line {
+  stroke: var(--color-text);
+  stroke-width: 2px;
+}
+
+.ds-heading__text {
+  font-weight: 700;
+}
+
+/* 小見出しは丸い札にする。高さを変えないよう左右だけ余白を取る */
+.ds-heading__kicker {
+  align-self: flex-start;
+  padding: 0 var(--space-sm);
+  border-radius: 9999px;
+  background: var(--color-tint);
+  color: var(--color-text);
+}
+
+/* 黒い枠の面。1つ目から順に黄・青・ピンク */
+.ds-card,
+.ds-kpi,
+.ds-two-col__column,
+.ds-process__step {
+  border: 2px solid var(--color-text);
+  border-radius: var(--radius-card);
+  background: var(--color-tint);
+  box-shadow: none;
+}
+
+.ds-card {
+  --card-bg: var(--color-tint);
+  --card-border-width: 2px;
+  --card-border-color: var(--color-text);
+  --card-shadow: none;
+}
+
+.ds-card:nth-child(3n + 2),
+.ds-kpi:nth-child(3n + 2),
+.ds-two-col__column:nth-child(3n + 2),
+.ds-process__step:nth-child(3n + 2) {
+  --card-bg: var(--color-lavender);
+  background: var(--color-lavender);
+}
+
+.ds-card:nth-child(3n + 3),
+.ds-kpi:nth-child(3n + 3),
+.ds-two-col__column:nth-child(3n + 3),
+.ds-process__step:nth-child(3n + 3) {
+  --card-bg: var(--color-chip);
+  background: var(--color-chip);
+}
+
+.ds-icon,
+.ds-kpi__value {
+  color: var(--color-text);
+}
+
+.ds-process__number,
+.ds-bullets--number .ds-bullets__item::before {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* 絵は黒い枠の札にして、色の丸の上に置く */
+.ds-image__frame {
+  border: 2px solid var(--color-text);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+/* 本文は右上に黄と青の丸を小さく重ねる */
+&.ds-slide--content {
+  .ds-decoration__shape--4 {
+    display: block;
+    top: calc(var(--space-slide) * 0.625);
+    right: calc(var(--space-slide) * 0.875);
+    width: var(--space-slide);
+    height: var(--space-slide);
+    border-radius: 9999px;
+    background: var(--color-tint);
+  }
+
+  .ds-decoration__shape--5 {
+    display: block;
+    top: calc(var(--space-slide) * 1.5);
+    right: calc(var(--space-slide) * 1.875);
+    width: calc(var(--space-slide) * 0.625);
+    height: calc(var(--space-slide) * 0.625);
+    border-radius: 9999px;
+    background: var(--color-lavender);
+  }
+}
+
+/* 表紙と締めは右に大きな余白。黄の面に青とピンクの丸を重ね、絵はその上に置く */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  .ds-decoration__shape--1 {
+    display: block;
+    top: calc(var(--space-slide) * 1.25);
+    right: var(--space-slide);
+    width: 36%;
+    height: 62%;
+    border-radius: 9999px;
+    background: var(--color-tint);
+  }
+
+  .ds-decoration__shape--2 {
+    display: block;
+    top: calc(var(--space-slide) * 0.75);
+    right: calc(var(--space-slide) * 0.5);
+    width: calc(var(--space-slide) * 1.25);
+    height: calc(var(--space-slide) * 1.25);
+    border-radius: 9999px;
+    background: var(--color-lavender);
+  }
+
+  .ds-decoration__shape--3 {
+    display: block;
+    bottom: calc(var(--space-slide) * 1.5);
+    right: calc(var(--space-slide) * 0.75);
+    width: calc(var(--space-slide) * 1);
+    height: calc(var(--space-slide) * 1);
+    border-radius: 9999px;
+    background: var(--color-chip);
+  }
+}
+
+/* 章扉は章番号(小見出し)を大きく。左に黄の丸を置き、右は絵の余白 */
+&.ds-slide--section {
+  .ds-heading__kicker {
+    padding: 0;
+    background: transparent;
+    font-size: var(--fs-cover);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--color-primary);
+  }
+
+  .ds-decoration__shape--1 {
+    display: block;
+    top: 50%;
+    right: var(--space-slide);
+    width: calc(var(--space-slide) * 4);
+    height: calc(var(--space-slide) * 4);
+    margin-top: calc(var(--space-slide) * -2);
+    border-radius: 9999px;
+    background: var(--color-tint);
+  }
+
+  .ds-decoration__shape--2 {
+    display: block;
+    bottom: calc(var(--space-slide) * 0.75);
+    right: calc(var(--space-slide) * 4.25);
+    width: calc(var(--space-slide) * 1.25);
+    height: calc(var(--space-slide) * 1.25);
+    border-radius: 9999px;
+    background: var(--color-chip);
+  }
+
+  /* 章番号の上に青の丸 */
+  .ds-decoration__shape--6 {
+    display: block;
+    top: calc(var(--space-slide) * 2.75);
+    left: var(--space-slide);
+    width: var(--space-gap);
+    height: var(--space-gap);
+    border-radius: 9999px;
+    background: var(--color-lavender);
+  }
+}

@@ -1,0 +1,133 @@
+/* 登壇用の白地。黒に近い太い字と深紅の1色。章扉だけ深紅の全面にして区切りを見せる。
+   罫と補足の字は灰に落とし、グラデーションと影は使わない */
+
+.ds-wave,
+.ds-accent-bar {
+  display: none;
+}
+
+.ds-heading__text {
+  letter-spacing: -0.01em;
+}
+
+.ds-heading__kicker {
+  letter-spacing: 0.08em;
+}
+
+.ds-bullets--disc .ds-bullets__item::before {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+}
+
+.ds-bullets--number .ds-bullets__item::before {
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.ds-bullets__item {
+  padding-left: calc(var(--space-gap) + var(--space-md));
+}
+
+/* 数字は黒の極太。下に深紅の太い線 */
+.ds-kpi__value {
+  font-weight: 900;
+  color: var(--color-heading);
+}
+
+.ds-kpi {
+  border-top: 6px solid var(--color-primary);
+  border-radius: 0;
+  background: transparent;
+}
+
+.ds-card__title,
+.ds-two-col__title,
+.ds-process__title {
+  color: var(--color-heading);
+}
+
+.ds-process__number {
+  width: 56px;
+  height: 56px;
+}
+
+/* 表は地を塗らず罫だけ。見出しの下だけ黒い太い線、見出しの字は灰 */
+.ds-table th {
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  letter-spacing: 0.06em;
+  border-bottom: 3px solid var(--color-rule);
+}
+
+.ds-table thead + tbody > tr:first-child > td {
+  border-top: 0;
+}
+
+.ds-table td:first-child {
+  color: var(--color-heading);
+  font-weight: 800;
+}
+
+/* 表紙と締めは上端に深紅の太い帯、右に淡い面を敷いて絵を置く */
+&:is(.ds-slide--cover, .ds-slide--closing) {
+  .ds-decoration__shape--1 {
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--space-xs) * 2);
+    background: var(--color-primary);
+  }
+
+  .ds-decoration__shape--2 {
+    display: block;
+    top: 176px;
+    right: 32px;
+    width: 432px;
+    height: 340px;
+    background: var(--color-surface);
+  }
+}
+
+/* 本文は上端に深紅の細い帯 */
+&.ds-slide--content {
+  .ds-decoration__shape--4 {
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--space-xs);
+    background: var(--color-primary);
+  }
+}
+
+/* 章扉は深紅の全面 */
+&.ds-slide--section {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+
+  .ds-heading__kicker {
+    font-size: var(--fs-h1);
+  }
+
+  .ds-heading__kicker,
+  .ds-org,
+  .ds-footer {
+    color: var(--color-on-primary);
+  }
+
+  .ds-heading .ds-heading__text {
+    color: var(--color-on-primary);
+  }
+
+  .ds-card,
+  .ds-kpi,
+  .ds-two-col__column,
+  .ds-process__step,
+  .ds-table {
+    color: var(--color-text);
+  }
+}

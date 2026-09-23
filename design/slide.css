@@ -1,0 +1,468 @@
+/* スライドのブロックと装飾。色・余白・字サイズ・角丸は var() だけで書く。値は design/tokens.json とテーマが持つ */
+
+.ds-slide {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+}
+
+:where(.ds-slide *, .ds-slide *::before, .ds-slide *::after) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.ds-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* テンプレートの専用の CSS が描く飾りの形(帯・面・線)。既定では出さない。名前は番号のまま */
+.ds-decoration__shape {
+  display: none;
+  position: absolute;
+}
+
+/* 手描きの枠。既定の波と同じ作りの SVG で、テンプレートの専用の CSS が出す */
+.ds-sketch {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ds-sketch__line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ds-wave {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ds-wave__back {
+  fill: var(--color-tint);
+  opacity: 0.45;
+}
+
+.ds-wave__front {
+  fill: var(--color-tint);
+  opacity: 0.8;
+}
+
+.ds-accent-bar {
+  position: absolute;
+  top: var(--space-slide);
+  bottom: var(--space-slide);
+  left: calc(var(--space-slide) / 2);
+  width: var(--space-xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  opacity: 0.7;
+}
+
+/* 表紙と締めに出す組織名。プロフィールが空なら描かない */
+.ds-org {
+  position: absolute;
+  top: var(--space-slide);
+  left: var(--space-slide);
+  color: var(--color-muted);
+  font-size: var(--fs-kicker);
+}
+
+/* はみ出し検査は、このブロック枠の scrollHeight と clientHeight を比べる */
+.ds-block {
+  position: absolute;
+  overflow: hidden;
+}
+
+.ds-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.ds-heading__kicker {
+  font-size: var(--fs-kicker);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+}
+
+.ds-heading__text {
+  font-family: var(--font-display);
+  font-weight: var(--fw-heading);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
+  white-space: pre-wrap;
+  color: var(--color-heading);
+}
+
+.ds-heading[data-level="1"] .ds-heading__text {
+  font-size: var(--fs-h1);
+}
+
+.ds-heading[data-level="2"] .ds-heading__text {
+  font-size: var(--fs-h2);
+}
+
+.ds-text {
+  white-space: pre-wrap;
+}
+
+.ds-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  list-style: none;
+}
+
+.ds-bullets__item {
+  position: relative;
+  padding-left: calc(var(--space-gap) + var(--space-xs));
+  white-space: pre-wrap;
+}
+
+.ds-bullets__item::before {
+  position: absolute;
+  left: 0;
+  top: calc(var(--lh-body) * 0.5em);
+  translate: 0 -50%;
+}
+
+.ds-bullets--disc .ds-bullets__item::before {
+  content: "";
+  left: var(--space-xs);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.ds-bullets--number {
+  counter-reset: ds-bullets;
+}
+
+.ds-bullets--number .ds-bullets__item {
+  counter-increment: ds-bullets;
+}
+
+.ds-bullets--number .ds-bullets__item::before {
+  content: counter(ds-bullets);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-tint);
+  color: var(--color-primary);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.ds-card-grid {
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: var(--space-gap);
+  height: 100%;
+  /* ブロック枠は はみ出しを切るので、しっぽの出る分を下に空けておく */
+  padding-bottom: var(--card-tail-space);
+}
+
+.ds-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-card);
+  border-style: solid;
+  border-width: var(--card-border-width);
+  border-color: var(--card-border-color);
+  border-radius: var(--card-radius);
+  background: var(--card-bg);
+  box-shadow: var(--card-shadow);
+}
+
+/* 吹き出しのしっぽ。疑似要素は PPTX に出ないので、回した小さな箱にする。出すかどうかと位置は card の形の軸 */
+.ds-card__tail {
+  display: var(--card-tail-display);
+  position: absolute;
+  bottom: -10px;
+  left: var(--card-tail-left);
+  right: var(--card-tail-right);
+  width: 20px;
+  height: 20px;
+  border-style: solid;
+  border-width: 0 var(--card-tail-border-width) var(--card-tail-border-width) 0;
+  border-color: var(--card-border-color);
+  background: var(--card-bg);
+  transform: rotate(45deg);
+}
+
+/* 見出しの帯は、カードの余白(--card-head-bleed)ぶん外へ広げて塗る。アイコンの位置は並びの向きで決める */
+.ds-card__head {
+  display: flex;
+  flex-direction: var(--card-icon-direction);
+  align-items: var(--card-icon-align);
+  gap: var(--space-sm);
+  margin: calc(var(--card-head-bleed) * -1) calc(var(--card-head-bleed) * -1) 0;
+  padding: var(--card-head-pad-top) var(--card-head-bleed)
+    var(--card-head-pad-bottom);
+  border-bottom: var(--card-head-rule-width) solid var(--color-border);
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+  background: var(--card-head-bg);
+}
+
+.ds-icon {
+  flex: none;
+  color: var(--color-primary);
+}
+
+.ds-card__title {
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.ds-card__body {
+  white-space: pre-wrap;
+}
+
+.ds-kpi-row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-gap);
+  height: 100%;
+}
+
+.ds-kpi {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-card);
+  border-radius: var(--radius);
+  background: var(--kpi-bg);
+}
+
+.ds-kpi__value {
+  font-size: var(--fs-kpi);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  color: var(--kpi-value-color);
+}
+
+.ds-kpi__label {
+  font-weight: 700;
+}
+
+.ds-kpi__note {
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+
+.ds-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-gap);
+  height: 100%;
+}
+
+.ds-two-col__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-card);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.ds-two-col__title {
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-tint);
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.ds-two-col__body {
+  white-space: pre-wrap;
+}
+
+.ds-process {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-gap);
+  height: 100%;
+  list-style: none;
+}
+
+.ds-process__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-card);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+/* 段のつなぎ。最後以外の段が持つ要素(疑似要素は PPTX に出ないため) */
+.ds-process__link {
+  position: absolute;
+  top: calc(var(--space-card) + 14px);
+  right: calc(var(--space-gap) * -0.5 - 6px);
+  width: 12px;
+  height: 12px;
+  border-top: 2px solid var(--color-primary);
+  border-right: 2px solid var(--color-primary);
+  transform: rotate(45deg);
+}
+
+.ds-process__number {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.ds-process__title {
+  font-size: var(--fs-card-title);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+
+.ds-process__body {
+  white-space: pre-wrap;
+}
+
+.ds-table {
+  width: 100%;
+  border: var(--table-border-width) solid var(--color-border);
+  border-radius: var(--table-radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.ds-table th,
+.ds-table td {
+  height: var(--table-row-height);
+  padding: var(--table-cell-pad-y) var(--table-cell-pad-x);
+  text-align: left;
+  vertical-align: top;
+  white-space: pre-wrap;
+}
+
+.ds-table th {
+  background: var(--table-head-bg);
+  font-weight: 700;
+}
+
+.ds-table td {
+  border-top: var(--table-rule-width) solid var(--color-border);
+}
+
+.ds-table th + th,
+.ds-table td + td {
+  border-left: var(--table-col-rule-width) solid var(--color-border);
+}
+
+/* 縞は偶数行の地。変種「罫線」「最小」は transparent で縞なし */
+.ds-table tbody tr:nth-child(even) td {
+  background: var(--table-stripe-bg);
+}
+
+/* 見出しと本文の境目。見出しの帯が下線のときは太く濃くなる */
+.ds-table thead + tbody > tr:first-child > td {
+  border-top: var(--table-head-rule-width) solid var(--table-head-rule-color);
+}
+
+.ds-image {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  height: 100%;
+}
+
+.ds-image__frame {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.ds-image__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ds-image__missing {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+
+.ds-image__caption {
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+
+.ds-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  height: 100%;
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+
+.ds-footer__page {
+  margin-left: auto;
+}
+
+.ds-unknown {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  border: 1px dashed var(--color-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+
+/* 表紙の見出しは大きくする。見出しの字サイズより後に置く */
+.ds-slide--cover .ds-heading[data-level="1"] .ds-heading__text {
+  font-size: var(--fs-cover);
+}

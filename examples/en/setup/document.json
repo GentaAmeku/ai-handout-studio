@@ -1,0 +1,358 @@
+{
+  "id": "doc_20260924_001",
+  "title": "Setup and usage",
+  "status": "draft",
+  "lang": "en",
+  "meta": {
+    "audience": "Someone installing AI Handout Studio for the first time",
+    "createdAt": "2026-09-24T00:00:00.000Z",
+    "updatedAt": "2026-09-23T15:27:22.950Z"
+  },
+  "head": {
+    "title": "Setup and usage",
+    "lede": "Ask your agent and it installs: type /studio-setup in Claude Code, or ask Codex CLI \"Set this up by following SETUP.md.\" This page covers what happens then and how to use it afterwards."
+  },
+  "summary": {
+    "label": "Summary",
+    "text": "In the cloned repository, ask your agent. doctor checks the state and names the next section; your agent works through it. You only answer four things: language, organization name, the agent instructions block and the optional features. After that, ask \"make a handout about ...\" from a chat in any folder."
+  },
+  "toc": "auto",
+  "sections": [
+    {
+      "id": "s01",
+      "heading": "Before you start",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "text",
+          "props": {
+            "text": "You need the following. If something is missing, your agent shows how to install it in the matching section."
+          }
+        },
+        {
+          "id": "b02",
+          "type": "table",
+          "props": {
+            "headers": ["What", "Requirement"],
+            "rows": [
+              ["Agent", "Claude Code or Codex CLI"],
+              ["OS", "macOS or Linux. On Windows, use it inside WSL"],
+              [
+                "Node and pnpm",
+                "Node 24 or later and pnpm 11. With mise, mise install sets both"
+              ],
+              ["git", "Used to clone the repository"]
+            ],
+            "rowLabel": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "heading": "How setup runs (a game book)",
+      "blocks": [
+        {
+          "id": "b03",
+          "type": "ordered",
+          "props": {
+            "items": [
+              {
+                "text": "Clone the repository and start your agent in that folder."
+              },
+              {
+                "text": "In Claude Code, type /studio-setup. In Codex CLI, ask: \"Set this up by following SETUP.md.\"",
+                "why": "For the Japanese steps, point it at SETUP.ja.md."
+              },
+              {
+                "text": "Your agent runs doctor and reads the section in next.section.",
+                "why": "next.reason says what is missing."
+              },
+              {
+                "text": "It follows that section and runs doctor again.",
+                "why": "It repeats until ok is true."
+              }
+            ]
+          }
+        },
+        {
+          "id": "b04",
+          "type": "code",
+          "props": {
+            "text": "node scripts/doctor.mjs --json",
+            "caption": "Works even before pnpm install. After section 5, ai-handout-studio doctor --json does the same"
+          }
+        },
+        {
+          "id": "b05",
+          "type": "code",
+          "props": {
+            "text": "{\n  \"ok\": false,\n  \"checks\": [\n    { \"id\": \"node\", \"status\": \"ok\", \"section\": 2, … },\n    …\n    { \"id\": \"locale\", \"status\": \"missing\", \"section\": 7, … }\n  ],\n  \"next\": { \"section\": 7, \"reason\": \"locale is not set\" }\n}",
+            "caption": "The shape of doctor's output (shortened)"
+          }
+        },
+        {
+          "id": "b06",
+          "type": "notice",
+          "props": {
+            "kind": "info",
+            "label": "What you are asked",
+            "text": "Your agent only asks about choices: language, organization name, adding the agent instructions block and the optional features. It asks before editing your agent instructions or shell settings. It never uses sudo; when that is needed, it shows the command for you to run."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "heading": "Sections at a glance",
+      "blocks": [
+        {
+          "id": "b07",
+          "type": "table",
+          "props": {
+            "headers": ["Section", "doctor checks", "Main step"],
+            "rows": [
+              [
+                "2",
+                "git, Node, pnpm, OS",
+                "Match versions with mise install or corepack"
+              ],
+              ["3", "node_modules and design/dist", "pnpm install"],
+              [
+                "4",
+                "Chromium and lsof",
+                "pnpm exec playwright install chromium"
+              ],
+              [
+                "5",
+                "The ai-handout-studio command",
+                "Symlink it into ~/.local/bin"
+              ],
+              ["6", "The two skills", "Symlink them into the skills folders"],
+              [
+                "7",
+                "Language and organization name",
+                "settings --set locale=… --set orgName=…"
+              ],
+              [
+                "8",
+                "The agent instructions block",
+                "Show it and let you add or decline it"
+              ],
+              ["9", "Optional features", "Ask all three in one question sheet"],
+              ["10", "The server on port 5190", "ai-handout-studio open"]
+            ],
+            "rowLabel": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "heading": "Optional features",
+      "blocks": [
+        {
+          "id": "b08",
+          "type": "text",
+          "props": {
+            "text": "In section 9 you are asked, in one question sheet, whether to use these three. Use the same command to change them later."
+          }
+        },
+        {
+          "id": "b09",
+          "type": "table",
+          "props": {
+            "headers": ["Feature", "What it does", "Keep in mind"],
+            "rows": [
+              [
+                "lan",
+                "Read handouts on a phone on the same Wi-Fi",
+                "Anyone on the network can read them. Skip it on shared Wi-Fi"
+              ],
+              [
+                "imageGeneration",
+                "Make illustrations with an image CLI (Codex CLI or Antigravity CLI)",
+                "Uses that service's quota"
+              ],
+              [
+                "share",
+                "Share question sheets and HTML documents as a Claude Artifact",
+                "With a public link, anyone can read the names in the handout"
+              ]
+            ],
+            "rowLabel": true
+          }
+        },
+        {
+          "id": "b10",
+          "type": "code",
+          "props": {
+            "text": "ai-handout-studio settings \\\n  --set features.lan=false \\\n  --set features.imageGeneration=true \\\n  --set features.share=false"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "heading": "Using it",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "ordered",
+          "props": {
+            "items": [
+              {
+                "text": "From a chat in any folder, ask \"make a handout about ...\".",
+                "why": "What you ask decides whether it becomes slides, an HTML document or a question sheet."
+              },
+              {
+                "text": "If something is missing, a question sheet URL arrives first.",
+                "why": "Answer it, press \"Copy answers\" and paste into the chat."
+              },
+              {
+                "text": "Your agent makes it, runs the check and returns the URL.",
+                "why": "It also shows up in the app's handout list."
+              },
+              {
+                "text": "Fix wording or layout on screen, then export or share."
+              }
+            ]
+          }
+        },
+        {
+          "id": "b12",
+          "type": "image",
+          "props": {
+            "src": "assets/img-1.jpg",
+            "alt": "The intake question sheet asking about the reader, length, screenshots and title",
+            "caption": "The intake question sheet"
+          }
+        },
+        {
+          "id": "b13",
+          "type": "image",
+          "props": {
+            "src": "assets/img-2.jpg",
+            "alt": "The slide list with three cover cards; the left menu has sections for slides, question sheets and HTML documents",
+            "caption": "The handout list (slides). Click a card to open the editor"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "note",
+          "props": {
+            "text": "To open the app yourself, run ai-handout-studio open in a terminal and open the url it prints. Help in the left menu explains each screen."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "heading": "Updating and removing",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "text",
+          "props": {
+            "text": "To update, pull and follow doctor. If it says the agent instructions block is outdated, replace it in section 8 (with your consent). If the server code changed, restart it with ai-handout-studio restart."
+          }
+        },
+        {
+          "id": "b16",
+          "type": "code",
+          "props": {
+            "text": "git pull\npnpm install\nnode scripts/doctor.mjs --json",
+            "caption": "Updating"
+          }
+        },
+        {
+          "id": "b17",
+          "type": "ordered",
+          "props": {
+            "items": [
+              {
+                "text": "Stop the server."
+              },
+              {
+                "text": "Remove the skill links (only the links)."
+              },
+              {
+                "text": "Remove the ai-handout-studio command."
+              },
+              {
+                "text": "Delete the ai-handout-studio block (between its markers) from your agent instructions."
+              },
+              {
+                "text": "Before deleting the clone, decide whether to keep workspace/."
+              }
+            ]
+          }
+        },
+        {
+          "id": "b18",
+          "type": "alert",
+          "props": {
+            "text": "workspace/ holds your handouts and question-sheet answers. Deleting the clone with it cannot be undone."
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "heading": "Troubleshooting",
+      "blocks": [
+        {
+          "id": "b19",
+          "type": "table",
+          "props": {
+            "headers": ["When", "Do this"],
+            "rows": [
+              [
+                "Port 5190 is in use",
+                "Find the owner with lsof -nP -iTCP:5190 -sTCP:LISTEN. If it is not ai-handout-studio, decide whether to stop it"
+              ],
+              [
+                "Chromium does not start (Linux)",
+                "Run sudo pnpm exec playwright install-deps chromium"
+              ],
+              [
+                "The phone can't open it",
+                "Check the phone is on the same Wi-Fi (guest networks often isolate devices), the app is open to the LAN (features.lan), and the firewall lets node accept connections"
+              ],
+              [
+                "You want the server log",
+                "Open ai-handout-studio-dev.log in the system temp folder"
+              ],
+              [
+                "You deleted this page and the usage slides",
+                "Run ai-handout-studio examples to add them again (--lang ja or en picks the language)"
+              ]
+            ],
+            "rowLabel": true
+          }
+        }
+      ]
+    }
+  ],
+  "aside": {
+    "label": "Terms",
+    "glossary": [
+      {
+        "term": "doctor",
+        "description": "A command that checks the setup and names the next SETUP section to read"
+      },
+      {
+        "term": "Skill",
+        "description": "Instructions your agent reads. Two are installed: handouts and question sheets"
+      },
+      {
+        "term": "Agent instructions",
+        "description": "The file your agent reads in every folder (such as ~/.claude/CLAUDE.md)"
+      },
+      {
+        "term": "workspace/",
+        "description": "The folder for handouts and settings. It is outside git"
+      }
+    ]
+  }
+}

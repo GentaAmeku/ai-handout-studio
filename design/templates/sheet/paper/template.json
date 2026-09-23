@@ -1,0 +1,51 @@
+{
+  "label": "書類",
+  "description": "罫線で区切った白い用紙に、明朝の見出しと記入欄。全問を1枚に並べる。申込書や確認書のような質問向け",
+  "tokens": {
+    "color": {
+      "bg": "#ffffff",
+      "text": "#111827",
+      "muted": "#4b5563",
+      "primary": "#1f2937",
+      "primaryStrong": "#111827",
+      "surface": "#f1f0ec",
+      "tint": "#e7e5e0",
+      "border": "#9ca3af",
+      "chip": "#ecebe7"
+    },
+    "font": {
+      "sans": ["Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "serif"]
+    },
+    "radius": {
+      "base": 0,
+      "sm": 0,
+      "card": 0
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "lined"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "square"
+    }
+  },
+  "layout": {
+    "base": "all",
+    "width": 1280,
+    "list": {
+      "width": 228,
+      "side": "left"
+    },
+    "content": null
+  }
+}

@@ -1,0 +1,686 @@
+{
+  "table": {
+    "label": "表",
+    "default": "lined",
+    "variants": {
+      "lined": {
+        "label": "罫線",
+        "vars": {
+          "table-border-width": "1px",
+          "table-rule-width": "1px",
+          "table-radius": "var(--radius)",
+          "table-head-bg": "var(--color-tint)",
+          "table-stripe-bg": "transparent",
+          "table-col-rule-width": "0px",
+          "table-head-rule-width": "var(--table-rule-width)",
+          "table-head-rule-color": "var(--color-border)",
+          "table-row-height": "auto"
+        }
+      },
+      "striped": {
+        "label": "縞",
+        "vars": {
+          "table-border-width": "1px",
+          "table-rule-width": "0px",
+          "table-radius": "var(--radius)",
+          "table-head-bg": "var(--color-tint)",
+          "table-stripe-bg": "var(--color-surface)",
+          "table-col-rule-width": "0px",
+          "table-head-rule-width": "var(--table-rule-width)",
+          "table-head-rule-color": "var(--color-border)",
+          "table-row-height": "auto"
+        }
+      },
+      "minimal": {
+        "label": "最小",
+        "vars": {
+          "table-border-width": "0px",
+          "table-rule-width": "1px",
+          "table-radius": "0px",
+          "table-head-bg": "transparent",
+          "table-stripe-bg": "transparent",
+          "table-col-rule-width": "0px",
+          "table-head-rule-width": "var(--table-rule-width)",
+          "table-head-rule-color": "var(--color-border)",
+          "table-row-height": "auto"
+        }
+      }
+    },
+    "shape": {
+      "outer": {
+        "label": "外枠",
+        "options": {
+          "on": {
+            "label": "あり",
+            "vars": {
+              "table-border-width": "1px"
+            }
+          },
+          "off": {
+            "label": "なし",
+            "vars": {
+              "table-border-width": "0px"
+            }
+          }
+        }
+      },
+      "corner": {
+        "label": "角",
+        "options": {
+          "rounded": {
+            "label": "丸い",
+            "vars": {
+              "table-radius": "var(--radius)"
+            }
+          },
+          "square": {
+            "label": "角ばる",
+            "vars": {
+              "table-radius": "0px"
+            }
+          }
+        }
+      },
+      "rule": {
+        "label": "横罫",
+        "options": {
+          "on": {
+            "label": "あり",
+            "vars": {
+              "table-rule-width": "1px"
+            }
+          },
+          "off": {
+            "label": "なし",
+            "vars": {
+              "table-rule-width": "0px"
+            }
+          }
+        }
+      },
+      "column": {
+        "label": "縦罫",
+        "options": {
+          "off": {
+            "label": "なし",
+            "vars": {
+              "table-col-rule-width": "0px"
+            }
+          },
+          "on": {
+            "label": "あり",
+            "vars": {
+              "table-col-rule-width": "1px"
+            }
+          }
+        }
+      },
+      "head": {
+        "label": "見出しの帯",
+        "options": {
+          "fill": {
+            "label": "塗り",
+            "vars": {
+              "table-head-bg": "var(--color-tint)",
+              "table-head-rule-width": "var(--table-rule-width)",
+              "table-head-rule-color": "var(--color-border)"
+            }
+          },
+          "underline": {
+            "label": "下線",
+            "vars": {
+              "table-head-bg": "transparent",
+              "table-head-rule-width": "2px",
+              "table-head-rule-color": "var(--color-text)"
+            }
+          },
+          "none": {
+            "label": "なし",
+            "vars": {
+              "table-head-bg": "transparent",
+              "table-head-rule-width": "var(--table-rule-width)",
+              "table-head-rule-color": "var(--color-border)"
+            }
+          }
+        }
+      },
+      "stripe": {
+        "label": "縞",
+        "options": {
+          "off": {
+            "label": "なし",
+            "vars": {
+              "table-stripe-bg": "transparent"
+            }
+          },
+          "on": {
+            "label": "あり",
+            "vars": {
+              "table-stripe-bg": "var(--color-surface)"
+            }
+          }
+        }
+      },
+      "row": {
+        "label": "行の高さ",
+        "options": {
+          "auto": {
+            "label": "中身に合わせる",
+            "vars": {
+              "table-row-height": "auto"
+            }
+          },
+          "tall": {
+            "label": "高め",
+            "vars": {
+              "table-row-height": "2.75em"
+            }
+          },
+          "roomy": {
+            "label": "ゆったり",
+            "vars": {
+              "table-row-height": "3.5em"
+            }
+          }
+        }
+      }
+    },
+    "params": {
+      "density": {
+        "label": "密度",
+        "default": "normal",
+        "options": {
+          "normal": {
+            "label": "標準",
+            "vars": {
+              "table-cell-pad-y": "var(--space-sm)",
+              "table-cell-pad-x": "var(--space-md)"
+            }
+          },
+          "compact": {
+            "label": "詰める",
+            "vars": {
+              "table-cell-pad-y": "var(--space-xs)",
+              "table-cell-pad-x": "var(--space-sm)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "card": {
+    "label": "カード",
+    "default": "outlined",
+    "variants": {
+      "outlined": {
+        "label": "枠と影",
+        "vars": {
+          "card-bg": "var(--color-bg)",
+          "card-border-width": "1px",
+          "card-radius": "var(--radius)",
+          "card-shadow": "var(--shadow-card)",
+          "card-border-color": "var(--color-border)",
+          "card-head-bg": "transparent",
+          "card-head-rule-width": "0px",
+          "card-head-bleed": "0px",
+          "card-head-pad-top": "0px",
+          "card-head-pad-bottom": "0px",
+          "card-icon-direction": "row",
+          "card-icon-align": "center",
+          "card-tail-display": "none",
+          "card-tail-left": "auto",
+          "card-tail-right": "auto",
+          "card-tail-border-width": "1px",
+          "card-tail-space": "0px"
+        }
+      },
+      "filled": {
+        "label": "塗り",
+        "vars": {
+          "card-bg": "var(--color-surface)",
+          "card-border-width": "0px",
+          "card-radius": "var(--radius)",
+          "card-shadow": "none",
+          "card-border-color": "var(--color-border)",
+          "card-head-bg": "transparent",
+          "card-head-rule-width": "0px",
+          "card-head-bleed": "0px",
+          "card-head-pad-top": "0px",
+          "card-head-pad-bottom": "0px",
+          "card-icon-direction": "row",
+          "card-icon-align": "center",
+          "card-tail-display": "none",
+          "card-tail-left": "auto",
+          "card-tail-right": "auto",
+          "card-tail-border-width": "0px",
+          "card-tail-space": "0px"
+        }
+      }
+    },
+    "shape": {
+      "fill": {
+        "label": "地",
+        "options": {
+          "white": {
+            "label": "白",
+            "vars": {
+              "card-bg": "var(--color-bg)"
+            }
+          },
+          "surface": {
+            "label": "薄い灰",
+            "vars": {
+              "card-bg": "var(--color-surface)"
+            }
+          },
+          "tint": {
+            "label": "薄い青",
+            "vars": {
+              "card-bg": "var(--color-tint)"
+            }
+          },
+          "accent2": {
+            "label": "差し色2",
+            "vars": {
+              "card-bg": "var(--color-accent2)"
+            }
+          },
+          "accent3": {
+            "label": "差し色3",
+            "vars": {
+              "card-bg": "var(--color-accent3)"
+            }
+          }
+        }
+      },
+      "edge": {
+        "label": "枠の辺",
+        "options": {
+          "all": {
+            "label": "全周",
+            "vars": {
+              "card-border-width": "1px",
+              "card-border-color": "var(--color-border)",
+              "card-tail-border-width": "1px"
+            }
+          },
+          "none": {
+            "label": "なし",
+            "vars": {
+              "card-border-width": "0px",
+              "card-border-color": "var(--color-border)",
+              "card-tail-border-width": "0px"
+            }
+          },
+          "left": {
+            "label": "左の帯",
+            "vars": {
+              "card-border-width": "0px 0px 0px 4px",
+              "card-border-color": "var(--color-primary)",
+              "card-tail-border-width": "0px"
+            }
+          },
+          "top": {
+            "label": "上の帯",
+            "vars": {
+              "card-border-width": "4px 0px 0px",
+              "card-border-color": "var(--color-primary)",
+              "card-tail-border-width": "0px"
+            }
+          }
+        }
+      },
+      "corner": {
+        "label": "角",
+        "options": {
+          "rounded": {
+            "label": "丸い",
+            "vars": {
+              "card-radius": "var(--radius)"
+            }
+          },
+          "large": {
+            "label": "大きく丸い",
+            "vars": {
+              "card-radius": "var(--radius-card)"
+            }
+          },
+          "square": {
+            "label": "角ばる",
+            "vars": {
+              "card-radius": "0px"
+            }
+          }
+        }
+      },
+      "shadow": {
+        "label": "影",
+        "options": {
+          "on": {
+            "label": "あり",
+            "vars": {
+              "card-shadow": "var(--shadow-card)"
+            }
+          },
+          "off": {
+            "label": "なし",
+            "vars": {
+              "card-shadow": "none"
+            }
+          }
+        }
+      },
+      "head": {
+        "label": "見出しの帯",
+        "options": {
+          "none": {
+            "label": "なし",
+            "vars": {
+              "card-head-bg": "transparent",
+              "card-head-rule-width": "0px",
+              "card-head-bleed": "0px",
+              "card-head-pad-top": "0px",
+              "card-head-pad-bottom": "0px"
+            }
+          },
+          "fill": {
+            "label": "塗り",
+            "vars": {
+              "card-head-bg": "var(--color-tint)",
+              "card-head-rule-width": "0px",
+              "card-head-bleed": "var(--space-card)",
+              "card-head-pad-top": "var(--space-sm)",
+              "card-head-pad-bottom": "var(--space-sm)"
+            }
+          },
+          "underline": {
+            "label": "下線",
+            "vars": {
+              "card-head-bg": "transparent",
+              "card-head-rule-width": "1px",
+              "card-head-bleed": "0px",
+              "card-head-pad-top": "0px",
+              "card-head-pad-bottom": "var(--space-sm)"
+            }
+          }
+        }
+      },
+      "icon": {
+        "label": "アイコンの位置",
+        "options": {
+          "left": {
+            "label": "見出しの左",
+            "vars": {
+              "card-icon-direction": "row",
+              "card-icon-align": "center"
+            }
+          },
+          "top": {
+            "label": "見出しの上",
+            "vars": {
+              "card-icon-direction": "column",
+              "card-icon-align": "flex-start"
+            }
+          }
+        }
+      },
+      "tail": {
+        "label": "しっぽ",
+        "options": {
+          "none": {
+            "label": "なし",
+            "vars": {
+              "card-tail-display": "none",
+              "card-tail-left": "auto",
+              "card-tail-right": "auto",
+              "card-tail-space": "0px"
+            }
+          },
+          "left": {
+            "label": "左下",
+            "vars": {
+              "card-tail-display": "block",
+              "card-tail-left": "calc(var(--space-card) * 1.5)",
+              "card-tail-right": "auto",
+              "card-tail-space": "16px"
+            }
+          },
+          "right": {
+            "label": "右下",
+            "vars": {
+              "card-tail-display": "block",
+              "card-tail-left": "auto",
+              "card-tail-right": "calc(var(--space-card) * 1.5)",
+              "card-tail-space": "16px"
+            }
+          }
+        }
+      }
+    }
+  },
+  "kpi": {
+    "label": "数値",
+    "default": "tint",
+    "variants": {
+      "tint": {
+        "label": "薄い地",
+        "vars": {
+          "kpi-bg": "var(--color-lavender)"
+        }
+      },
+      "accent2": {
+        "label": "差し色2",
+        "vars": {
+          "kpi-bg": "var(--color-accent2)"
+        }
+      },
+      "accent3": {
+        "label": "差し色3",
+        "vars": {
+          "kpi-bg": "var(--color-accent3)"
+        }
+      }
+    },
+    "params": {
+      "value": {
+        "label": "数値の色",
+        "default": "primary",
+        "options": {
+          "primary": {
+            "label": "アクセント",
+            "vars": {
+              "kpi-value-color": "var(--color-primary)"
+            }
+          },
+          "accent2": {
+            "label": "差し色2",
+            "vars": {
+              "kpi-value-color": "var(--color-accent2)"
+            }
+          },
+          "accent3": {
+            "label": "差し色3",
+            "vars": {
+              "kpi-value-color": "var(--color-accent3)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "notice": {
+    "label": "注意",
+    "default": "bar",
+    "variants": {
+      "bar": {
+        "label": "帯",
+        "vars": {
+          "notice-border-width": "0px",
+          "notice-bar-width": "4px",
+          "notice-radius": "var(--radius-sm)"
+        }
+      },
+      "box": {
+        "label": "箱",
+        "vars": {
+          "notice-border-width": "1px",
+          "notice-bar-width": "1px",
+          "notice-radius": "var(--radius-sm)"
+        }
+      }
+    },
+    "params": {
+      "accent": {
+        "label": "帯の色",
+        "default": "muted",
+        "options": {
+          "muted": {
+            "label": "控えめ",
+            "vars": {
+              "notice-base-color": "var(--color-muted)"
+            }
+          },
+          "accent2": {
+            "label": "差し色2",
+            "vars": {
+              "notice-base-color": "var(--color-accent2)"
+            }
+          },
+          "accent3": {
+            "label": "差し色3",
+            "vars": {
+              "notice-base-color": "var(--color-accent3)"
+            }
+          }
+        }
+      }
+    }
+  },
+  "figure": {
+    "label": "図",
+    "default": "rounded",
+    "variants": {
+      "rounded": {
+        "label": "角丸の箱",
+        "vars": {
+          "figure-node-radius": "var(--radius-sm)",
+          "figure-link-width": "1",
+          "figure-arrow-scale": "1"
+        }
+      },
+      "square": {
+        "label": "角の箱",
+        "vars": {
+          "figure-node-radius": "0px",
+          "figure-link-width": "1",
+          "figure-arrow-scale": "1"
+        }
+      }
+    },
+    "shape": {
+      "box": {
+        "label": "箱の形",
+        "options": {
+          "rounded": {
+            "label": "角丸",
+            "vars": {
+              "figure-node-radius": "var(--radius-sm)"
+            }
+          },
+          "square": {
+            "label": "角",
+            "vars": {
+              "figure-node-radius": "0px"
+            }
+          },
+          "pill": {
+            "label": "両端が丸い",
+            "vars": {
+              "figure-node-radius": "24px"
+            }
+          },
+          "ellipse": {
+            "label": "楕円",
+            "vars": {
+              "figure-node-radius": "999px"
+            }
+          }
+        }
+      },
+      "line": {
+        "label": "線の太さ",
+        "options": {
+          "thin": {
+            "label": "細い",
+            "vars": {
+              "figure-link-width": "1"
+            }
+          },
+          "bold": {
+            "label": "太い",
+            "vars": {
+              "figure-link-width": "2"
+            }
+          }
+        }
+      },
+      "arrow": {
+        "label": "矢印の頭",
+        "options": {
+          "normal": {
+            "label": "標準",
+            "vars": {
+              "figure-arrow-scale": "1"
+            }
+          },
+          "large": {
+            "label": "大きい",
+            "vars": {
+              "figure-arrow-scale": "1.5"
+            }
+          }
+        }
+      }
+    },
+    "params": {
+      "arrow": {
+        "label": "矢印",
+        "default": "solid",
+        "options": {
+          "solid": {
+            "label": "塗り",
+            "vars": {
+              "figure-arrow-fill": "var(--color-muted)",
+              "figure-arrow-stroke-width": "0"
+            }
+          },
+          "open": {
+            "label": "白抜き",
+            "vars": {
+              "figure-arrow-fill": "var(--color-bg)",
+              "figure-arrow-stroke-width": "1"
+            }
+          }
+        }
+      },
+      "line": {
+        "label": "線",
+        "default": "solid",
+        "options": {
+          "solid": {
+            "label": "実線",
+            "vars": {
+              "figure-link-dash": "none"
+            }
+          },
+          "dashed": {
+            "label": "破線",
+            "vars": {
+              "figure-link-dash": "4 3"
+            }
+          }
+        }
+      }
+    }
+  }
+}
