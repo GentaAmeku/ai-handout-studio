@@ -69,6 +69,7 @@ import { deckDir } from "../app/server/workspace.ts";
 import type { Surface } from "../app/src/schema/design.ts";
 import type { Locale } from "../app/src/schema/profile.ts";
 import { checkFile } from "./check-file.ts";
+import { markDesignBuilt, syncDev } from "./dev-sync.mjs";
 
 // ai-handout-studio new / check / open / restart / design build。リポジトリはこのファイルの場所から決める
 
@@ -128,6 +129,9 @@ const ensureServer = async (lan: boolean): Promise<string | undefined> => {
     return `${DEV_PORT} 番を ai-handout-studio 以外が使っている`;
   }
   if (state === "running") return undefined;
+  // 起こす前に、pull などで古くなった依存と design/dist を揃える
+  const synced = syncDev({ repoRoot });
+  if (!synced.success) return synced.message;
   startServer(lan);
   return (await waitForServer(Date.now() + 30_000))
     ? undefined
@@ -326,6 +330,8 @@ const runDesignBuild = async (): Promise<number> => {
     console.error(result.message);
     return 1;
   }
+  // 開発サーバーを起こすときに作り直さずに済むよう、作った元の指紋を残す
+  markDesignBuilt(repoRoot);
   console.log(result.files.map((file) => `作った: design/${file}`).join("\n"));
   return 0;
 };
