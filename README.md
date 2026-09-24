@@ -1,5 +1,7 @@
 # AI Handout Studio
 
+English | [日本語](README.ja.md)
+
 A tool for turning a conversation with your coding agent into a finished
 handout. Ask it to make one, the agent asks a short question sheet for
 anything it's missing, then it writes the content as JSON. You read, fix,
