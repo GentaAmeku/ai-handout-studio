@@ -70,7 +70,7 @@ export const ProfilePage = () => {
   const profile = useQuery(profileQuery);
 
   return (
-    <div className="page page--prose">
+    <div className="page">
       <header className="page-header">
         <div>
           <h1 className="page-title">{t("profile.title")}</h1>
