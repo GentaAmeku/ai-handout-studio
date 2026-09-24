@@ -121,14 +121,22 @@ describe("documentBody のブロック", () => {
     ).toBe(
       '<div class="ds-quote"><p>引用</p><p class="ds-quote-source">出典</p></div>',
     );
-    expect(
-      render({
-        id: "b1",
-        type: "code",
-        props: { text: "pnpm test", caption: "検証" },
-      }),
-    ).toBe(
-      '<p class="ds-label">検証</p><pre class="ds-code"><code>pnpm test</code></pre>',
+    const code = render({
+      id: "b1",
+      type: "code",
+      props: { text: "pnpm test", caption: "検証" },
+    });
+    expect(code).toMatch(
+      /^<p class="ds-label">検証<\/p><div class="ds-code-block"><pre class="ds-code"><code>pnpm test<\/code><\/pre><button [^>]*><svg .*<\/button><\/div>$/,
+    );
+    // コピーのボタンはアイコンだけ。名前は title と読み上げ用の文字が持ち、スクリプトが動くまで隠す
+    expect(code).toContain(
+      '<button type="button" class="ds-code-copy" data-code-copy title="コードをコピー" data-copied="コピーしました" data-failed="選択しました。手でコピーしてください" hidden>',
+    );
+    expect(code).toContain('data-icon="copy"');
+    expect(code).toContain('data-icon="check"');
+    expect(code).toContain(
+      '<span class="ds-code-copy-text" aria-live="polite">コードをコピー</span></button>',
     );
   });
 

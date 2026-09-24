@@ -14,6 +14,7 @@ import {
   readDocumentAiPatch,
   renderDocumentAiPreview,
 } from "./document-ai.ts";
+import { documentScriptHash } from "./document-client.ts";
 import {
   createDocument,
   listDocumentVersions,
@@ -52,14 +53,11 @@ import { versionSavedAt } from "./versions.ts";
 const PREVIEW_CSP =
   "default-src 'none'; style-src 'self' 'unsafe-inline'; img-src data:; font-src 'self'";
 
-// 質問票だけは、質問を移動する小さなスクリプトを埋めている。
-// 許すのはその指紋1つだけで、中身に紛れ込んだ script は動かない。
-// HTML 資料は中身に生の HTML が入りうるので、今までどおりスクリプトを止める。
-// スクリプトの中身は言語ごとに違うので、指紋も資料の言語で決める
+// 質問票は質問を移動する、HTML 資料はコードブロックをコピーする小さなスクリプトを埋めている。
+// 許すのはその指紋1つだけで、中身に紛れ込んだ script(HTML 資料の生の HTML を含む)は動かない。
+// 質問票のスクリプトは言語ごとに中身が違うので、指紋も資料の言語で決める
 const previewCsp = (kind: HandoutKind, lang: Locale): string =>
-  kind === "sheet"
-    ? `${PREVIEW_CSP}; script-src ${sheetScriptHash(lang)}`
-    : PREVIEW_CSP;
+  `${PREVIEW_CSP}; script-src ${kind === "sheet" ? sheetScriptHash(lang) : documentScriptHash()}`;
 
 const errorBody = (error: string): ApiErrorBody => ({ error });
 

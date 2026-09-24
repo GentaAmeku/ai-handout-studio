@@ -66,6 +66,19 @@ const tableHtml = (props: PropsOf<"table">): string =>
     "</table>",
   ].join("");
 
+// コードブロックの「コピー」。見た目はアイコンだけで、名前は読み上げ用の文字とツールチップが持つ。
+// 押せたら check のアイコンに替わる(design/document.css の [data-state="copied"])。
+// アイコンの形は画面(lucide-react)の Copy と Check と同じ(lucide, ISC)
+const ICON_ATTRS =
+  'class="ds-code-copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+
+const COPY_ICON = `<svg ${ICON_ATTRS} data-icon="copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+
+const CHECK_ICON = `<svg ${ICON_ATTRS} data-icon="check"><path d="M20 6 9 17l-5-5"/></svg>`;
+
+const copyButtonHtml = (t: DocumentStrings): string =>
+  `<button type="button" class="ds-code-copy" data-code-copy title="${escapeHtml(t.copyCode)}" data-copied="${escapeHtml(t.copiedCode)}" data-failed="${escapeHtml(t.copyCodeFailed)}" hidden>${COPY_ICON}${CHECK_ICON}<span class="ds-code-copy-text" aria-live="polite">${escapeHtml(t.copyCode)}</span></button>`;
+
 // 型から描画関数を引く表。新しい部品を足すときは、スキーマと CSS とここを同時に直す
 const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
   text: (props) => paragraphs(props.text),
@@ -95,8 +108,9 @@ const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
   open: (props) => `<div class="ds-open">${paragraphs(props.text)}</div>`,
   quote: (props) =>
     `<div class="ds-quote">${paragraphs(props.text)}${props.source ? `<p class="ds-quote-source">${escapeHtml(props.source)}</p>` : ""}</div>`,
-  code: (props) =>
-    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<pre class="ds-code"><code>${escapeHtml(props.text)}</code></pre>`,
+  // コピーのボタンは hidden で描く。資料に埋めたスクリプト(document-client.ts)が動いたときだけ出る
+  code: (props, t) =>
+    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<div class="ds-code-block"><pre class="ds-code"><code>${escapeHtml(props.text)}</code></pre>${copyButtonHtml(t)}</div>`,
   // html は図の生成器の出力。スキーマが checkDocumentBody を通しているので、そのまま置く
   figure: (props) =>
     `<figure class="ds-figure"><div class="ds-figure-frame">${props.html}</div>${props.caption ? `<figcaption>${escapeHtml(props.caption)}</figcaption>` : ""}</figure>`,

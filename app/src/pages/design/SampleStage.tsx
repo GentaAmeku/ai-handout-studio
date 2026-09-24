@@ -127,7 +127,7 @@ export const FrameView = ({
   zoom?: Zoom;
   // 囲む要素のセレクタ
   highlight?: readonly string[];
-  // 中のスクリプトを動かす(質問票の見本)。中身の CSP は指紋の合う
+  // 中のスクリプトを動かす(質問票と HTML 資料の見本)。中身の CSP は指紋の合う
   // スクリプトだけを許す
   interactive?: boolean;
   // 入口のカードの見本。押せず、読み上げもしない

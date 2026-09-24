@@ -279,8 +279,8 @@ export const SectionDetailPage = ({
                 title={handout.data.title}
                 // 倍率は切り替えず、いつも画面に合わせる。縮めずに枠の幅で等倍に描く
                 fitWidth
-                // 質問票は中のボタンで質問を移動する
-                interactive={section === "sheet"}
+                // 質問票は中のボタンで質問を移動し、HTML 資料はコードブロックをコピーする
+                interactive
               />
             </div>
           </div>

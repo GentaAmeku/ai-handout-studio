@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { HandoutExportResult, HandoutSummary } from "../src/api/types";
 import { createApi } from "./api";
+import { documentScriptHash } from "./document-client";
 import { documentSample } from "./document-sample";
 import { openFolderCommand } from "./open-folder";
 import { writeShareState } from "./share";
@@ -149,6 +150,10 @@ describe("HTML 資料の API", () => {
     expect(created.status).toBe(201);
     const summary = (await created.json()) as HandoutSummary;
     const preview = await send("GET", `/api/documents/${summary.id}/preview`);
+    // コードブロックの「コピー」のスクリプトだけを、指紋で許す
+    expect(preview.headers.get("content-security-policy")).toContain(
+      `script-src ${documentScriptHash()}`,
+    );
     expect(await preview.text()).toContain("保存の仕組み");
     const updated = await send("PUT", `/api/documents/${summary.id}`, {
       body: '<div class="ds-page"><h1>直した</h1></div>',
