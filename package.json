@@ -9,8 +9,8 @@
     "node": ">=24"
   },
   "scripts": {
-    "prepare": "pnpm design:build",
-    "dev": "vite",
+    "prepare": "node scripts/dev-sync.mjs installed",
+    "dev": "node scripts/dev-sync.mjs && vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

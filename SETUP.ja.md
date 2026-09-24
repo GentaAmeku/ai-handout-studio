@@ -166,7 +166,9 @@ pnpm install
 node scripts/doctor.mjs --json
 ```
 
-あとは節1のとおり doctor に従う。共通指示の段落が `outdated` なら、節8で(同意を取って)入れ替える。サーバーのコードが変わったら `ai-handout-studio restart` で起こし直す。
+あとは節1のとおり doctor に従う。共通指示の段落が `outdated` なら、節8で(同意を取って)入れ替える。
+
+`pnpm install` の `prepare` が git の `post-merge`・`post-rewrite` フックを置く。以後の `git pull` では、依存(`pnpm-lock.yaml`)か `design/dist` の元が変わったときだけ、フックが入れ直し・作り直しをして、動いているサーバーを起こし直す。`ai-handout-studio open`・`restart` と `pnpm dev` も、サーバーを起こす前に同じことを確かめる。サーバーのコードだけが変わったときは、動いているサーバーが自分で読み直す。
 
 ## 付録 B. 外す
 

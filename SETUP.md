@@ -166,7 +166,9 @@ pnpm install
 node scripts/doctor.mjs --json
 ```
 
-Then follow doctor as in section 1. If the agent-instructions block is `outdated`, section 8 replaces it (with consent). After server code changes, `ai-handout-studio restart` restarts the server.
+Then follow doctor as in section 1. If the agent-instructions block is `outdated`, section 8 replaces it (with consent).
+
+`pnpm install` runs `prepare`, which installs git `post-merge` and `post-rewrite` hooks. From then on, `git pull` reinstalls dependencies or rebuilds `design/dist` only when their inputs (`pnpm-lock.yaml`, the sources of `design/dist`) changed, and then restarts the running server. `ai-handout-studio open`, `restart` and `pnpm dev` check the same before they start the server. When only server code changed, the running server reloads it by itself.
 
 ## Appendix B. Uninstall
 
