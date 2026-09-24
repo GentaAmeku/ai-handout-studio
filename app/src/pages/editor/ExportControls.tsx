@@ -34,7 +34,8 @@ const ExportSummary = ({ result }: { result: ExportResult }) => {
   );
 };
 
-// 書き出しは保存済みの deck.json から作る。disabledReason があれば止めて理由を出す
+// 書き出しは保存済みの deck.json から作る。disabledReason があれば止めて理由を出す。
+// 4つとも枠のボタンにする。塗りの色は、その画面でいちばん大事な操作1つ(保存)だけに使う
 export const ExportControls = ({
   deckId,
   disabledReason,
@@ -88,7 +89,7 @@ export const ExportControls = ({
       </button>
       <button
         type="button"
-        className="button button--primary"
+        className="button button--secondary"
         disabled={exportDeck.isPending || disabledReason !== undefined}
         title={disabledReason}
         onClick={() => void start("pdf")}
