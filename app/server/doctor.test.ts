@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   type DoctorContext,
   type DoctorResult,
+  decodeLsofName,
   formatDoctor,
   runDoctor,
   runUninstallDoctor,
@@ -403,6 +404,17 @@ describe("doctor の各項目", () => {
     const unknown = await runDoctor(context({ serverRoot: () => undefined }));
     expect(statusOf(unknown, "server")).toBe("warn");
     expect(unknown.ok).toBe(true);
+  });
+
+  it("lsof の \\xNN エスケープ(非 ASCII なパス)を UTF-8 に戻す。ASCII だけのパスはそのまま", () => {
+    const escaped =
+      "/Users/yumi/Documents/\\xe8\\xb3\\x87\\xe6\\x96\\x99\\xe4\\xbd\\x9c\\xe6\\x88\\x90/ai-handout-studio";
+    expect(decodeLsofName(escaped)).toBe(
+      "/Users/yumi/Documents/資料作成/ai-handout-studio",
+    );
+    expect(decodeLsofName("/Users/yumi/ai-handout-studio")).toBe(
+      "/Users/yumi/ai-handout-studio",
+    );
   });
 
   it("同梱資料の印が無ければ節10の warn で examples を案内し(止めない)、サーバーが動いていなければ調べない", async () => {
