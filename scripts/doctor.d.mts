@@ -43,6 +43,7 @@ export type DoctorContext = {
   serverLog: string;
 };
 
+export const decodeLsofName: (name: string) => string;
 export const defaultContext: (
   overrides?: Partial<DoctorContext>,
 ) => DoctorContext;

@@ -112,6 +112,14 @@ const probeServer = async () => {
   }
 };
 
+// macOS の lsof は、表示できないバイト(非 ASCII のパスなど)を \xNN の形にエスケープして出す。
+// バイト列に戻して UTF-8 として読み直す(ASCII だけのパスはそのまま変わらない)
+export const decodeLsofName = (name) =>
+  Buffer.from(
+    name.replace(/\\x([0-9a-f]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16))),
+    "latin1",
+  ).toString("utf8");
+
 // 5190 番で待ち受けているプロセスの作業フォルダ。サーバー(open・restart・pnpm dev)はリポジトリを作業フォルダにして起きる
 const serverRootOf = () => {
   const listeners = runCommand("lsof", [
@@ -124,10 +132,11 @@ const serverRootOf = () => {
     .find((line) => /^\d+$/.test(line.trim()));
   if (pid === undefined) return undefined;
   const cwd = runCommand("lsof", ["-a", "-p", pid.trim(), "-d", "cwd", "-Fn"]);
-  return cwd?.stdout
+  const name = cwd?.stdout
     .split("\n")
     .find((line) => line.startsWith("n"))
     ?.slice(1);
+  return name === undefined ? undefined : decodeLsofName(name);
 };
 
 const readProfile = (workspaceRoot) => {
