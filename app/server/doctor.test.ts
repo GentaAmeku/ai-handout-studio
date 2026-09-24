@@ -13,9 +13,9 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  decodeLsofName,
   type DoctorContext,
   type DoctorResult,
+  decodeLsofName,
   formatDoctor,
   runDoctor,
   runUninstallDoctor,

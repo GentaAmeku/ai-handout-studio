@@ -116,7 +116,9 @@ const probeServer = async () => {
 // バイト列に戻して UTF-8 として読み直す(ASCII だけのパスはそのまま変わらない)
 export const decodeLsofName = (name) =>
   Buffer.from(
-    name.replace(/\\x([0-9a-f]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16))),
+    name.replace(/\\x([0-9a-f]{2})/gi, (_, hex) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    ),
     "latin1",
   ).toString("utf8");
 
