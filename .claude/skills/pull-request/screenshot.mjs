@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 起動中の dev サーバーの画面を1枚撮る。PR に貼る変更前・変更後の画像に使う(SKILL.md)。
 //
-//   node .claude/skills/cloud-pr/screenshot.mjs --path /decks/<id> --out <file.png>
+//   node .claude/skills/pull-request/screenshot.mjs --path /decks/<id> --out <file.png>
 //     [--selector "header.viewer__bar"]  その要素だけを撮る。無ければ画面全体
 //     [--click "PDF"]...                 撮る前に、名前がこの文字を含むボタンを順に押す
 //     [--fill "メモ=テキスト"]...          撮る前に、ラベルの欄へ文字を入れる(未保存の状態を作る)

@@ -23,6 +23,10 @@ In a Claude cloud session, the SessionStart hook (`scripts/cloud-session.sh`) pu
 - There are two skills: `skills/ai-handout-studio` (handout authoring) and `skills/question-sheet` (question sheets). The question-sheet skill has no copy of the design system — it reads this repository's `design/dist` directly (`skills/question-sheet/scripts/design.mjs`).
 - After changing anything under `design/` (JSON, CSS, `figure/`) or a sample generator (`app/server/design-samples.ts`, `sheet-sample.ts`, `sheet-render.ts`), run `pnpm design:build` (or `ai-handout-studio design build`) to rebuild `design/dist/` and `design/samples/`. Tests fail against a stale build.
 
+## Pull requests
+
+Open a pull request by following `.claude/skills/pull-request/SKILL.md`: run the checks above, take before/after screenshots when the screen changes, and write the body in the three sections of `.github/pull_request_template.md`.
+
 ## Style
 
 - Write functionally: `const`, early returns, `map`. Avoid `let`, `switch`, `class`.
