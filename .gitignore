@@ -20,6 +20,8 @@ workspace/sheets/
 workspace/documents/
 # お気に入り。資料の id の並びで、資料と同じく git に入れない
 workspace/favorites.json
+# 見本を入れた印。開発サーバーが空のワークスペースに見本を入れたときに作る
+workspace/examples.json
 # 利用者ごとの設定(組織名・言語・任意の機能)。無ければ既定値で読む
 workspace/profile.json
 
