@@ -6,7 +6,7 @@ description: この repo で PR を作るときの手順。確認コマンドを
 # PR を作る
 
 PR を作るときは、環境を問わずこの手順で進める。
-Claude のクラウドセッション(`CLAUDE_CODE_REMOTE=true`)では、利用者は画面を見られない。そこで変更を終えたら、頼まれなくてもこの手順で PR まで作る(CLAUDE.md。利用者が前もって頼んでいるので、改めて確かめなくてよい)。
+Claude のクラウドセッション(`CLAUDE_CODE_REMOTE=true`)と GitHub Actions(`GITHUB_ACTIONS=true`)では、利用者は画面を見られない。そこで変更を終えたら、頼まれなくてもこの手順で PR まで作る(CLAUDE.md。利用者が前もって頼んでいるので、改めて確かめなくてよい)。GitHub Actions では、PR は `gh pr create` で作る。
 
 ## 1. 確かめる
 
