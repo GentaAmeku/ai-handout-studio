@@ -1,6 +1,7 @@
 import { Download, FileCode, FileImage, Presentation, X } from "lucide-react";
 import { useExportDeck } from "../../api/queries";
 import type { ExportFormat, ExportResult } from "../../api/types";
+import { ExportLocation } from "../../components/ExportLocation";
 import { useLanguage } from "../../i18n/language";
 
 const ExportSummary = ({ result }: { result: ExportResult }) => {
@@ -16,7 +17,7 @@ const ExportSummary = ({ result }: { result: ExportResult }) => {
           n: result.files.length,
         })}
       </p>
-      <code className="export-notice__path">{result.directory}</code>
+      <ExportLocation path={result.path} openCommand={result.openCommand} />
       {issues.length > 0 && (
         <div className="export-notice__warnings">
           <p>{t("export.warnings", { n: issues.length })}</p>
@@ -33,7 +34,8 @@ const ExportSummary = ({ result }: { result: ExportResult }) => {
   );
 };
 
-// 書き出しは保存済みの deck.json から作る。disabledReason があれば止めて理由を出す
+// 書き出しは保存済みの deck.json から作る。disabledReason があれば止めて理由を出す。
+// 4つとも枠のボタンにする。塗りの色は、その画面でいちばん大事な操作1つ(保存)だけに使う
 export const ExportControls = ({
   deckId,
   disabledReason,
@@ -87,13 +89,13 @@ export const ExportControls = ({
       </button>
       <button
         type="button"
-        className="button button--primary"
+        className="button button--secondary"
         disabled={exportDeck.isPending || disabledReason !== undefined}
         title={disabledReason}
         onClick={() => void start("pdf")}
       >
         <Download size={18} aria-hidden />
-        {t("export.pdf")}
+        PDF
       </button>
       <div
         className="export-notice"

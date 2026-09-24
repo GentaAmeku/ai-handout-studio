@@ -395,7 +395,6 @@ export const ja = {
   "export.exporting": "書き出し中…(初回はブラウザの起動に数秒かかります)",
   "export.fail": "書き出せませんでした: {message}",
   "export.closeNotice": "お知らせを閉じる",
-  "export.pdf": "PDF を書き出す",
 
   "history.title": "履歴",
   "history.lead":

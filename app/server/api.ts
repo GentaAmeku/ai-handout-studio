@@ -1,4 +1,5 @@
 import { basename, join } from "node:path";
+import { platform } from "node:process";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type {
@@ -15,6 +16,7 @@ import { type DesignBuilder, registerDesignRoutes } from "./design-api.ts";
 import type { Exporter } from "./exporter.ts";
 import { setFavorite, setFavoriteOf, withFavorites } from "./favorites.ts";
 import { registerHandoutRoutes } from "./handout-api.ts";
+import { openFolderCommand } from "./open-folder.ts";
 import { readSettings, resolveSettings, saveProfile } from "./profile.ts";
 import { saveDeck } from "./save.ts";
 import {
@@ -260,10 +262,15 @@ export const createApi = ({
       outDir: directory,
       title: file.value.title,
     });
+    // PNG は1枚ずつ別のファイルになる。1つならそのファイル、いくつもあればフォルダを指す
+    const [first] = output.files;
     const result: ExportResult = {
       format: body.data.format,
       directory,
       files: output.files.map((path) => basename(path)),
+      path: output.files.length === 1 && first ? first : directory,
+      // フォルダを開いて、最初のファイルを選んだ状態にする
+      openCommand: openFolderCommand(first ?? directory, platform),
       overflow: output.overflow,
     };
     return c.json(result);
