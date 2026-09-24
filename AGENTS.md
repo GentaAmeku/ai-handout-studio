@@ -21,6 +21,7 @@ In a Claude cloud session, the SessionStart hook (`scripts/cloud-session.sh`) pu
 - Handout (document) markup is built in `app/server/document-render.ts` (sample, on-screen preview and export all go through it). Sample content lives in `document-sample.ts`.
 - The schema's source of truth is `app/src/schema/`; types are derived from Zod, not written by hand. After changing it, run `pnpm schema:export` to regenerate `skills/ai-handout-studio/*.schema.json`.
 - There are two skills: `skills/ai-handout-studio` (handout authoring) and `skills/question-sheet` (question sheets). The question-sheet skill has no copy of the design system — it reads this repository's `design/dist` directly (`skills/question-sheet/scripts/design.mjs`).
+- Setup and uninstall are game books: `scripts/doctor.mjs` returns the next section of `SETUP.md`, or of `UNINSTALL.md` with `--uninstall`, so keep its section numbers in step with both languages. When setup starts putting something new outside the clone, add its removal to `UNINSTALL.md` and `doctor --uninstall` too.
 - After changing anything under `design/` (JSON, CSS, `figure/`) or a sample generator (`app/server/design-samples.ts`, `sheet-sample.ts`, `sheet-render.ts`), run `pnpm design:build` (or `ai-handout-studio design build`) to rebuild `design/dist/` and `design/samples/`. Tests fail against a stale build.
 
 ## Pull requests

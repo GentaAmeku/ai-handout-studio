@@ -1,6 +1,12 @@
 // doctor.mjs の型。テストが TypeScript から呼ぶぶんだけ
 
-export type DoctorStatus = "ok" | "missing" | "outdated" | "skipped" | "warn";
+export type DoctorStatus =
+  | "ok"
+  | "missing"
+  | "outdated"
+  | "skipped"
+  | "warn"
+  | "remaining";
 
 export type DoctorCheck = {
   id: string;
@@ -14,6 +20,8 @@ export type DoctorResult = {
   checks: DoctorCheck[];
   next: { section: number; reason: string } | null;
   locale: "ja" | "en";
+  // どちらのゲームブックか(SETUP.md か UNINSTALL.md)
+  mode: "setup" | "uninstall";
 };
 
 export type DoctorContext = {
@@ -32,11 +40,15 @@ export type DoctorContext = {
   chromiumPath: () => string | undefined;
   probeServer: () => Promise<"running" | "down" | "other">;
   serverRoot: () => string | undefined;
+  serverLog: string;
 };
 
 export const defaultContext: (
   overrides?: Partial<DoctorContext>,
 ) => DoctorContext;
 export const runDoctor: (context?: DoctorContext) => Promise<DoctorResult>;
+export const runUninstallDoctor: (
+  context?: DoctorContext,
+) => Promise<DoctorResult>;
 export const formatDoctor: (result: DoctorResult) => string;
 export const main: (argv: string[]) => Promise<number>;

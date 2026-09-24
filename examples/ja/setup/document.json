@@ -258,12 +258,22 @@
           }
         },
         {
+          "id": "b20",
+          "type": "text",
+          "props": {
+            "text": "外すときも、ゲームブックで進める。clone したフォルダで、Claude Code なら /studio-uninstall と打ち、Codex CLI なら「UNINSTALL.md のとおりに外して」と頼む。doctor --uninstall が残っているものを調べ、エージェントが次の順に外す。あなたが答えるのは、始める前の1回だけ。"
+          }
+        },
+        {
           "id": "b17",
           "type": "ordered",
           "props": {
             "items": [
               {
-                "text": "サーバーを止める。"
+                "text": "サーバーを止め、ログを消す。"
+              },
+              {
+                "text": "共通指示から ai-handout-studio の段落(目印の間)だけを消す。"
               },
               {
                 "text": "スキルのリンクを外す(リンクだけ)。"
@@ -272,10 +282,7 @@
                 "text": "ai-handout-studio コマンドを外す。"
               },
               {
-                "text": "共通指示から ai-handout-studio の段落(目印の間)を消す。"
-              },
-              {
-                "text": "clone を消す前に、workspace/ を残すか決める。"
+                "text": "Playwright の Chromium を外し、答えに従って archify・資料・clone を片づける。"
               }
             ]
           }
@@ -284,7 +291,7 @@
           "id": "b18",
           "type": "alert",
           "props": {
-            "text": "workspace/ にはあなたの資料と質問票の回答が入っている。clone ごと消すと戻せない。"
+            "text": "workspace/ にはあなたの資料と質問票の回答が入っている。clone ごと消すと戻せないので、残すなら移す先を始める前に決めておく。"
           }
         }
       ]
@@ -331,7 +338,7 @@
     "glossary": [
       {
         "term": "doctor",
-        "description": "入れた状態を調べ、次に読む SETUP の節を返すコマンド"
+        "description": "入れた状態を調べ、次に読む SETUP の節を返すコマンド。--uninstall を付けると、外すときに次に読む UNINSTALL の節を返す"
       },
       {
         "term": "スキル",

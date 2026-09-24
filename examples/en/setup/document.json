@@ -266,12 +266,22 @@
           }
         },
         {
+          "id": "b20",
+          "type": "text",
+          "props": {
+            "text": "Removing is a game book too. In the cloned folder, type /studio-uninstall in Claude Code, or ask Codex CLI: \"Uninstall this by following UNINSTALL.md.\" doctor --uninstall checks what is left, and the agent removes it in this order. You answer once, before it starts."
+          }
+        },
+        {
           "id": "b17",
           "type": "ordered",
           "props": {
             "items": [
               {
-                "text": "Stop the server."
+                "text": "Stop the server and delete its log."
+              },
+              {
+                "text": "Delete only the ai-handout-studio block (between its markers) from your agent instructions."
               },
               {
                 "text": "Remove the skill links (only the links)."
@@ -280,10 +290,7 @@
                 "text": "Remove the ai-handout-studio command."
               },
               {
-                "text": "Delete the ai-handout-studio block (between its markers) from your agent instructions."
-              },
-              {
-                "text": "Before deleting the clone, decide whether to keep workspace/."
+                "text": "Remove Playwright's Chromium, then tidy up archify, your handouts and the clone as you answered."
               }
             ]
           }
@@ -292,7 +299,7 @@
           "id": "b18",
           "type": "alert",
           "props": {
-            "text": "workspace/ holds your handouts and question-sheet answers. Deleting the clone with it cannot be undone."
+            "text": "workspace/ holds your handouts and question-sheet answers. Deleting the clone with it cannot be undone, so if you want to keep them, decide where to move them before you start."
           }
         }
       ]
@@ -339,7 +346,7 @@
     "glossary": [
       {
         "term": "doctor",
-        "description": "A command that checks the setup and names the next SETUP section to read"
+        "description": "A command that checks the setup and names the next SETUP section to read. With --uninstall, it names the next UNINSTALL section to read when removing"
       },
       {
         "term": "Skill",

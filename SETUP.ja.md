@@ -170,13 +170,7 @@ node scripts/doctor.mjs --json
 
 ## 付録 B. 外す
 
-利用者のファイルに触る手順は、1つずつ確かめてから行う。
-
-1. サーバーを止める: `kill $(lsof -ti tcp:5190 -sTCP:LISTEN)`
-2. スキルのリンクを外す(リンクだけ): `~/.claude/skills/ai-handout-studio`・`~/.claude/skills/question-sheet`・`~/.agents/skills/ai-handout-studio`・`~/.agents/skills/question-sheet`
-3. コマンドを外す: `rm ~/.local/bin/ai-handout-studio`(pnpm で入れたなら `pnpm remove --global ai-handout-studio`)
-4. `~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md` の `<!-- ai-handout-studio:start … -->` から `<!-- ai-handout-studio:end -->` までを消す
-5. clone を消す前に、`workspace/`(利用者の資料と回答)を残すか聞く
+外すときも、同じゲームブックの形で進める。Claude Code なら `/studio-uninstall` と打ち、Codex CLI なら「UNINSTALL.md のとおりに外して」と頼む。`node scripts/doctor.mjs --uninstall --json` が残っているものを調べ、次に読む節を返す。手順は [UNINSTALL.ja.md](UNINSTALL.ja.md)(英語は [UNINSTALL.md](UNINSTALL.md))。
 
 ## 付録 C. 困ったとき
 
