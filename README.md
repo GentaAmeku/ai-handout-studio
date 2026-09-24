@@ -2,10 +2,12 @@
 
 English | [日本語](README.ja.md)
 
-A tool for turning a conversation with your coding agent into a finished
-handout. Ask it to make one, the agent asks a short question sheet for
-anything it's missing, then it writes the content as JSON. You read, fix,
-and export what it made in your browser.
+A local app that keeps the handouts your AI agent makes — slides, HTML
+documents and question sheets — in one place, where you read, edit and
+export them in the browser. The agent writes them with the bundled skills.
+When it needs something from you, it asks through a bundled question sheet:
+one page with suggested answers and comparison tables, lighter to think
+through than a back-and-forth in chat.
 
 Three kinds of handout, one app:
 
