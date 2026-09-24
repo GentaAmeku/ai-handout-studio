@@ -396,7 +396,6 @@ export const en: Record<MessageKey, string> = {
     "Exporting… (first run takes a few seconds to launch the browser)",
   "export.fail": "Could not export: {message}",
   "export.closeNotice": "Dismiss notice",
-  "export.pdf": "Export PDF",
 
   "history.title": "History",
   "history.lead":
