@@ -5,6 +5,7 @@ import type { DocumentFile } from "../src/schema/document.ts";
 import type { Locale } from "../src/schema/profile.ts";
 import type { SheetAnswers, SheetDocument } from "../src/schema/sheet.ts";
 import { readTemplate } from "./design.ts";
+import { documentScript } from "./document-client.ts";
 import { documentImageSrcs } from "./document-images.ts";
 import { documentBody } from "./document-render.ts";
 import { loadImageDataUrls } from "./handout-assets.ts";
@@ -189,6 +190,8 @@ export const renderDocumentHtml = async (
             input.doc.lang ?? "ja",
           )
         : input.body,
+    // コードブロックの「コピー」を動かすだけのスクリプト
+    script: documentScript(),
     fonts: input.fonts ?? "hosted",
     lang: "doc" in input ? (input.doc.lang ?? "ja") : "ja",
   });

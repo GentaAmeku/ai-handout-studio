@@ -128,7 +128,7 @@ describe("documentBody のブロック", () => {
         props: { text: "pnpm test", caption: "検証" },
       }),
     ).toBe(
-      '<p class="ds-label">検証</p><pre class="ds-code"><code>pnpm test</code></pre>',
+      '<p class="ds-label">検証</p><div class="ds-code-block"><pre class="ds-code"><code>pnpm test</code></pre><button type="button" class="ds-code-copy" data-code-copy aria-live="polite" data-copied="コピーしました" data-failed="選択しました。手でコピーしてください" hidden>コピー</button></div>',
     );
   });
 

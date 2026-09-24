@@ -187,6 +187,8 @@ export const DocumentEditor = ({
                 key={updatedAt}
                 src={handoutPreviewUrl("document", id)}
                 title={title}
+                // コードブロックの「コピー」を押せる
+                interactive
               />
             </>
           )}

@@ -95,8 +95,9 @@ const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
   open: (props) => `<div class="ds-open">${paragraphs(props.text)}</div>`,
   quote: (props) =>
     `<div class="ds-quote">${paragraphs(props.text)}${props.source ? `<p class="ds-quote-source">${escapeHtml(props.source)}</p>` : ""}</div>`,
-  code: (props) =>
-    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<pre class="ds-code"><code>${escapeHtml(props.text)}</code></pre>`,
+  // コピーのボタンは hidden で描く。資料に埋めたスクリプト(document-client.ts)が動いたときだけ出る
+  code: (props, t) =>
+    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<div class="ds-code-block"><pre class="ds-code"><code>${escapeHtml(props.text)}</code></pre><button type="button" class="ds-code-copy" data-code-copy aria-live="polite" data-copied="${escapeHtml(t.copiedCode)}" data-failed="${escapeHtml(t.copyCodeFailed)}" hidden>${escapeHtml(t.copyCode)}</button></div>`,
   // html は図の生成器の出力。スキーマが checkDocumentBody を通しているので、そのまま置く
   figure: (props) =>
     `<figure class="ds-figure"><div class="ds-figure-frame">${props.html}</div>${props.caption ? `<figcaption>${escapeHtml(props.caption)}</figcaption>` : ""}</figure>`,

@@ -62,6 +62,10 @@ export type DocumentStrings = {
   readonly imageMissingPrefix: string;
   readonly tocLabel: string;
   readonly summaryLabel: string;
+  // コードブロックの右上のボタン(document-client.ts が動かす)
+  readonly copyCode: string;
+  readonly copiedCode: string;
+  readonly copyCodeFailed: string;
 };
 
 const ja: { sheet: SheetStrings; document: DocumentStrings } = {
@@ -115,6 +119,9 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     imageMissingPrefix: "画像が見つからない: ",
     tocLabel: "目次",
     summaryLabel: "要約",
+    copyCode: "コピー",
+    copiedCode: "コピーしました",
+    copyCodeFailed: "選択しました。手でコピーしてください",
   },
 };
 
@@ -171,6 +178,9 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     imageMissingPrefix: "Image not found: ",
     tocLabel: "Contents",
     summaryLabel: "Summary",
+    copyCode: "Copy",
+    copiedCode: "Copied",
+    copyCodeFailed: "Selected. Please copy it manually",
   },
 };
 
