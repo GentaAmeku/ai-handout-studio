@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getRequestListener } from "@hono/node-server";
 import type { Connect, Plugin } from "vite";
@@ -57,7 +56,8 @@ export const aiHandoutStudioApi = (
     server.middlewares.use(handle);
     // 旧いテーマと型(段 I より前)をテンプレートへ移し、
     // 旧い profile.json の色(段 B より前)とテーマ(段 G より前)を design/ へ移す。どちらも起動時に一度だけ。
-    // 画面が読む dist/templates.json・slide-templates.css が無ければ(段 I の後の初回)、CSS を作り直す
+    // そのあと dist の CSS を毎回作り直す。git pull で design/ だけ変わっても、
+    // 画面・プレビュー・書き出しが古い dist を読まないように(dist は git に入れていない)
     const designDir = join(options.repoRoot, "design");
     void migrateToTemplates(designDir).then(async (templates) => {
       if ("error" in templates) {
@@ -82,14 +82,8 @@ export const aiHandoutStudioApi = (
           "[ai-handout-studio] プロフィールの色とテーマを design/ へ移した",
         );
       }
-      const missing = ["templates.json", "slide-templates.css"].some(
-        (file) => !existsSync(join(designDir, "dist", file)),
-      );
-      if (templates.migrated || missing) {
-        const built = await buildDesignCss(designDir);
-        if (!built.success)
-          console.error(`[ai-handout-studio] ${built.message}`);
-      }
+      const built = await buildDesignCss(designDir);
+      if (!built.success) console.error(`[ai-handout-studio] ${built.message}`);
       // 初めて起きたとき(資料が1件も無く、印も無い)だけ、同梱資料を設定の言語で入れる
       const examples = await installExamplesIfEmpty({
         workspaceRoot: options.workspaceRoot,
