@@ -3,8 +3,10 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-// 入れ方と公式の場所。ai-handout-studio の diagram と doctor も使う
+// 入れ方・外し方と公式の場所。ai-handout-studio の diagram と doctor も使う
 export const archifyInstall = "npx skills add tt-a1i/archify -g";
+// archify を入れると archify-review も一緒に入る
+export const archifyUninstall = "npx skills remove archify archify-review -g -y";
 export const archifyHome = "https://github.com/tt-a1i/archify";
 export const installHint = `Archify が必要です。${archifyInstall} で導入してください（${archifyHome}）。別の場所に導入済みなら ARCHIFY_SKILL_DIR に SKILL.md のあるディレクトリを指定してください。自動インストールは行いません。`;
 const agentDirectories = [".agents", ".claude", ".codex", ".cursor"];

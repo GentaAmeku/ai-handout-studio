@@ -17,6 +17,7 @@ import {
   type DoctorResult,
   formatDoctor,
   runDoctor,
+  runUninstallDoctor,
 } from "../../scripts/doctor.mjs";
 
 // doctor は一時のホームと一時の clone(リポジトリの形だけを持つフォルダ)で確かめる
@@ -112,6 +113,7 @@ const context = (overrides: Partial<DoctorContext> = {}): DoctorContext => ({
   chromiumPath: () => join(repo, "scripts", "cli.mjs"),
   probeServer: async () => "running",
   serverRoot: () => repo,
+  serverLog: join(root, "ai-handout-studio-dev.log"),
   ...overrides,
 });
 
@@ -238,6 +240,22 @@ describe("doctor の各項目", () => {
     touch(
       shim,
       `#!/bin/sh\nexec node "${join(repo, "scripts", "cli.mjs")}" "$@"\n`,
+    );
+    const result = await runDoctor(
+      context({
+        findOnPath: (name) =>
+          name === "ai-handout-studio" ? shim : "/usr/bin/lsof",
+      }),
+    );
+    expect(statusOf(result, "command")).toBe("ok");
+  });
+
+  it("pnpm 10 の入口(cli.mjs を入口からの相対パスで持つ sh)も、このリポジトリを指すとみなす", async () => {
+    makeReady();
+    const shim = join(root, "pnpm-home", "ai-handout-studio");
+    touch(
+      shim,
+      `#!/bin/sh\nbasedir=$(dirname "$0")\nexec node  "$basedir/../clone/scripts/cli.mjs" "$@"\n`,
     );
     const result = await runDoctor(
       context({
@@ -397,6 +415,188 @@ describe("doctor の各項目", () => {
     expect(result.ok).toBe(true);
     const down = await runDoctor(context({ probeServer: async () => "down" }));
     expect(statusOf(down, "examples")).toBe("skipped");
+  });
+});
+
+describe("doctor --uninstall", () => {
+  const detailOf = (result: DoctorResult, id: string) =>
+    result.checks.find((item) => item.id === id)?.detail;
+
+  // 外し終えた環境。clone と資料だけが残っている
+  const makeUninstalled = (): void => {
+    makeClone();
+    install();
+    writeProfile(DECIDED);
+  };
+
+  const down = (overrides: Partial<DoctorContext> = {}): DoctorContext =>
+    context({
+      probeServer: async () => "down",
+      findOnPath: () => undefined,
+      ...overrides,
+    });
+
+  it("入れたままなら、サーバーから順に残っているものを挙げ、節2を返す", async () => {
+    makeReady();
+    touch(join(root, "ai-handout-studio-dev.log"));
+    const result = await runUninstallDoctor(context());
+    expect(result.ok).toBe(false);
+    expect(result.next?.section).toBe(2);
+    expect(result.mode).toBe("uninstall");
+    expect(statusOf(result, "server")).toBe("remaining");
+    expect(statusOf(result, "server-log")).toBe("remaining");
+    expect(statusOf(result, "instructions-claude")).toBe("remaining");
+    expect(detailOf(result, "instructions-claude")).toContain("lines 3-7");
+    expect(statusOf(result, "skills-claude")).toBe("remaining");
+    expect(statusOf(result, "command")).toBe("remaining");
+    expect(detailOf(result, "command")).toContain("(symlink)");
+  });
+
+  it("サーバーを止めてログを消せば、次は節3(共通指示)", async () => {
+    makeReady();
+    const result = await runUninstallDoctor(
+      context({ probeServer: async () => "down" }),
+    );
+    expect(statusOf(result, "server")).toBe("ok");
+    expect(statusOf(result, "server-log")).toBe("ok");
+    expect(result.next?.section).toBe(3);
+  });
+
+  it("別のリポジトリのサーバーとそのログには触らない。5190 番が別のアプリなら、ログだけ外す", async () => {
+    makeReady();
+    touch(join(root, "ai-handout-studio-dev.log"));
+    const other = join(root, "old-clone");
+    mkdirSync(other, { recursive: true });
+    const otherClone = await runUninstallDoctor(
+      context({ serverRoot: () => other }),
+    );
+    expect(statusOf(otherClone, "server")).toBe("skipped");
+    expect(statusOf(otherClone, "server-log")).toBe("skipped");
+    expect(otherClone.next?.section).toBe(3);
+    const otherApp = await runUninstallDoctor(
+      context({ probeServer: async () => "other" }),
+    );
+    expect(statusOf(otherApp, "server")).toBe("skipped");
+    expect(statusOf(otherApp, "server-log")).toBe("remaining");
+    const unknown = await runUninstallDoctor(
+      context({ serverRoot: () => undefined }),
+    );
+    expect(statusOf(unknown, "server")).toBe("warn");
+    expect(unknown.next?.section).toBe(3);
+  });
+
+  it("共通指示は段落があれば remaining。symlink は実体を読み、目印がそろわなければ行を出す", async () => {
+    makeUninstalled();
+    const real = join(home, ".agents", "AGENTS.md");
+    touch(real, `# mine\n${instructionsBlock()}\n# after\n`);
+    mkdirSync(join(home, ".claude"), { recursive: true });
+    symlinkSync(real, join(home, ".claude", "CLAUDE.md"));
+    touch(
+      join(home, ".codex", "AGENTS.md"),
+      "# mine\n<!-- ai-handout-studio:start v1 -->\n- left over\n",
+    );
+    const result = await runUninstallDoctor(down());
+    expect(result.next?.section).toBe(3);
+    expect(detailOf(result, "instructions-claude")).toContain("lines 2-6");
+    expect(statusOf(result, "instructions-codex")).toBe("remaining");
+    expect(detailOf(result, "instructions-codex")).toContain(
+      "start and end do not pair up",
+    );
+    touch(real, "# mine\n# after\n");
+    touch(join(home, ".codex", "AGENTS.md"), "# mine\n");
+    const cleaned = await runUninstallDoctor(down());
+    expect(statusOf(cleaned, "instructions-claude")).toBe("ok");
+    expect(statusOf(cleaned, "instructions-codex")).toBe("ok");
+    expect(cleaned.ok).toBe(true);
+  });
+
+  it("スキルは、このリポジトリを指すリンクと指す先の無いリンクを外し、別の clone のリンクとフォルダは残す", async () => {
+    makeUninstalled();
+    linkSkills(join(home, ".agents", "skills"));
+    const result = await runUninstallDoctor(down());
+    expect(statusOf(result, "skills-claude")).toBe("ok");
+    expect(statusOf(result, "skills-codex")).toBe("remaining");
+    expect(result.next?.section).toBe(4);
+
+    const skillsDir = join(home, ".claude", "skills");
+    const elsewhere = join(root, "old-clone", "skills", "ai-handout-studio");
+    mkdirSync(elsewhere, { recursive: true });
+    mkdirSync(skillsDir, { recursive: true });
+    symlinkSync(elsewhere, join(skillsDir, "ai-handout-studio"));
+    mkdirSync(join(skillsDir, "question-sheet"));
+    rmSync(join(home, ".agents", "skills", "question-sheet"));
+    symlinkSync(
+      join(root, "gone", "question-sheet"),
+      join(home, ".agents", "skills", "question-sheet"),
+    );
+    rmSync(join(home, ".agents", "skills", "ai-handout-studio"));
+    const mixed = await runUninstallDoctor(down());
+    expect(statusOf(mixed, "skills-claude")).toBe("skipped");
+    expect(statusOf(mixed, "skills-codex")).toBe("remaining");
+    expect(detailOf(mixed, "skills-codex")).toContain("a broken link");
+  });
+
+  it("コマンドは PATH に無くても ~/.local/bin のリンクを見つけ、pnpm の入口も外す。別の clone のものは残す", async () => {
+    makeUninstalled();
+    const local = join(home, ".local", "bin", "ai-handout-studio");
+    mkdirSync(join(local, ".."), { recursive: true });
+    symlinkSync(join(repo, "scripts", "cli.mjs"), local);
+    const linked = await runUninstallDoctor(down());
+    expect(statusOf(linked, "command")).toBe("remaining");
+    expect(linked.next?.section).toBe(5);
+
+    rmSync(local);
+    const shim = join(root, "pnpm-home", "bin", "ai-handout-studio");
+    touch(
+      shim,
+      `#!/bin/sh\nexec node  "$basedir/../../clone/scripts/cli.mjs" "$@"\n`,
+    );
+    const pnpm = await runUninstallDoctor(
+      down({
+        findOnPath: (name) => (name === "ai-handout-studio" ? shim : undefined),
+      }),
+    );
+    expect(statusOf(pnpm, "command")).toBe("remaining");
+    expect(detailOf(pnpm, "command")).toContain("pnpm global entry");
+
+    const other = join(root, "old-clone", "scripts", "cli.mjs");
+    touch(other);
+    symlinkSync(other, local);
+    const otherClone = await runUninstallDoctor(down());
+    expect(statusOf(otherClone, "command")).toBe("skipped");
+    expect(otherClone.ok).toBe(true);
+  });
+
+  it("clone の外に何も無ければ ok。archify と資料は warn で伝え、止めない", async () => {
+    makeUninstalled();
+    mkdirSync(join(workspace, "decks", "deck_1"), { recursive: true });
+    mkdirSync(join(workspace, "documents", "doc_1"), { recursive: true });
+    mkdirSync(join(workspace, "documents", "doc_2"), { recursive: true });
+    const archify = join(home, ".agents", "skills", "archify");
+    touch(join(archify, "SKILL.md"));
+    touch(join(archify, "bin", "archify.mjs"));
+    const result = await runUninstallDoctor(down());
+    expect(result.ok).toBe(true);
+    expect(result.next).toBeNull();
+    expect(statusOf(result, "archify")).toBe("warn");
+    expect(detailOf(result, "archify")).toContain(
+      "npx skills remove archify archify-review -g -y",
+    );
+    expect(statusOf(result, "workspace")).toBe("warn");
+    expect(detailOf(result, "workspace")).toContain(
+      "slides: 1, HTML handouts: 2, question sheets: 0",
+    );
+  });
+
+  it("人が読む形は UNINSTALL の節を出す", async () => {
+    makeReady();
+    writeProfile({ ...DECIDED, locale: "ja" });
+    expect(formatDoctor(await runUninstallDoctor(context()))).toContain(
+      "次: UNINSTALL の節2",
+    );
+    rmSync(join(home, ".claude"), { recursive: true });
+    const done = await runUninstallDoctor(down());
+    expect(formatDoctor(done)).toContain("仕上げは UNINSTALL の節6");
   });
 });
 

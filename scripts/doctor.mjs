@@ -1,20 +1,24 @@
 #!/usr/bin/env node
 // ai-handout-studio doctor。セットアップの状態を調べ、SETUP.md の次に読む節を返す。
+// --uninstall なら、外すときに残っているものを調べ、UNINSTALL.md の次に読む節を返す。
 // pnpm install の前にも動くよう、Node の標準だけで書く。何も書き換えない(直すのはエージェント)
 import { spawnSync } from "node:child_process";
 import {
   accessSync,
   constants,
   existsSync,
+  lstatSync,
+  readdirSync,
   readFileSync,
   realpathSync,
 } from "node:fs";
-import { homedir, release } from "node:os";
-import { delimiter, join } from "node:path";
+import { homedir, release, tmpdir } from "node:os";
+import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   archifyHome,
   archifyInstall,
+  archifyUninstall,
   findArchify,
 } from "../skills/question-sheet/scripts/archify.mjs";
 
@@ -25,6 +29,7 @@ const FEATURES = [
   ["share", "feature-share"],
 ];
 const START_MARKER = /<!-- ai-handout-studio:start v(\d+) -->/;
+const START_TEXT = "<!-- ai-handout-studio:start";
 const END_MARKER = "<!-- ai-handout-studio:end -->";
 const DEV_ORIGIN = "http://127.0.0.1:5190";
 
@@ -39,6 +44,14 @@ const readText = (path) => {
 const realpathOf = (path) => {
   try {
     return realpathSync(path);
+  } catch {
+    return undefined;
+  }
+};
+
+const lstatOf = (path) => {
+  try {
+    return lstatSync(path);
   } catch {
     return undefined;
   }
@@ -150,6 +163,8 @@ export const defaultContext = (overrides = {}) => {
     chromiumPath: () => chromiumPathOf(repoRoot),
     probeServer,
     serverRoot: serverRootOf,
+    // サーバーのログ。scripts/cli.ts が同じ場所に書く
+    serverLog: join(tmpdir(), "ai-handout-studio-dev.log"),
     ...overrides,
   };
 };
@@ -272,10 +287,25 @@ const browserChecks = (ctx, t) => {
   ];
 };
 
-// pnpm link --global の入口は sh の小さなスクリプトで、中に cli.mjs の場所を持つ
+// pnpm のグローバルの入口は sh の小さなスクリプトで、中に cli.mjs の場所を持つ。
+// "$basedir/<相対パス>"(入口のフォルダから)と、cmd-shim-target= などの絶対パスの両方を読む
+const shimTargets = (path) => {
+  const text = readText(path) ?? "";
+  return [
+    ...[...text.matchAll(/"\$basedir\/([^"]*cli\.mjs)"/g)].map((found) =>
+      resolve(dirname(path), found[1]),
+    ),
+    ...[...text.matchAll(/(?:^|["\s=])(\/[^"\s]*cli\.mjs)/gm)].map(
+      (found) => found[1],
+    ),
+  ];
+};
+
 const commandPointsTo = (path, cliPath) => {
-  if (realpathOf(path) === realpathOf(cliPath)) return true;
-  return readText(path)?.includes(cliPath) === true;
+  const expected = realpathOf(cliPath);
+  if (expected === undefined) return false;
+  if (realpathOf(path) === expected) return true;
+  return shimTargets(path).some((target) => realpathOf(target) === expected);
 };
 
 // 節5: コマンド
@@ -627,7 +657,18 @@ const examplesCheck = (ctx, t, server) => {
       );
 };
 
-const BLOCKING = new Set(["missing", "outdated"]);
+// 最初に止まる項目の節を next で返す
+const summarize = (checks, blocking) => {
+  const first = checks.find((item) => blocking.has(item.status));
+  return {
+    ok: first === undefined,
+    checks,
+    next:
+      first === undefined
+        ? null
+        : { section: first.section, reason: first.detail },
+  };
+};
 
 // 項目を順に調べ、最初に合格しなかった項目の節を next で返す
 export const runDoctor = async (context = defaultContext()) => {
@@ -647,40 +688,407 @@ export const runDoctor = async (context = defaultContext()) => {
     archifyCheck(context, t),
   ];
   const server = await serverCheck(context, t);
-  const all = [...checks, server, examplesCheck(context, t, server)];
-  const blocking = all.find((item) => BLOCKING.has(item.status));
   return {
-    ok: blocking === undefined,
-    checks: all,
-    next:
-      blocking === undefined
-        ? null
-        : { section: blocking.section, reason: blocking.detail },
+    ...summarize(
+      [...checks, server, examplesCheck(context, t, server)],
+      new Set(["missing", "outdated"]),
+    ),
     locale,
+    mode: "setup",
+  };
+};
+
+// ここから doctor --uninstall。UNINSTALL.md の節ごとに、clone の外に残っているものを調べる。
+// 外すのはこのリポジトリが置いたものだけ。別の clone や別のアプリのものは skipped にして残す
+
+// 節2: サーバー
+const uninstallServerCheck = (ctx, t, state, root) => {
+  if (state === "down") {
+    return check(
+      "server",
+      2,
+      "ok",
+      t("サーバーは動いていない", "The server is not running"),
+    );
+  }
+  if (state === "other") {
+    return check(
+      "server",
+      2,
+      "skipped",
+      t(
+        "5190 番は ai-handout-studio 以外が使っている。触らない",
+        "Port 5190 is used by something other than ai-handout-studio; leave it",
+      ),
+    );
+  }
+  if (root === undefined) {
+    return check(
+      "server",
+      2,
+      "warn",
+      t(
+        `${DEV_ORIGIN} は動いているが、どのリポジトリのサーバーか確かめられない。利用者に伝える`,
+        `${DEV_ORIGIN} is running, but its repository could not be determined; tell the user`,
+      ),
+    );
+  }
+  return realpathOf(root) === realpathOf(ctx.repoRoot)
+    ? check(
+        "server",
+        2,
+        "remaining",
+        t(
+          `${DEV_ORIGIN} でこのリポジトリのサーバーが動いている`,
+          `This repository's server is running on ${DEV_ORIGIN}`,
+        ),
+      )
+    : check(
+        "server",
+        2,
+        "skipped",
+        t(
+          `5190 番のサーバーは別のリポジトリ(${root})のもの。触らない`,
+          `The server on port 5190 belongs to another repository (${root}); leave it`,
+        ),
+      );
+};
+
+// 節2: サーバーのログ。どの clone のサーバーも同じファイルに書くので、ほかのサーバーが動いていれば残す
+const uninstallServerLogCheck = (ctx, t, state, server) => {
+  if (!existsSync(ctx.serverLog)) {
+    return check("server-log", 2, "ok", t("ログは無い", "No server log"));
+  }
+  return state === "running" && server.status !== "remaining"
+    ? check(
+        "server-log",
+        2,
+        "skipped",
+        t(
+          `${ctx.serverLog} は動いているサーバーが使っている`,
+          `${ctx.serverLog} is in use by the running server`,
+        ),
+      )
+    : check(
+        "server-log",
+        2,
+        "remaining",
+        t(`${ctx.serverLog} が残っている`, `${ctx.serverLog} is left`),
+      );
+};
+
+// 目印のある行(1 始まり)
+const markerLines = (text, marker) =>
+  text
+    .split("\n")
+    .flatMap((line, index) => (line.includes(marker) ? [index + 1] : []));
+
+// 段落の場所。start と end が順にそろっていれば範囲で、そろっていなければ目印の行を並べる
+const blockPlace = (text, t) => {
+  const starts = markerLines(text, START_TEXT);
+  const ends = markerLines(text, END_MARKER);
+  const paired =
+    starts.length === ends.length &&
+    starts.every((start, index) => start < ends[index]);
+  if (paired) {
+    return t(
+      `${starts.map((start, index) => `${start}〜${ends[index]}`).join("・")} 行目`,
+      `lines ${starts.map((start, index) => `${start}-${ends[index]}`).join(", ")}`,
+    );
+  }
+  const lines = [...starts, ...ends].sort((a, b) => a - b);
+  return t(
+    `目印は ${lines.join("・")} 行目。start と end がそろっていない`,
+    `markers on lines ${lines.join(", ")}; start and end do not pair up`,
+  );
+};
+
+// 節3: 共通指示。symlink なら実体を読む
+const uninstallInstructionChecks = (t, agents) =>
+  agents.map((agent) => {
+    const id = `instructions-${agent.id}`;
+    const text = readText(agent.instructions);
+    if (text === undefined) {
+      return check(
+        id,
+        3,
+        "ok",
+        t(
+          `${agent.instructions} は無い`,
+          `${agent.instructions} does not exist`,
+        ),
+      );
+    }
+    if (!text.includes(START_TEXT) && !text.includes(END_MARKER)) {
+      return check(
+        id,
+        3,
+        "ok",
+        t(
+          `${agent.instructions} に ai-handout-studio の段落は無い`,
+          `${agent.instructions} has no ai-handout-studio block`,
+        ),
+      );
+    }
+    return check(
+      id,
+      3,
+      "remaining",
+      t(
+        `${agent.instructions} に ai-handout-studio の段落がある(${blockPlace(text, t)})`,
+        `${agent.instructions} has an ai-handout-studio block (${blockPlace(text, t)})`,
+      ),
+    );
+  });
+
+// 見つけたものの status を1つにまとめる。1つでも残っていれば remaining
+const worstOf = (items) =>
+  ["remaining", "warn", "skipped"].find((status) =>
+    items.some((item) => item.status === status),
+  ) ?? "ok";
+
+// スキルの置き場のもの。このリポジトリを指すリンクと、指す先の無いリンクを外す。
+// 中身のあるフォルダ(セットアップはリンクしか置かない)と、別の場所を指すリンクは残す
+const skillLeftover = (ctx, t, skillsDir, skill) => {
+  const path = join(skillsDir, skill);
+  const stat = lstatOf(path);
+  if (stat === undefined) return undefined;
+  if (!stat.isSymbolicLink()) {
+    return {
+      status: "skipped",
+      text: t(
+        `${path} はリンクではなくフォルダ。セットアップが置いたものではないので残す`,
+        `${path} is a folder, not a link; setup did not put it there, so leave it`,
+      ),
+    };
+  }
+  const target = realpathOf(path);
+  if (target === undefined) {
+    return {
+      status: "remaining",
+      text: t(`${path}(指す先の無いリンク)`, `${path} (a broken link)`),
+    };
+  }
+  const ours = [
+    join(ctx.repoRoot, "skills", skill),
+    join(ctx.repoRoot, "skills"),
+  ].map(realpathOf);
+  return ours.includes(target)
+    ? {
+        status: "remaining",
+        text: t(
+          `${path} がこのリポジトリを指す`,
+          `${path} points to this repository`,
+        ),
+      }
+    : {
+        status: "skipped",
+        text: t(
+          `${path} は別の場所(${target})を指す。残す`,
+          `${path} points elsewhere (${target}); leave it`,
+        ),
+      };
+};
+
+// 節4: スキル。設定のフォルダが無いエージェントも、リンクだけ残っていることがあるので調べる
+const uninstallSkillChecks = (ctx, t, agents) =>
+  agents.map((agent) => {
+    const id = `skills-${agent.id}`;
+    const found = SKILLS.map((skill) =>
+      skillLeftover(ctx, t, agent.skillsDir, skill),
+    ).filter((item) => item !== undefined);
+    return found.length === 0
+      ? check(
+          id,
+          4,
+          "ok",
+          t(
+            `${agent.skillsDir} にスキルのリンクは無い`,
+            `No skill links in ${agent.skillsDir}`,
+          ),
+        )
+      : check(
+          id,
+          4,
+          worstOf(found),
+          found.map((item) => item.text).join(" / "),
+        );
+  });
+
+// 節5: コマンド。PATH で見つかるものと、~/.local/bin のもの(PATH から外れていても)を調べる
+const uninstallCommandCheck = (ctx, t) => {
+  const cliPath = join(ctx.repoRoot, "scripts", "cli.mjs");
+  const paths = [
+    ...new Set([
+      ctx.findOnPath("ai-handout-studio"),
+      join(ctx.home, ".local", "bin", "ai-handout-studio"),
+    ]),
+  ].filter((path) => path !== undefined && lstatOf(path) !== undefined);
+  const found = paths.map((path) => {
+    const isLink = lstatOf(path)?.isSymbolicLink() === true;
+    if (isLink && realpathOf(path) === undefined) {
+      return {
+        status: "remaining",
+        text: t(`${path}(指す先の無いリンク)`, `${path} (a broken link)`),
+      };
+    }
+    if (!commandPointsTo(path, cliPath)) {
+      return {
+        status: "skipped",
+        text: t(
+          `${path} はこのリポジトリを指していない。残す`,
+          `${path} does not point to this repository; leave it`,
+        ),
+      };
+    }
+    return {
+      status: "remaining",
+      text: isLink
+        ? t(`${path}(symlink)`, `${path} (symlink)`)
+        : t(`${path}(pnpm のグローバルの入口)`, `${path} (pnpm global entry)`),
+    };
+  });
+  return found.length === 0
+    ? check(
+        "command",
+        5,
+        "ok",
+        t(
+          "ai-handout-studio コマンドは無い",
+          "No ai-handout-studio command is left",
+        ),
+      )
+    : check(
+        "command",
+        5,
+        worstOf(found),
+        found.map((item) => item.text).join(" / "),
+      );
+};
+
+// 節6: archify(別の作者のスキル)。外すかは利用者が決めるので止めない(warn)
+const uninstallArchifyCheck = (ctx, t) => {
+  const found = findArchify({
+    env: ctx.env,
+    cwd: ctx.repoRoot,
+    home: ctx.home,
+  });
+  return found
+    ? check(
+        "archify",
+        6,
+        "warn",
+        t(
+          `archify が入っている(${found})。外すと決めたら: ${archifyUninstall}`,
+          `archify is installed (${found}). If the user chose to remove it: ${archifyUninstall}`,
+        ),
+      )
+    : check(
+        "archify",
+        6,
+        "ok",
+        t("archify は無い", "archify is not installed"),
+      );
+};
+
+const countDirs = (path) => {
+  try {
+    return readdirSync(path, { withFileTypes: true }).filter((entry) =>
+      entry.isDirectory(),
+    ).length;
+  } catch {
+    return 0;
+  }
+};
+
+// 節6: 利用者の資料。消すか移すかは利用者が決めるので止めない(warn)
+const uninstallWorkspaceCheck = (ctx, t) => {
+  if (!existsSync(ctx.workspaceRoot)) {
+    return check(
+      "workspace",
+      6,
+      "ok",
+      t(`${ctx.workspaceRoot} は無い`, `${ctx.workspaceRoot} does not exist`),
+    );
+  }
+  const [decks, documents, sheets] = ["decks", "documents", "sheets"].map(
+    (dir) => countDirs(join(ctx.workspaceRoot, dir)),
+  );
+  return check(
+    "workspace",
+    6,
+    "warn",
+    t(
+      `${ctx.workspaceRoot} に利用者の資料がある(スライド ${decks}・HTML 資料 ${documents}・質問票 ${sheets})。消すか移すかは利用者が決める`,
+      `${ctx.workspaceRoot} holds the user's handouts (slides: ${decks}, HTML handouts: ${documents}, question sheets: ${sheets}). The user decides whether to delete or move them`,
+    ),
+  );
+};
+
+// 外すときに残っているものを節の順に調べ、最初に残っている項目の節を next で返す。
+// ok は clone の外に何も残っていないこと。仕上げ(節6)は ok のあとに行う
+export const runUninstallDoctor = async (context = defaultContext()) => {
+  const profile = readProfile(context.workspaceRoot);
+  const locale = localeOf(profile, context.env);
+  const t = (ja, en) => (locale === "ja" ? ja : en);
+  const agents = agentsOf(context);
+  const state = await context.probeServer();
+  const server = uninstallServerCheck(
+    context,
+    t,
+    state,
+    state === "running" ? context.serverRoot() : undefined,
+  );
+  const checks = [
+    server,
+    uninstallServerLogCheck(context, t, state, server),
+    ...uninstallInstructionChecks(t, agents),
+    ...uninstallSkillChecks(context, t, agents),
+    uninstallCommandCheck(context, t),
+    uninstallArchifyCheck(context, t),
+    uninstallWorkspaceCheck(context, t),
+  ];
+  return {
+    ...summarize(checks, new Set(["remaining"])),
+    locale,
+    mode: "uninstall",
   };
 };
 
 // 人が読む形
 export const formatDoctor = (result) => {
   const ja = result.locale === "ja";
-  const width = Math.max(...result.checks.map((item) => item.id.length));
+  const book = result.mode === "uninstall" ? "UNINSTALL" : "SETUP";
+  const idWidth = Math.max(...result.checks.map((item) => item.id.length));
+  const statusWidth = Math.max(
+    8,
+    ...result.checks.map((item) => item.status.length),
+  );
   const lines = result.checks.map(
     (item) =>
-      `${item.status.padEnd(8)} ${item.id.padEnd(width)}  ${ja ? "節" : "section "}${item.section}  ${item.detail}`,
+      `${item.status.padEnd(statusWidth)} ${item.id.padEnd(idWidth)}  ${ja ? "節" : "section "}${item.section}  ${item.detail}`,
   );
+  const done =
+    result.mode === "uninstall"
+      ? ja
+        ? "ok: clone の外に置いたものは外れた。仕上げは UNINSTALL の節6"
+        : "ok: nothing is left outside the clone; finish with UNINSTALL section 6"
+      : ja
+        ? "ok: セットアップは済んでいる"
+        : "ok: setup is complete";
   const tail = result.next
     ? ja
-      ? `次: SETUP の節${result.next.section}(${result.next.reason})`
-      : `next: SETUP section ${result.next.section} (${result.next.reason})`
-    : ja
-      ? "ok: セットアップは済んでいる"
-      : "ok: setup is complete";
+      ? `次: ${book} の節${result.next.section}(${result.next.reason})`
+      : `next: ${book} section ${result.next.section} (${result.next.reason})`
+    : done;
   return [...lines, "", tail].join("\n");
 };
 
 export const main = async (argv) => {
-  const result = await runDoctor();
-  const { locale: _locale, ...json } = result;
+  const result = argv.includes("--uninstall")
+    ? await runUninstallDoctor()
+    : await runDoctor();
+  const { locale: _locale, mode: _mode, ...json } = result;
   console.log(
     argv.includes("--json")
       ? JSON.stringify(json, null, 2)

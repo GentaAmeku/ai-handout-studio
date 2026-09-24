@@ -35,6 +35,10 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 入り終えたら、どのフォルダの会話でも「〜の資料を作って」と頼める。
 
+## 外し方
+
+clone したフォルダで、Claude Code なら `/studio-uninstall` と打ち、Codex CLI なら「UNINSTALL.md のとおりに外して」と頼む。入れるときと同じゲームブックの形で、エージェントが `doctor --uninstall` を実行し、残っているもの(サーバー、共通指示の `ai-handout-studio` の段落、スキルとコマンドのリンク、Playwright の Chromium)を順に外す。聞かれるのは始める前の1回だけで、資料(`workspace/`)と clone を消すか残すかもそこで決める([UNINSTALL.ja.md](UNINSTALL.ja.md))。
+
 ## コマンド
 
 ```
@@ -50,7 +54,7 @@ ai-handout-studio shot <URL か HTML のファイル> --out <PNG>
 ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <PNG か JPG か WebP>
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio settings [--set <キー>=<値>]
-ai-handout-studio doctor [--json]
+ai-handout-studio doctor [--uninstall] [--json]
 ```
 
 引数なしで `ai-handout-studio` を実行すると全部の一覧が出る。ふだんはエージェントの `ai-handout-studio` スキルを通して使い、これらのコマンドはその内部で呼ばれる。

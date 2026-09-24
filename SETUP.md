@@ -170,13 +170,7 @@ Then follow doctor as in section 1. If the agent-instructions block is `outdated
 
 ## Appendix B. Uninstall
 
-Ask before each step that touches the user's files.
-
-1. Stop the server: `kill $(lsof -ti tcp:5190 -sTCP:LISTEN)`.
-2. Remove the skill links (only the links): `~/.claude/skills/ai-handout-studio`, `~/.claude/skills/question-sheet`, `~/.agents/skills/ai-handout-studio`, `~/.agents/skills/question-sheet`.
-3. Remove the command: `rm ~/.local/bin/ai-handout-studio` (or `pnpm remove --global ai-handout-studio` if it was linked with pnpm).
-4. Remove the block from `<!-- ai-handout-studio:start … -->` to `<!-- ai-handout-studio:end -->` in `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`.
-5. Ask whether to keep `workspace/` (the user's handouts and answers) before deleting the clone.
+Uninstalling is a game book too. In Claude Code, type `/studio-uninstall`; in Codex CLI, ask: "Uninstall this by following UNINSTALL.md." `node scripts/doctor.mjs --uninstall --json` checks what is left and names the next section to read. The steps are in [UNINSTALL.md](UNINSTALL.md) ([UNINSTALL.ja.md](UNINSTALL.ja.md) in Japanese).
 
 ## Appendix C. Troubleshooting
 

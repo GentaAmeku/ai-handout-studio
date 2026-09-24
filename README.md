@@ -56,6 +56,16 @@ Prefer to install by hand instead? The same file has every command.
 
 Once it's done, ask your agent in any folder: "make a handout about ...".
 
+## Uninstall
+
+In the cloned folder, type `/studio-uninstall` in Claude Code, or ask Codex
+CLI: "Uninstall this by following UNINSTALL.md." It is a game book like the
+setup: your agent runs `doctor --uninstall` and removes what is left in order
+(the server, the `ai-handout-studio` block in your agent instructions, the
+skill and command links, and Playwright's Chromium). It asks you once, before
+it starts, including whether to keep or delete your handouts (`workspace/`)
+and the clone — see [UNINSTALL.md](UNINSTALL.md).
+
 ## Commands
 
 ```
@@ -71,7 +81,7 @@ ai-handout-studio shot <url or html file> --out <png>
 ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <png|jpg|webp>
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio settings [--set <key>=<value>]
-ai-handout-studio doctor [--json]
+ai-handout-studio doctor [--uninstall] [--json]
 ```
 
 Run `ai-handout-studio` with no arguments for the full list. Everyday work

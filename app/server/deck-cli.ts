@@ -65,7 +65,7 @@ export const USAGE = [
   "  ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]",
   "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share(true|false)・agentInstructions(ask|declined)",
   "  ai-handout-studio examples [--lang ja|en]",
-  "  ai-handout-studio doctor [--json]",
+  "  ai-handout-studio doctor [--uninstall] [--json]",
 ].join("\n");
 
 export type CliCommand =
