@@ -12,6 +12,8 @@ pnpm typecheck && pnpm test && pnpm test:skills && pnpm lint && pnpm build && pn
 
 Run `pnpm exec playwright install chromium` once before the export tests.
 
+In a Claude cloud session, the SessionStart hook (`scripts/cloud-session.sh`) puts Node 24 from `/opt/node24` on `PATH`, installs dependencies and Chromium; it does nothing locally. The cloud environment's setup script must install Node 24.15.0 to `/opt/node24` and pnpm 11.9.0, and its network access must also allow `cdn.playwright.dev` and `playwright.download.prss.microsoft.com`.
+
 ## Where to make a change
 
 - The API under `app/server/` is loaded when Vite reads its config; restart the dev server after editing it.
