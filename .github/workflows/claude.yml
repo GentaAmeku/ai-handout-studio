@@ -28,7 +28,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          # 変更前のスクリーンショットで main の中身に戻すので、履歴ごと取る
+          fetch-depth: 0
+
+      # AGENTS.md の確認コマンドを Claude が回せるよう、ci.yml と同じ環境を用意する
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
 
       - name: Run Claude Code
         id: claude
@@ -40,11 +52,8 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Optional: Add claude_args to customize behavior and configuration
+          # 確認コマンド・スクリーンショット・PR 作成まで(CLAUDE.md の「GitHub Actions」)に要るものだけ許す
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
-
+          claude_args: |
+            --allowedTools "Bash(pnpm *),Bash(LANG=ja_JP.UTF-8 pnpm *),Bash(node *),Bash(curl -s 127.0.0.1:*),Bash(pkill -f *),Bash(pgrep *),Bash(git checkout *),Bash(gh pr create *),Bash(gh pr view *),Bash(gh pr list *)"
