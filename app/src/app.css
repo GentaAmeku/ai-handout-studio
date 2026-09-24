@@ -1047,9 +1047,17 @@ code {
   background: var(--color-bg);
 }
 
-/* HTML 資料と質問票の帯は折り返さず1行に収める。狭いときは題名が省略で縮む */
-.viewer__bar--single {
-  flex-wrap: nowrap;
+/* スライド・HTML 資料・質問票の帯は1行に収める。狭いときは題名が省略で縮む。
+   伸び縮みの起点を 0 にして1行に留め、min-width で題名が 6em を切るときだけ折り返す
+   (nowrap にすると、スライドの帯は幅 1200px 前後で横にはみ出した)。
+   ボタンの中の文字は折り返さない(「PDF」などが2行になって帯が太った) */
+.viewer__bar--single .viewer__title {
+  flex-basis: 0;
+  min-width: 6em;
+}
+
+.viewer__bar--single .button {
+  white-space: nowrap;
 }
 
 .viewer__divider {

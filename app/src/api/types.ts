@@ -61,6 +61,10 @@ export type ExportResult = {
   // 書き出し先の絶対パス。files はその中のファイル名
   directory: string;
   files: string[];
+  // 画面の「パスをコピー」が写すパス。ファイルが1つならそのファイル、いくつもあれば directory
+  path: string;
+  // 書き出したファイルの入ったフォルダを開くコマンド。サーバーの OS に合わせる
+  openCommand: string;
   overflow: OverflowReport[];
 };
 

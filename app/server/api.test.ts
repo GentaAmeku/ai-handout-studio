@@ -15,6 +15,7 @@ import type { DeckDetail, DeckSummary, ExportResult } from "../src/api/types";
 import { validateDeck } from "../src/schema/deck";
 import { createApi } from "./api";
 import type { Exporter, ExportJob } from "./exporter";
+import { openFolderCommand } from "./open-folder";
 import {
   copyDesignWithDefaultSelection,
   proposalDeck,
@@ -261,13 +262,18 @@ describe("GET /api/decks/:deckId/assets/*", () => {
 
 describe("POST /api/decks/:deckId/exports", () => {
   // 実ブラウザは使わず、受け取った依頼だけを記録する
-  const fakeExporter = (): Exporter & { jobs: ExportJob[] } => {
+  const fakeExporter = (
+    names: readonly string[] = ["deck.pdf"],
+  ): Exporter & { jobs: ExportJob[] } => {
     const jobs: ExportJob[] = [];
     return {
       jobs,
       exportDeck: async (job) => {
         jobs.push(job);
-        return { files: [join(job.outDir, "deck.pdf")], overflow: [] };
+        return {
+          files: names.map((name) => join(job.outDir, name)),
+          overflow: [],
+        };
       },
       close: async () => undefined,
     };
@@ -306,11 +312,30 @@ describe("POST /api/decks/:deckId/exports", () => {
       format: "pdf",
       directory,
       files: ["deck.pdf"],
+      path: join(directory, "deck.pdf"),
+      openCommand: openFolderCommand(
+        join(directory, "deck.pdf"),
+        process.platform,
+      ),
       overflow: [],
     });
     expect(exporter.jobs).toEqual([
       { deckId, format: "pdf", outDir: directory, title: "テスト提案" },
     ]);
+  });
+
+  it("ファイルがいくつもあれば、パスはフォルダを指し、コマンドは最初のファイルを選ぶ", async () => {
+    const deckId = await createDeck();
+    const exporter = fakeExporter(["slide-01.png", "slide-02.png"]);
+    const response = await exportRequest(exporter, deckId, { format: "png" });
+    const result = (await response.json()) as ExportResult;
+    expect(result.path).toBe(result.directory);
+    expect(result.openCommand).toBe(
+      openFolderCommand(
+        join(result.directory, "slide-01.png"),
+        process.platform,
+      ),
+    );
   });
 
   it("書き出し処理が無ければ 503、形式が違えば 400、壊れた資料は 422", async () => {

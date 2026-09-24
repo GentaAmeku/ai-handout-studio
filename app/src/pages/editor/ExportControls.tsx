@@ -1,6 +1,7 @@
 import { Download, FileCode, FileImage, Presentation, X } from "lucide-react";
 import { useExportDeck } from "../../api/queries";
 import type { ExportFormat, ExportResult } from "../../api/types";
+import { ExportLocation } from "../../components/ExportLocation";
 import { useLanguage } from "../../i18n/language";
 
 const ExportSummary = ({ result }: { result: ExportResult }) => {
@@ -16,7 +17,7 @@ const ExportSummary = ({ result }: { result: ExportResult }) => {
           n: result.files.length,
         })}
       </p>
-      <code className="export-notice__path">{result.directory}</code>
+      <ExportLocation path={result.path} openCommand={result.openCommand} />
       {issues.length > 0 && (
         <div className="export-notice__warnings">
           <p>{t("export.warnings", { n: issues.length })}</p>
@@ -93,7 +94,7 @@ export const ExportControls = ({
         onClick={() => void start("pdf")}
       >
         <Download size={18} aria-hidden />
-        {t("export.pdf")}
+        PDF
       </button>
       <div
         className="export-notice"

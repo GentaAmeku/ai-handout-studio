@@ -17,6 +17,10 @@ import { useLanguage, type Vars } from "../../i18n/language";
 import { type Deck, deckTemplate } from "../../schema/deck";
 import { ExportControls } from "./ExportControls";
 
+// 上の帯。HTML 資料と質問票の帯(DocumentBar.tsx)と同じく1行に収める。戻る・はみ出し検査・履歴・保存は
+// アイコンだけにして(名前は読み上げと title に持たせる)、書き出しの PNG・HTML・PPTX・PDF は
+// アイコンだけでは見分けられないので形式名を残す
+
 // 上の帯の ⓘ に出す行。スライドは枚数と状態(下書き/完成)も出す
 export const deckInfoRows = (
   deck: Deck,
@@ -100,14 +104,21 @@ export const EditorBar = ({
   beforeExport: () => Promise<boolean>;
 }) => {
   const { t } = useLanguage();
+  const template = templateLabel(resolveTemplateName(deckTemplate(deck)));
   return (
-    <header className="viewer__bar">
-      <Link to="/slides" className="button button--ghost">
+    <header className="viewer__bar viewer__bar--single">
+      <Link
+        to="/slides"
+        className="button button--ghost button--icon"
+        aria-label={t("common.backToList")}
+        title={t("common.backToList")}
+      >
         <ArrowLeft size={18} aria-hidden />
-        {t("common.backToList")}
       </Link>
       <span className="viewer__divider" aria-hidden />
-      <h1 className="viewer__title">{deck.title}</h1>
+      <h1 className="viewer__title" title={deck.title}>
+        {deck.title}
+      </h1>
 
       <div className="editor__tools">
         <InfoPopover label={t("handouts.info")} rows={deckInfoRows(deck, t)} />
@@ -131,35 +142,39 @@ export const EditorBar = ({
         >
           <Redo2 size={18} aria-hidden />
         </button>
+        {/* 帯を1行に収めるため、見た目はパレットとテンプレートの名前だけにする */}
         <button
           type="button"
           className="button button--ghost editor__theme"
+          aria-label={t("editorBar.template", { template })}
           title={t("editorBar.templateTitle")}
           onClick={onTemplate}
         >
           <Palette size={18} aria-hidden />
-          {t("editorBar.template", {
-            template: templateLabel(resolveTemplateName(deckTemplate(deck))),
-          })}
+          {template}
         </button>
       </div>
 
       <button
         type="button"
-        className="button button--ghost"
+        className="button button--ghost button--icon"
+        aria-label={
+          checking ? t("editorBar.inspecting") : t("editorBar.inspect")
+        }
+        title={checking ? t("editorBar.inspecting") : t("editorBar.inspect")}
         disabled={checking}
         onClick={onInspect}
       >
         <ScanSearch size={18} aria-hidden />
-        {checking ? t("editorBar.inspecting") : t("editorBar.inspect")}
       </button>
       <button
         type="button"
-        className="button button--ghost"
+        className="button button--ghost button--icon"
+        aria-label={t("editorBar.history")}
+        title={t("editorBar.history")}
         onClick={onHistory}
       >
         <History size={18} aria-hidden />
-        {t("editorBar.history")}
       </button>
 
       <ExportControls
@@ -172,13 +187,13 @@ export const EditorBar = ({
         <SaveStatus dirty={dirty} saving={saving} />
         <button
           type="button"
-          className="button button--primary"
+          className="button button--primary button--icon"
+          aria-label={t("editorBar.save")}
           title={t("editorBar.saveTitle")}
           disabled={saving || !dirty}
           onClick={onSave}
         >
           <Save size={18} aria-hidden />
-          {t("editorBar.save")}
         </button>
       </div>
 
