@@ -85,7 +85,11 @@ describe("HTML 資料のスクリプト", () => {
     second?.click();
     expect(copied).toEqual(["pnpm install\npnpm dev <port>", "pnpm test"]);
     await Promise.resolve();
+    // アイコンがチェックに替わり、読み上げとツールチップも替わる
+    expect(first?.dataset.state).toBe("copied");
+    expect(first?.title).toBe("コピーしました");
     expect(first?.textContent).toBe("コピーしました");
+    expect(second?.dataset.state).toBe("copied");
   });
 
   it("どの道でもコピーできなければ、コードを選んで知らせる", async () => {
@@ -93,7 +97,8 @@ describe("HTML 資料のスクリプト", () => {
     const [first] = buttons(page);
     first?.click();
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(first?.textContent).toBe("選択しました。手でコピーしてください");
+    expect(first?.dataset.state).toBe("failed");
+    expect(first?.title).toBe("選択しました。手でコピーしてください");
     expect(page.getSelection()?.toString()).toBe(
       "pnpm install\npnpm dev <port>",
     );

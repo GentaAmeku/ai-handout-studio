@@ -2,10 +2,10 @@ import { createHash } from "node:crypto";
 
 // HTML 資料に埋めるスクリプト。コードブロックの「コピー」ボタンだけを動かす。
 // 相手にするのは document-render.ts の code が組んだ DOM
-// (.ds-code-block > pre.ds-code > code と、hidden の button[data-code-copy])。
+// (.ds-code-block > pre.ds-code > code と、hidden の button[data-code-copy] > .ds-code-copy-text)。
 // ボタンは hidden で描き、このスクリプトが動いたときだけ出す。スクリプトを止めた見本
 // (取り込む前の見比べ・入口のカード・design/samples/)では、押しても何も起きないボタンを出さない。
-// 画面の文言はボタンの data-copied / data-failed が持つ。中身が言語で変わらないので、指紋は1つ。
+// ボタンはアイコンだけ。画面の文言はボタンの title / data-copied / data-failed が持つ。中身が言語で変わらないので、指紋は1つ。
 // この中では ` と ${ を使わない(handout-html.ts の safeInline と衝突させない)
 
 const SOURCE = `(() => {
@@ -48,26 +48,31 @@ const SOURCE = `(() => {
     selection.addRange(range);
   };
 
-  // 押したボタンの文字で知らせ、2秒で戻す
-  const tell = (button, message) => {
-    const label = button.dataset.label || button.textContent;
+  // 押したボタンのアイコン(data-state)と、読み上げの文字・ツールチップで知らせ、2秒で戻す
+  const tell = (button, state, message) => {
+    const text = button.querySelector(".ds-code-copy-text");
+    const label = button.dataset.label || button.title;
     button.dataset.label = label;
-    button.textContent = message;
+    button.dataset.state = state;
+    button.title = message;
+    if (text) text.textContent = message;
     window.clearTimeout(Number(button.dataset.timer));
     button.dataset.timer = String(
       window.setTimeout(() => {
-        button.textContent = label;
+        delete button.dataset.state;
+        button.title = label;
+        if (text) text.textContent = label;
       }, 2000),
     );
   };
 
   const fallback = (button, code, text) => {
     if (legacy(text)) {
-      tell(button, button.dataset.copied);
+      tell(button, "copied", button.dataset.copied);
       return;
     }
     selectCode(code);
-    tell(button, button.dataset.failed);
+    tell(button, "failed", button.dataset.failed);
   };
 
   const copy = (button) => {
@@ -80,7 +85,7 @@ const SOURCE = `(() => {
       return;
     }
     navigator.clipboard.writeText(text).then(
-      () => tell(button, button.dataset.copied),
+      () => tell(button, "copied", button.dataset.copied),
       () => fallback(button, code, text),
     );
   };
