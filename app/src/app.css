@@ -233,8 +233,7 @@ code {
 
 /* ページ */
 
-/* 最大幅は決めない。左のメニューの右を画面いっぱいに使う。
-   設定だけは欄が横に延びすぎないよう .page--prose で幅を決める(使い方も広げた) */
+/* 最大幅は決めない。左のメニューの右を画面いっぱいに使う(使い方も設定も) */
 .page {
   padding: var(--space-gap) calc(var(--space-gap) + var(--space-md));
 }
@@ -1219,11 +1218,7 @@ code {
   box-shadow: var(--shadow-canvas);
 }
 
-/* 設定の幅。使い方と設定の枠(.prose-section)はここから下 */
-
-.page--prose {
-  max-width: 760px;
-}
+/* 使い方と設定の枠(.prose-section)はここから下 */
 
 .prose-section {
   margin-bottom: var(--space-gap);
