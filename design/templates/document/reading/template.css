@@ -36,12 +36,12 @@
   text-align: center;
 }
 
-/* 目次は1行に並べる */
+/* 目次は1行に並べる(章だけ。節の入れ子の ol は共通の document.css が隠す) */
 .ds-toc {
   text-align: center;
 }
 
-.ds-toc ol {
+.ds-toc > ol {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
