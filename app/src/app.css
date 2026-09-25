@@ -146,6 +146,50 @@ code {
   background: var(--color-chip);
 }
 
+/* アイコンだけのボタンの名前の吹き出し(data-tooltip)。マウスを重ねたとき(マウスのある機器だけ)と、
+   キーボードで選んだときにボタンの下へ出す。ブラウザーの title は選んだときに出ず、重ねると二重になるので使わない。
+   帯のボタンは右に寄っているので、吹き出しはボタンの右端にそろえて左へ伸ばす。帯の左端(戻る)だけは左端にそろえる。
+   開いた吹き出し(aria-expanded)の間は出さず、共有の知らせ・書き出しの知らせより下に重ねる */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + var(--space-xs));
+  right: 0;
+  z-index: 5;
+  display: none;
+  width: max-content;
+  max-width: 18em;
+  padding: calc(var(--space-xs) / 2) var(--space-xs);
+  border-radius: var(--radius-sm);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--fs-small);
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+
+[data-tooltip]:focus-visible:not([aria-expanded="true"])::after {
+  display: block;
+}
+
+@media (hover: hover) {
+  [data-tooltip]:hover:not([aria-expanded="true"])::after {
+    display: block;
+  }
+}
+
+.viewer__bar > [data-tooltip]:first-child::after {
+  right: auto;
+  left: 0;
+}
+
 /* 枠 */
 
 .app-shell {

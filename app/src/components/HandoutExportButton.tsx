@@ -33,7 +33,7 @@ export const HandoutExportButton = ({
             ? t("handouts.exporting")
             : t("handouts.export")
         }
-        title={disabledReason ?? t("handouts.export")}
+        data-tooltip={disabledReason ?? t("handouts.export")}
         disabled={exportHandout.isPending || disabledReason !== undefined}
         onClick={() => exportHandout.mutate()}
       >

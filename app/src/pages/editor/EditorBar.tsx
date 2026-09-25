@@ -18,7 +18,7 @@ import { type Deck, deckTemplate } from "../../schema/deck";
 import { ExportControls } from "./ExportControls";
 
 // 上の帯。HTML 資料と質問票の帯(DocumentBar.tsx)と同じく1行に収める。戻る・はみ出し検査・履歴・保存は
-// アイコンだけにして(名前は読み上げと title に持たせる)、書き出しの PNG・HTML・PPTX・PDF は
+// アイコンだけにして(名前は読み上げと吹き出し data-tooltip に持たせる)、書き出しの PNG・HTML・PPTX・PDF は
 // アイコンだけでは見分けられないので形式名を残す
 
 // 上の帯の ⓘ に出す行。スライドは枚数と状態(下書き/完成)も出す
@@ -111,7 +111,7 @@ export const EditorBar = ({
         to="/slides"
         className="button button--ghost button--icon"
         aria-label={t("common.backToList")}
-        title={t("common.backToList")}
+        data-tooltip={t("common.backToList")}
       >
         <ArrowLeft size={18} aria-hidden />
       </Link>
@@ -126,7 +126,7 @@ export const EditorBar = ({
           type="button"
           className="icon-button"
           aria-label={t("editorBar.undo")}
-          title={t("editorBar.undoTitle")}
+          data-tooltip={t("editorBar.undoTitle")}
           disabled={!canUndo}
           onClick={onUndo}
         >
@@ -136,7 +136,7 @@ export const EditorBar = ({
           type="button"
           className="icon-button"
           aria-label={t("editorBar.redo")}
-          title={t("editorBar.redoTitle")}
+          data-tooltip={t("editorBar.redoTitle")}
           disabled={!canRedo}
           onClick={onRedo}
         >
@@ -161,7 +161,9 @@ export const EditorBar = ({
         aria-label={
           checking ? t("editorBar.inspecting") : t("editorBar.inspect")
         }
-        title={checking ? t("editorBar.inspecting") : t("editorBar.inspect")}
+        data-tooltip={
+          checking ? t("editorBar.inspecting") : t("editorBar.inspect")
+        }
         disabled={checking}
         onClick={onInspect}
       >
@@ -171,7 +173,7 @@ export const EditorBar = ({
         type="button"
         className="button button--ghost button--icon"
         aria-label={t("editorBar.history")}
-        title={t("editorBar.history")}
+        data-tooltip={t("editorBar.history")}
         onClick={onHistory}
       >
         <History size={18} aria-hidden />
@@ -189,7 +191,7 @@ export const EditorBar = ({
           type="button"
           className="button button--primary button--icon"
           aria-label={t("editorBar.save")}
-          title={t("editorBar.saveTitle")}
+          data-tooltip={t("editorBar.saveTitle")}
           disabled={saving || !dirty}
           onClick={onSave}
         >

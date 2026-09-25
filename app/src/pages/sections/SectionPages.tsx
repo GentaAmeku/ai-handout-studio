@@ -1,7 +1,7 @@
 import "./sections.css";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink, Pencil, X } from "lucide-react";
+import { ArrowLeft, Pencil, X } from "lucide-react";
 import type { ReactNode } from "react";
 import {
   designTemplatesQuery,
@@ -18,6 +18,7 @@ import type {
 } from "../../api/types";
 import { HandoutExportButton } from "../../components/HandoutExportButton";
 import { favoriteControlOf } from "../../components/ListCardParts";
+import { OpenFullLink } from "../../components/OpenFullLink";
 import { PinnedSections } from "../../components/PinnedSections";
 import { ShareButton } from "../../components/ShareButton";
 import { formatDateTime } from "../../format/date";
@@ -114,7 +115,7 @@ const TemplatePicker = ({
         to={templateEditPath[section]}
         params={{ name: current }}
         className="button button--ghost button--icon"
-        title={t("handouts.editTemplate")}
+        data-tooltip={t("handouts.editTemplate")}
         aria-label={t("handouts.editTemplate")}
       >
         <Pencil size={18} aria-hidden />
@@ -191,23 +192,6 @@ export const HandoutMetaRow = ({ handout }: { handout: HandoutSummary }) => {
   );
 };
 
-// 1枚の HTML をそのままの大きさで別のタブに開く。回答欄に書き込むときはこちら
-const OpenFullLink = ({ section, id }: { section: Section; id: string }) => {
-  const { t } = useLanguage();
-  return (
-    <a
-      className="button button--ghost button--icon"
-      href={handoutPreviewUrl(section, id)}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={t("handouts.openFull")}
-      title={t("handouts.openFull")}
-    >
-      <ExternalLink size={18} aria-hidden />
-    </a>
-  );
-};
-
 export const SectionDetailPage = ({
   section,
   id,
@@ -229,7 +213,7 @@ export const SectionDetailPage = ({
           to={sectionListPath[section]}
           className="button button--ghost button--icon"
           aria-label={t("handouts.backToList")}
-          title={t("handouts.backToList")}
+          data-tooltip={t("handouts.backToList")}
         >
           <ArrowLeft size={18} aria-hidden />
         </Link>
@@ -245,7 +229,7 @@ export const SectionDetailPage = ({
               current={handout.data.template}
               templates={templates}
             />
-            <OpenFullLink section={section} id={id} />
+            <OpenFullLink kind={section} id={id} />
             <HandoutExportButton kind={section} id={id} />
             <ShareButton
               kind={section}

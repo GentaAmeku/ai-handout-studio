@@ -40,7 +40,7 @@ export const InfoPopover = ({
         // 帯のほかの道具のボタンと同じ、枠の無いアイコン
         className="button button--ghost button--icon"
         aria-label={label}
-        title={label}
+        data-tooltip={label}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
