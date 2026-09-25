@@ -123,6 +123,43 @@ describe("テンプレートの骨格", () => {
     ).toBe(false);
   });
 
+  it("列は3つまで。題名の塊の置き場所(head)は page か main", () => {
+    const three: DocumentLayout = {
+      columns: [232, 720, 216],
+      areas: [["toc", "main", "aside"]],
+      head: "main",
+    };
+    expect(documentLayoutSchema.safeParse(three).success).toBe(true);
+    expect(
+      documentLayoutSchema.safeParse({ ...three, head: "page" }).success,
+    ).toBe(true);
+    expect(
+      documentLayoutSchema.safeParse({ ...three, head: "side" }).success,
+    ).toBe(false);
+    expect(
+      documentLayoutSchema.safeParse({
+        columns: [200, 640, 200, 200],
+        areas: [["toc", "main", "aside", "."]],
+      }).success,
+    ).toBe(false);
+    // 3列でも本文は1つの列に置く
+    expect(
+      documentLayoutSchema.safeParse({
+        columns: [232, 720, 216],
+        areas: [
+          ["toc", "main", "main"],
+          ["toc", "main", "aside"],
+        ],
+      }).error?.issues[0]?.message,
+    ).toBe("領域 main を長方形にまとめる");
+    expect(
+      documentLayoutSchema.safeParse({
+        columns: [232, 720, 216],
+        areas: [["main", "main", "toc"]],
+      }).error?.issues[0]?.message,
+    ).toBe("本文(main)は1つの列に置く");
+  });
+
   it("区分ごとの既定の選択は、骨格(layouts)を持たない", () => {
     expect(
       selectionSchema.safeParse({
@@ -195,6 +232,103 @@ describe("型の変数", () => {
       "--doc-columns-no-aside": "var(--doc-aside-width) minmax(0, 1fr)",
       "--doc-areas-no-aside": '"toc main" "aside main"',
     });
+  });
+
+  it("2列以下で head を持たない型は、前と同じ変数だけを出す", () => {
+    for (const preset of Object.values(LAYOUT_PRESETS.document)) {
+      expect(
+        Object.keys(grid(preset.layout)).filter(
+          (name) => name.includes("narrow") || name.startsWith("--doc-page"),
+        ),
+      ).toEqual([]);
+    }
+    // head: page は書かないのと同じ
+    expect(grid({ ...standard, head: "page" })).toEqual(grid(standard));
+  });
+
+  it("3列の型は、本文でない列をそれぞれの幅で出し、1080px 以下の並びも出す", () => {
+    expect(
+      grid({
+        columns: [232, 720, 216],
+        areas: [["toc", "main", "aside"]],
+      }),
+    ).toEqual({
+      "--doc-measure": "720px",
+      "--doc-aside-width": "232px",
+      "--doc-aside-display": "block",
+      "--doc-toc-display": "block",
+      "--doc-columns": "232px minmax(0, 1fr) 216px",
+      // 脇の無い資料は、右の脇の列を畳む
+      "--doc-columns-no-aside": "232px minmax(0, 1fr)",
+      "--doc-rows": "1fr",
+      "--doc-areas": '"toc main aside"',
+      "--doc-areas-no-aside": '"toc main"',
+      // 3列目(脇)を本文の下へ回す。目次の列は下まで伸びる
+      "--doc-columns-narrow": "232px minmax(0, 1fr)",
+      "--doc-columns-narrow-no-aside": "232px minmax(0, 1fr)",
+      "--doc-rows-narrow": "auto 1fr",
+      "--doc-areas-narrow": '"toc main" "toc aside"',
+      "--doc-areas-narrow-no-aside": '"toc main" "toc aside"',
+    });
+  });
+
+  it("3列の本文が右端なら、1080px 以下では2列目を本文の下へ回す", () => {
+    expect(
+      grid({
+        columns: [200, 220, 640],
+        areas: [
+          ["toc", "aside", "main"],
+          ["toc", ".", "main"],
+        ],
+      }),
+    ).toMatchObject({
+      "--doc-columns": "200px 220px minmax(0, 1fr)",
+      "--doc-columns-narrow": "200px minmax(0, 1fr)",
+      "--doc-areas-narrow": '"toc main" "toc main" "toc aside"',
+    });
+  });
+
+  it("題名の塊を本文の列へ置く型は、ページの升目を出す。目次と脇は上から下まで伸びる", () => {
+    const vars = grid({
+      columns: [232, 720, 216],
+      areas: [["toc", "main", "aside"]],
+      head: "main",
+    });
+    expect(vars).toMatchObject({
+      "--doc-page-display": "grid",
+      "--doc-cols-display": "contents",
+      "--doc-page-rows": "auto auto auto 1fr auto",
+      "--doc-page-areas":
+        '"toc signature aside" "toc head aside" "toc summary aside" "toc main aside" "toc foot aside"',
+      "--doc-page-areas-no-aside":
+        '"toc signature" "toc head" "toc summary" "toc main" "toc foot"',
+      "--doc-page-rows-narrow": "auto auto auto auto 1fr auto",
+      "--doc-page-areas-narrow":
+        '"toc signature" "toc head" "toc summary" "toc main" "toc aside" "toc foot"',
+      "--doc-page-areas-narrow-no-aside":
+        '"toc signature" "toc head" "toc summary" "toc main" "toc aside" "toc foot"',
+    });
+    // 2列の型でも使える。本文より上の行(目次)はそのまま上に残る
+    expect(grid({ ...standard, head: "main" })).toMatchObject({
+      "--doc-page-rows": "auto auto auto auto 1fr auto",
+      "--doc-page-areas":
+        '"toc toc" "signature aside" "head aside" "summary aside" "main aside" "foot aside"',
+      "--doc-page-areas-no-aside":
+        '"toc" "signature" "head" "summary" "main" "foot"',
+    });
+    // 本文の列の最後の行が脇なら、末尾はその下に置く。脇が横に広がる行は末尾も横に広げる
+    expect(
+      grid({
+        columns: [640, 228],
+        areas: [
+          ["main", "toc"],
+          ["aside", "aside"],
+        ],
+        head: "main",
+      })["--doc-page-areas"],
+    ).toBe(
+      '"signature toc" "head toc" "summary toc" "main toc" "aside aside" "foot foot"',
+    );
   });
 
   it("本文の列が右なら、脇の列を左に置く", () => {

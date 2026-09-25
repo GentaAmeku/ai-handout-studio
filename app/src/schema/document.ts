@@ -187,7 +187,7 @@ export const documentBlockSchema = z.discriminatedUnion("type", [
 export type DocumentBlock = z.infer<typeof documentBlockSchema>;
 export type DocumentBlockType = DocumentBlock["type"];
 
-// セクション。level 3 は直前の level 2 のセクションの中に h3 として入り、目次には出ない
+// セクション。level 3 は直前の level 2 のセクションの中に h3 として入り、目次では章の下の入れ子(節)になる
 const sectionSchema = z.strictObject({
   id: shortId,
   heading: z.string(),

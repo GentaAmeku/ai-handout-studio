@@ -172,17 +172,41 @@ describe("documentBody の骨格", () => {
     { id: "s2", heading: "セクション2", level: 2, blocks: [] },
   ];
 
-  it("level 3 のセクションは直前のセクションの中に h3 として入る", () => {
+  it("level 3 のセクションは直前のセクションの中に、セクションの id を付けた h3 として入る", () => {
     expect(documentBody(doc(sections))).toContain(
-      '<section id="s1"><h2>セクション1</h2><h3>小セクション</h3></section><section id="s2"><h2>セクション2</h2></section>',
+      '<section id="s1"><h2>セクション1</h2><h3 id="s1-a">小セクション</h3></section><section id="s2"><h2>セクション2</h2></section>',
     );
   });
 
-  it("目次は auto のときだけ出し、h3 のセクションは載せない", () => {
+  it("目次は auto のときだけ出し、h3 のセクションは章の li の中に入れ子の ol で出す", () => {
     expect(documentBody(doc(sections))).not.toContain("ds-toc");
     const html = documentBody({ ...doc(sections), toc: "auto" });
     expect(html).toContain(
-      '<ol><li><a href="#s1">セクション1</a></li><li><a href="#s2">セクション2</a></li></ol>',
+      '<ol><li><a href="#s1">セクション1</a><ol><li><a href="#s1-a">小セクション</a></li></ol></li><li><a href="#s2">セクション2</a></li></ol>',
+    );
+  });
+
+  it("先頭が level 3 のセクションは章として扱い、目次の入れ子にしない", () => {
+    const html = documentBody({
+      ...doc([
+        { id: "s0", heading: "前置き", level: 3, blocks: [] },
+        ...sections,
+      ]),
+      toc: "auto",
+    });
+    expect(html).toContain('<section id="s0"><h3>前置き</h3></section>');
+    expect(html).toContain(
+      '<ol><li><a href="#s0">前置き</a></li><li><a href="#s1">',
+    );
+  });
+
+  it("DOM に足すのは h3 の id と目次の入れ子だけで、class は増やさない", () => {
+    const html = documentBody({ ...doc(sections), toc: "auto" });
+    expect(html.match(/class="[^"]*"/g)).toEqual(
+      documentBody({
+        ...doc(sections.filter((s) => s.level !== 3)),
+        toc: "auto",
+      }).match(/class="[^"]*"/g),
     );
   });
 

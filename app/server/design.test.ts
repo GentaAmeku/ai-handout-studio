@@ -12,6 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { documentLayoutVariables } from "../src/design/layout";
 import { draftVariables, resolveDraft } from "../src/pages/design/draft";
 import {
   drawnSheetBase,
@@ -409,8 +410,25 @@ describe("文書と質問票の部品(段 D)", () => {
       const used = [...css.matchAll(/var\((--[a-z0-9-]+)/g)].map(
         (match) => match[1],
       );
-      // 字の大きさの倍率は、倍率を持つテンプレートだけが書く。無ければ 1 として読む
-      const optional = new Set<string | undefined>(["--text-scale"]);
+      // 字の大きさの倍率は、倍率を持つテンプレートだけが書く。無ければ 1 として読む。
+      // 3列の型の狭い画面の並び(--doc-*-narrow*)と、題名の塊を本文の列へ置く型のページの升目(--doc-page-*)は、
+      // その骨格のテンプレートだけが持つ。無ければ document.css が今までの値で読む
+      const standard = new Set(
+        documentLayoutVariables({
+          columns: [640, 228],
+          areas: [["main", "aside"]],
+        }).map(([name]) => name),
+      );
+      const optional = new Set<string | undefined>([
+        "--text-scale",
+        ...documentLayoutVariables({
+          columns: [232, 720, 216],
+          areas: [["toc", "main", "aside"]],
+          head: "main",
+        })
+          .map(([name]) => name)
+          .filter((name) => !standard.has(name)),
+      ]);
       expect(
         [...new Set(used)].filter(
           (name) =>

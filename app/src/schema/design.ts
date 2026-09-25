@@ -346,15 +346,21 @@ const areaIsRectangle = (
   return cells.length === (right - left + 1) * (bottom - top + 1);
 };
 
-// 文書の骨格。列の幅(左から)と、升目ごとの領域。
-// 本文(main)の列が --doc-measure、もう1つの列が --doc-aside-width になる(document.css の紙の幅がこの2つを足す)
+// 題名の塊(署名・題名・リード・要約)と末尾を置く場所。page は列の上下に全幅、main は本文の列の上下
+export const documentHeadNames = ["page", "main"] as const;
+
+export type DocumentHead = (typeof documentHeadNames)[number];
+
+// 文書の骨格。列の幅(左から。3つまで)と、升目ごとの領域と、題名の塊の置き場所(既定 page)。
+// 本文(main)の列が --doc-measure、本文でない最初の列が --doc-aside-width になる(layout.ts)
 export const documentLayoutSchema = z
   .strictObject({
-    columns: z.array(columnWidth).min(1).max(2),
+    columns: z.array(columnWidth).min(1).max(3),
     areas: z
-      .array(z.array(z.enum(documentAreaNames)).min(1).max(2))
+      .array(z.array(z.enum(documentAreaNames)).min(1).max(3))
       .min(1)
       .max(4),
+    head: z.enum(documentHeadNames).optional(),
   })
   .superRefine((layout, ctx) => {
     if (layout.areas.some((row) => row.length !== layout.columns.length)) {

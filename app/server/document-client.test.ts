@@ -104,6 +104,65 @@ describe("HTML 資料のスクリプト", () => {
     );
   });
 
+  it("目次の無い資料では、読んでいる位置を付けない", () => {
+    expect(run().querySelectorAll("[aria-current]").length).toBe(0);
+  });
+});
+
+describe("読んでいる位置", () => {
+  const chapters: DocumentFile = {
+    ...doc,
+    toc: "auto",
+    sections: [
+      { id: "s1", heading: "準備", level: 2, blocks: [] },
+      { id: "s1-a", heading: "入れる", level: 3, blocks: [] },
+      { id: "s2", heading: "動かす", level: 2, blocks: [] },
+    ],
+  };
+
+  // jsdom は配置を持たないので、見出しの上端(画面の上からの距離)を渡してスクロールさせる
+  const open = () => {
+    const dom = new JSDOM(
+      `<!doctype html><body>${documentBody(chapters)}</body>`,
+      { runScripts: "outside-only" },
+    );
+    const page = dom.window.document;
+    const tops = new Map<string, number>();
+    for (const id of ["s1", "s1-a", "s2"]) {
+      const target = page.getElementById(id);
+      if (!target) throw new Error(id);
+      target.getBoundingClientRect = () =>
+        ({ top: tops.get(id) ?? 0 }) as DOMRect;
+    }
+    const scrollTo = (next: Record<string, number>) => {
+      for (const [id, top] of Object.entries(next)) tops.set(id, top);
+      dom.window.dispatchEvent(new dom.window.Event("scroll"));
+    };
+    scrollTo({ s1: 300, "s1-a": 900, s2: 1500 });
+    dom.window.eval(documentScript().replaceAll("<\\/", "</"));
+    const current = () =>
+      Array.from(page.querySelectorAll(".ds-toc a[aria-current]")).map(
+        (link) => [
+          link.getAttribute("href"),
+          link.getAttribute("aria-current"),
+        ],
+      );
+    return { scrollTo, current };
+  };
+
+  it("読み始めは最初の章に付け、スクロールに合わせて章・節の目次のリンクへ移す", () => {
+    const { scrollTo, current } = open();
+    expect(current()).toEqual([["#s1", "location"]]);
+    scrollTo({ s1: -400, "s1-a": 40, s2: 600 });
+    expect(current()).toEqual([["#s1-a", "location"]]);
+    scrollTo({ s1: -1200, "s1-a": -700, s2: 80 });
+    expect(current()).toEqual([["#s2", "location"]]);
+    scrollTo({ s1: 300, "s1-a": 900, s2: 1500 });
+    expect(current()).toEqual([["#s1", "location"]]);
+  });
+});
+
+describe("埋め込みの形", () => {
   it("指紋は埋める中身の sha256", () => {
     expect(documentScriptHash()).toBe(
       `'sha256-${createHash("sha256").update(documentScript()).digest("base64")}'`,

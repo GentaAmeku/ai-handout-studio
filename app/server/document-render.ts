@@ -154,22 +154,36 @@ const sectionHtml = ({ lead, subs }: Group, t: DocumentStrings): string =>
     `<section id="${escapeHtml(lead.id)}">`,
     `<${lead.level === 3 ? "h3" : "h2"}>${escapeHtml(lead.heading)}</${lead.level === 3 ? "h3" : "h2"}>`,
     blocksHtml(lead, t),
+    // 節の見出しにセクションの id を付け、目次の入れ子から飛べるようにする
     subs
-      .map((sub) => `<h3>${escapeHtml(sub.heading)}</h3>${blocksHtml(sub, t)}`)
+      .map(
+        (sub) =>
+          `<h3 id="${escapeHtml(sub.id)}">${escapeHtml(sub.heading)}</h3>${blocksHtml(sub, t)}`,
+      )
       .join(""),
     "</section>",
   ].join("");
 
-// 目次はセクションの見出しから作る。h3 として入るセクションは出さない
+const tocLink = (section: DocumentSection): string =>
+  `<a href="#${escapeHtml(section.id)}">${escapeHtml(section.heading)}</a>`;
+
+// 目次はセクションの見出しから作る。章(h2)を並べ、h3 として入る節は章の li の中に入れ子の ol で出す。
+// 入れ子は共通の document.css が隠し、出すかどうかはテンプレートが決める
 const tocHtml = (groups: readonly Group[], t: DocumentStrings): string =>
   [
     `<nav class="ds-toc" aria-label="${escapeHtml(t.tocLabel)}">`,
     `<div class="ds-label">${escapeHtml(t.tocLabel)}</div>`,
     "<ol>",
     groups
-      .map(
-        ({ lead }) =>
-          `<li><a href="#${escapeHtml(lead.id)}">${escapeHtml(lead.heading)}</a></li>`,
+      .map(({ lead, subs }) =>
+        [
+          "<li>",
+          tocLink(lead),
+          subs.length > 0
+            ? `<ol>${subs.map((sub) => `<li>${tocLink(sub)}</li>`).join("")}</ol>`
+            : "",
+          "</li>",
+        ].join(""),
       )
       .join(""),
     "</ol>",

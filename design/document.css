@@ -44,7 +44,7 @@ body:has(> .ds-page) {
 
 /* 本文・脇・目次の並び。テーマの文書の骨格(--doc-*)が決める */
 .ds-cols {
-  display: grid;
+  display: var(--doc-cols-display, grid);
   grid-template-columns: var(--doc-columns);
   grid-template-rows: var(--doc-rows);
   grid-template-areas: var(--doc-areas);
@@ -62,6 +62,23 @@ body:has(> .ds-page) {
 .ds-main {
   grid-area: main;
   min-width: 0;
+}
+
+/* 題名の塊を本文の列へ置く骨格(layout.head が main)だけ、ページを升目にする。
+   .ds-cols は畳まれ(display: contents)、署名・題名・要約・末尾と目次・本文・脇が同じ升目に並ぶ。
+   行と領域は骨格が決める(--doc-page-*)。ほかの骨格では .ds-page は block のままで、ここは効かない */
+.ds-page {
+  display: var(--doc-page-display, block);
+  grid-template-columns: var(--doc-columns);
+  grid-template-rows: var(--doc-page-rows, none);
+  grid-template-areas: var(--doc-page-areas, none);
+  column-gap: calc(var(--space-gap) * 2);
+  align-items: start;
+}
+
+.ds-page:not(:has(.ds-aside)) {
+  grid-template-columns: var(--doc-columns-no-aside, var(--doc-columns));
+  grid-template-areas: var(--doc-page-areas-no-aside, none);
 }
 
 h1 {
@@ -178,6 +195,24 @@ code {
   margin-bottom: 0;
 }
 
+/* 題名の塊を本文の列へ置く骨格で、署名・題名・要約・末尾が入る升目(--doc-page-areas の名前)。
+   .ds-page が grid のときだけ効く。質問票の署名など、ページの外の同じ class には当てない */
+.ds-page > .ds-signature {
+  grid-area: signature;
+}
+
+.ds-page > .ds-head {
+  grid-area: head;
+}
+
+.ds-page > .ds-summary {
+  grid-area: summary;
+}
+
+.ds-page > .ds-foot {
+  grid-area: foot;
+}
+
 /* ---------- 目次 ---------- */
 
 /* 下の空きは箱の外(margin)に取る。テンプレートが目次に枠や罫を付けても、
@@ -193,6 +228,11 @@ code {
 .ds-toc ol {
   margin: var(--space-xs) 0 0;
   padding-left: 1.4em;
+}
+
+/* 章の下の節(入れ子の ol)。既定では出さず、出すテンプレートだけが見せる */
+.ds-toc ol ol {
+  display: none;
 }
 
 .ds-toc a {
@@ -636,12 +676,55 @@ ol.ds-ordered {
   scale: var(--figure-arrow-scale);
 }
 
+/* ---------- 3列が入らない画面 ---------- */
+/* 3列の骨格は、3列目を本文の下へ回す(--doc-*-narrow)。2列以下の骨格は値を持たないので、並びは変わらない */
+
+@media (max-width: 1080px) {
+  .ds-cols {
+    grid-template-columns: var(--doc-columns-narrow, var(--doc-columns));
+    grid-template-rows: var(--doc-rows-narrow, var(--doc-rows));
+    grid-template-areas: var(--doc-areas-narrow, var(--doc-areas));
+  }
+
+  .ds-cols:not(:has(.ds-aside)) {
+    grid-template-columns: var(
+        --doc-columns-narrow-no-aside,
+        var(--doc-columns-no-aside, var(--doc-columns))
+      );
+    grid-template-areas: var(
+        --doc-areas-narrow-no-aside,
+        var(--doc-areas-no-aside, var(--doc-areas))
+      );
+  }
+
+  .ds-page {
+    grid-template-columns: var(--doc-columns-narrow, var(--doc-columns));
+    grid-template-rows: var(--doc-page-rows-narrow, var(--doc-page-rows, none));
+    grid-template-areas: var(
+        --doc-page-areas-narrow,
+        var(--doc-page-areas, none)
+      );
+  }
+
+  .ds-page:not(:has(.ds-aside)) {
+    grid-template-columns: var(
+        --doc-columns-narrow-no-aside,
+        var(--doc-columns-no-aside, var(--doc-columns))
+      );
+    grid-template-areas: var(
+        --doc-page-areas-narrow-no-aside,
+        var(--doc-page-areas-no-aside, none)
+      );
+  }
+}
+
 /* ---------- 狭い画面 ---------- */
 /* 本文幅と脇が入らないので、目次・本文・脇を縦に並べる。表示するかどうかは骨格のまま */
 
 @media (max-width: 760px) {
   .ds-page {
     --doc-page-pad-y: var(--space-gap);
+    display: block;
   }
 
   .ds-cols {
@@ -675,6 +758,7 @@ ol.ds-ordered {
   }
 
   .ds-page {
+    display: block;
     margin: 0;
     padding: 0;
     max-width: none;
