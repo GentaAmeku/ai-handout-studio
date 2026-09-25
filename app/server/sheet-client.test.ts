@@ -37,6 +37,31 @@ const doc: SheetDocument = {
   ],
 };
 
+// 案の画像(images visual)を1つ足した質問票。src は data: を直に書く(通常は保存の
+// ときに assets/ の相対パスから埋め込まれるが、ここは描画・スクリプトの検査だけなので済ます)
+const docWithImages: SheetDocument = {
+  ...doc,
+  questions: [
+    ...doc.questions,
+    {
+      id: "look",
+      title: "見た目はどちらにしますか",
+      type: "single",
+      options: [
+        { id: "a", label: "案A" },
+        { id: "b", label: "案B" },
+      ],
+      visual: {
+        type: "images",
+        caption: "イメージ",
+        items: [
+          { src: "data:image/png;base64,AAAA", label: "案A", alt: "案Aの画面" },
+        ],
+      },
+    },
+  ],
+};
+
 const answers: SheetAnswers = {
   schemaVersion: 1,
   documentId: "demo",
@@ -93,6 +118,29 @@ const open = (body: string, from?: Storage): JSDOM => {
     if (key && from)
       dom.window.localStorage.setItem(key, from.getItem(key) ?? "");
   });
+  dom.window.eval(sheetScript("ja").replaceAll("<\\/", "</"));
+  return dom;
+};
+
+// 画像の拡大の検査に使う。jsdom は <dialog> の showModal/close を実装していないので、
+// open 属性の出し入れと close イベントだけの最小限で補う(deck-list の検査と同じやり方)
+const runImages = (base: "focus" | "all" | "print" = "focus"): JSDOM => {
+  const dom = new JSDOM(
+    `<!doctype html><body>${sheetBody(sheetView(docWithImages, undefined), base, true)}</body>`,
+    { runScripts: "outside-only" },
+  );
+  dom.window.HTMLDialogElement.prototype.showModal = function showModal(
+    this: HTMLDialogElement,
+  ) {
+    this.setAttribute("open", "");
+  };
+  dom.window.HTMLDialogElement.prototype.close = function close(
+    this: HTMLDialogElement,
+  ) {
+    if (!this.hasAttribute("open")) return;
+    this.removeAttribute("open");
+    this.dispatchEvent(new dom.window.Event("close"));
+  };
   dom.window.eval(sheetScript("ja").replaceAll("<\\/", "</"));
   return dom;
 };
@@ -584,5 +632,108 @@ describe("質問票のスクリプト", () => {
       expect(sheetScriptHash("ja")).not.toBe(sheetScriptHash("en"));
       expect(sheetScriptHash("ja")).toBe(sheetScriptHash("ja"));
     });
+  });
+});
+
+describe("案の画像の拡大", () => {
+  it("押すと <dialog> に同じ画像を1枚だけ出す", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    expect(img.getAttribute("role")).toBe("button");
+    expect(img.tabIndex).toBe(0);
+    img.click();
+    const dialog = pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog");
+    expect(dialog.hasAttribute("open")).toBe(true);
+    const zoomed = pick<HTMLImageElement>(page, ".ds-image-zoom-img");
+    expect(zoomed.src).toBe(img.src);
+    // ページ全体に同じ画像がもう1枚(拡大の分)だけ増えている。二重に埋め込んではいない
+    expect(page.querySelectorAll(`img[src="${img.src}"]`).length).toBe(2);
+  });
+
+  it("Tab で選んで Enter でも開ける", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    img.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    expect(
+      pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog").hasAttribute(
+        "open",
+      ),
+    ).toBe(true);
+  });
+
+  it("閉じるボタンで閉じ、フォーカスが元の画像に戻る", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    img.click();
+    const dialog = pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog");
+    pick<HTMLButtonElement>(page, ".ds-image-zoom-dialog button").click();
+    expect(dialog.hasAttribute("open")).toBe(false);
+    expect(page.activeElement).toBe(img);
+  });
+
+  it("Esc で閉じ、フォーカスが元の画像に戻る", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    img.click();
+    const dialog = pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog");
+    dialog.dispatchEvent(
+      new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    expect(dialog.hasAttribute("open")).toBe(false);
+    expect(page.activeElement).toBe(img);
+  });
+
+  it("外側(::backdrop 相当)のクリックで閉じる", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    img.click();
+    const dialog = pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog");
+    dialog.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }));
+    expect(dialog.hasAttribute("open")).toBe(false);
+  });
+
+  it("ダイアログの中の部品を押しても閉じない", () => {
+    const dom = runImages();
+    const page = dom.window.document;
+    pick<HTMLImageElement>(page, ".ds-images-item img").click();
+    const dialog = pick<HTMLDialogElement>(page, ".ds-image-zoom-dialog");
+    pick<HTMLImageElement>(page, ".ds-image-zoom-img").dispatchEvent(
+      new dom.window.MouseEvent("click", { bubbles: true }),
+    );
+    expect(dialog.hasAttribute("open")).toBe(true);
+  });
+
+  it("印刷では何も変えない(押せる印もダイアログも無い)", () => {
+    const dom = runImages("print");
+    const page = dom.window.document;
+    const img = pick<HTMLImageElement>(page, ".ds-images-item img");
+    expect(img.getAttribute("role")).toBe(null);
+    expect(img.tabIndex).toBe(-1);
+    expect(page.querySelector(".ds-image-zoom-dialog")).toBe(null);
+  });
+
+  it("閉じるボタンの名前は質問票の言語に合わせる", () => {
+    const dom = new JSDOM(
+      `<!doctype html><body>${sheetBody(sheetView({ ...docWithImages, lang: "en" }, undefined, 0, "en"), "focus", true)}</body>`,
+      { runScripts: "outside-only" },
+    );
+    dom.window.HTMLDialogElement.prototype.showModal = function showModal(
+      this: HTMLDialogElement,
+    ) {
+      this.setAttribute("open", "");
+    };
+    dom.window.eval(sheetScript("en").replaceAll("<\\/", "</"));
+    const page = dom.window.document;
+    pick<HTMLImageElement>(page, ".ds-images-item img").click();
+    expect(
+      pick<HTMLButtonElement>(page, ".ds-image-zoom-dialog button").textContent,
+    ).toBe("Close image");
   });
 });

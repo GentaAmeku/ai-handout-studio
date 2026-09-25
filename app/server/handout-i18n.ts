@@ -51,6 +51,9 @@ export type SheetStrings = {
   readonly titleSuffix: string;
   // 推奨の選択肢の後ろに足す印。回答をコピーすると選択肢の名前と一緒に入る
   readonly recommendedMark: string;
+  // 案の画像を拡大する <dialog> の見出し(スクリーンリーダーだけに読ませる)と閉じるボタンの名前
+  readonly imageZoomHeading: string;
+  readonly imageZoomClose: string;
 };
 
 export type DocumentStrings = {
@@ -112,6 +115,8 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     imageMissingPrefix: "画像が見つからない: ",
     titleSuffix: "質問票",
     recommendedMark: "（推奨）",
+    imageZoomHeading: "画像の拡大",
+    imageZoomClose: "画像を閉じる",
   },
   document: {
     noticeLabel: { info: "情報", success: "成功", warning: "注意" },
@@ -171,6 +176,8 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     imageMissingPrefix: "Image not found: ",
     titleSuffix: "Questionnaire",
     recommendedMark: " (recommended)",
+    imageZoomHeading: "Enlarged image",
+    imageZoomClose: "Close image",
   },
   document: {
     noticeLabel: { info: "Info", success: "Success", warning: "Warning" },

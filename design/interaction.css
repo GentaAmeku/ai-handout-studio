@@ -550,6 +550,50 @@ body:has(> .ds-board) {
   color: var(--color-text);
 }
 
+/* 押すと拡大する案の画像。印は「押せる」ポインターと、キーボードで選べる枠 */
+.ds-image-zoomable {
+  cursor: zoom-in;
+}
+
+.ds-image-zoomable:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-width);
+  box-shadow: 0 0 0 calc(var(--focus-width) * 2) var(--color-focus-ring);
+}
+
+/* 拡大した画像を画面いっぱいに出すダイアログ。.ds-dialog より広く、中身は縦に並べて画像を余った高さいっぱいに見せる */
+.ds-image-zoom-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-gap);
+  width: calc(100% - var(--space-gap) * 2);
+  max-width: calc(100% - var(--space-gap) * 2);
+  height: calc(100% - var(--space-gap) * 2);
+  max-height: calc(100% - var(--space-gap) * 2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-gap);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-dialog);
+}
+
+.ds-image-zoom-dialog::backdrop {
+  background: var(--color-backdrop);
+}
+
+.ds-image-zoom-dialog .ds-dialog-head {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.ds-image-zoom-img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+}
+
 .ds-question-content table {
   table-layout: fixed;
   width: 100%;

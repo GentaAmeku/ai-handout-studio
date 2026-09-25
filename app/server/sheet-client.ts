@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import type { Locale } from "../src/schema/profile.ts";
+import { HANDOUT_STRINGS } from "./handout-i18n.ts";
 
 // 保存した質問票の HTML に埋めるスクリプト。質問を移動し、回答を Markdown に
 // まとめてコピーする。入力はこのブラウザの中に残し、開き直したら戻す。
@@ -32,6 +33,8 @@ type ClientStrings = {
   readonly copiedPrefix: string;
   readonly copiedLinesSuffix: string;
   readonly copiedButton: string;
+  readonly imageZoomHeading: string;
+  readonly imageZoomClose: string;
 };
 
 const CLIENT_STRINGS: Record<Locale, ClientStrings> = {
@@ -55,6 +58,8 @@ const CLIENT_STRINGS: Record<Locale, ClientStrings> = {
     copiedPrefix: "✓ コピーしました(",
     copiedLinesSuffix: " 行)。会話に貼り付けてください。",
     copiedButton: "コピーしました",
+    imageZoomHeading: HANDOUT_STRINGS.ja.sheet.imageZoomHeading,
+    imageZoomClose: HANDOUT_STRINGS.ja.sheet.imageZoomClose,
   },
   en: {
     sidebarClose: "Close question list",
@@ -77,6 +82,8 @@ const CLIENT_STRINGS: Record<Locale, ClientStrings> = {
     copiedPrefix: "✓ Copied (",
     copiedLinesSuffix: " lines). Paste it into the chat.",
     copiedButton: "Copied",
+    imageZoomHeading: HANDOUT_STRINGS.en.sheet.imageZoomHeading,
+    imageZoomClose: HANDOUT_STRINGS.en.sheet.imageZoomClose,
   },
 };
 
@@ -98,6 +105,66 @@ const sourceFor = (lang: Locale): string => `(() => {
   const layout = board.querySelector(".ds-board-layout");
   const first = sections.findIndex((section) => !section.hidden);
   let current = first < 0 ? 0 : first;
+
+  // 案の画像(ds-images-item img)を押すと拡大する。<dialog> は1つだけ使い回し、
+  // 開くたびに src を差し替える(data: の画像を HTML に二重に埋め込まない)。印刷では何もしない
+  if (board.dataset.layout !== "print") {
+    const zoomables = Array.from(board.querySelectorAll(".ds-images-item img"));
+    if (zoomables.length > 0) {
+      const zoomImg = document.createElement("img");
+      zoomImg.className = "ds-image-zoom-img";
+      const zoomHeading = document.createElement("h2");
+      zoomHeading.className = "ds-sr-only";
+      zoomHeading.textContent = T.imageZoomHeading;
+      const zoomClose = document.createElement("button");
+      zoomClose.type = "button";
+      zoomClose.className = "ds-button";
+      zoomClose.textContent = T.imageZoomClose;
+      const zoomHead = document.createElement("div");
+      zoomHead.className = "ds-dialog-head";
+      zoomHead.append(zoomHeading, zoomClose);
+      const zoomDialog = document.createElement("dialog");
+      zoomDialog.className = "ds-image-zoom-dialog";
+      zoomDialog.append(zoomHead, zoomImg);
+      document.body.append(zoomDialog);
+      let zoomReturnFocus = null;
+      const openZoom = (img) => {
+        zoomReturnFocus = img;
+        zoomImg.src = img.src;
+        zoomImg.alt = img.alt;
+        zoomDialog.showModal();
+        zoomClose.focus();
+      };
+      zoomClose.addEventListener("click", () => zoomDialog.close());
+      // クリックが ::backdrop に当たると target はダイアログ自身になる
+      // (中の部品へのクリックは子要素が target になるので閉じない)
+      zoomDialog.addEventListener("click", (event) => {
+        if (event.target === zoomDialog) zoomDialog.close();
+      });
+      // <dialog> は Esc でも自分から閉じるが、はっきりさせるためここでも閉じる
+      // (すでに閉じていれば close() は何もしない)
+      zoomDialog.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") zoomDialog.close();
+      });
+      // フォーカスを戻す処理は close イベント1か所にまとめる(ボタン・外側・Esc のどれでも通る)
+      zoomDialog.addEventListener("close", () => {
+        zoomImg.src = "";
+        if (zoomReturnFocus) zoomReturnFocus.focus();
+        zoomReturnFocus = null;
+      });
+      zoomables.forEach((img) => {
+        img.tabIndex = 0;
+        img.setAttribute("role", "button");
+        img.classList.add("ds-image-zoomable");
+        img.addEventListener("click", () => openZoom(img));
+        img.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault();
+          openZoom(img);
+        });
+      });
+    }
+  }
 
   const show = (index) => {
     current = Math.min(Math.max(index, 0), sections.length - 1);

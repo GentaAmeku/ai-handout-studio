@@ -395,6 +395,63 @@ const reflect = (input) => {
 app.addEventListener("input", (event) => {
 	if (event.target.tagName === "TEXTAREA") grow(event.target);
 });
+// 案の画像(ds-images-item img)を押すと拡大する。<dialog> は1つだけ使い回し、
+// 開くたびに src を差し替える(data: の画像を HTML に二重に埋め込まない)。印刷では何もしない
+const setUpImageZoom = () => {
+	const zoomImg = el("img", { class: "ds-image-zoom-img", alt: "" });
+	const zoomDialog = el("dialog", { class: "ds-image-zoom-dialog" }, [
+		el("div", { class: "ds-dialog-head" }, [
+			el("h2", { class: "ds-sr-only", text: "画像の拡大" }),
+			button("閉じる", () => zoomDialog.close()),
+		]),
+		zoomImg,
+	]);
+	document.body.append(zoomDialog);
+	let zoomReturnFocus = null;
+	const openZoom = (img) => {
+		zoomReturnFocus = img;
+		zoomImg.src = img.src;
+		zoomImg.alt = img.alt;
+		zoomDialog.showModal();
+		zoomDialog.querySelector("button").focus();
+	};
+	// クリックが ::backdrop に当たると target はダイアログ自身になる(中の部品への
+	// クリックは子要素が target になるので閉じない)
+	zoomDialog.addEventListener("click", (event) => {
+		if (event.target === zoomDialog) zoomDialog.close();
+	});
+	// <dialog> は Esc でも自分から閉じるが、はっきりさせるためここでも閉じる
+	// (すでに閉じていれば close() は何もしない)
+	zoomDialog.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") zoomDialog.close();
+	});
+	// フォーカスを戻す処理は close イベント1か所にまとめる(ボタン・外側・Esc のどれでも通る)
+	zoomDialog.addEventListener("close", () => {
+		zoomImg.src = "";
+		zoomReturnFocus?.focus();
+		zoomReturnFocus = null;
+	});
+	app.addEventListener("click", (event) => {
+		const img = event.target.closest(".ds-images-item img");
+		if (img) openZoom(img);
+	});
+	app.addEventListener("keydown", (event) => {
+		if (event.key !== "Enter") return;
+		const img = event.target.closest(".ds-images-item img");
+		if (!img) return;
+		event.preventDefault();
+		openZoom(img);
+	});
+	return (container) => {
+		container.querySelectorAll(".ds-images-item img").forEach((img) => {
+			img.tabIndex = 0;
+			img.setAttribute("role", "button");
+			img.classList.add("ds-image-zoomable");
+		});
+	};
+};
+// 印刷では画像を押せる印にもダイアログを作りもしない(setUpImageZoom を呼ばない)
+const wireImageZoom = layout === "print" ? () => {} : setUpImageZoom();
 const explorerView = (q) => {
 	const panel = el("details", { class: "ds-explorer" }, [
 		el("summary", { text: "全体図を開く · Archify" }),
@@ -422,6 +479,7 @@ const questionCard = (q, index, headingId) => {
 	const visual = el("div", { class: "ds-inline-visual" });
 	// Only the renderer's validated, escaped markup is inserted.
 	if (visuals[q.id]) visual.innerHTML = visuals[q.id];
+	wireImageZoom(visual);
 	return el("article", { class: "ds-question-card" }, [
 		el("p", {
 			class: "ds-question-count",
