@@ -4,15 +4,16 @@ import { useSetHandoutTemplate } from "../../api/queries";
 import type { DesignTemplateSummary } from "../../api/types";
 import { HandoutExportButton } from "../../components/HandoutExportButton";
 import { InfoPopover, type InfoRow } from "../../components/InfoPopover";
+import { OpenFullLink } from "../../components/OpenFullLink";
 import { ShareButton } from "../../components/ShareButton";
 import { formatDateTime } from "../../format/date";
 import type { MessageKey } from "../../i18n/ja";
 import { useLanguage, type Vars } from "../../i18n/language";
 import { templateEditPath } from "../templates/paths";
 
-// 上の帯。戻る・題・テンプレートの入れ替え・履歴・書き出し・共有・保存を1本にまとめる。
+// 上の帯。戻る・題・テンプレートの入れ替え・履歴・原寸で開く・書き出し・共有・保存を1本にまとめる。
 // スライドの EditorBar.tsx と同じ並びで、はみ出し検査と取り消しは持たない。
-// ボタンはアイコンだけにして(名前は読み上げと title に持たせる)、帯を1行に収める
+// ボタンはアイコンだけにして(名前は読み上げと、マウスを重ねるか選んだときの吹き出し data-tooltip に持たせる)、帯を1行に収める
 
 // 上の帯の ⓘ に出す行(ID・作成日時・更新日時・テンプレート)
 export const documentInfoRows = (
@@ -78,7 +79,7 @@ const TemplatePicker = ({
         to={templateEditPath.document}
         params={{ name: current }}
         className="button button--ghost button--icon"
-        title={t("handouts.editTemplate")}
+        data-tooltip={t("handouts.editTemplate")}
         aria-label={t("handouts.editTemplate")}
       >
         <Pencil size={18} aria-hidden />
@@ -131,7 +132,7 @@ export const DocumentBar = ({
         to="/documents"
         className="button button--ghost button--icon"
         aria-label={t("doc.backToList")}
-        title={t("doc.backToList")}
+        data-tooltip={t("doc.backToList")}
       >
         <ArrowLeft size={18} aria-hidden />
       </Link>
@@ -156,11 +157,13 @@ export const DocumentBar = ({
         type="button"
         className="button button--ghost button--icon"
         aria-label={t("editorBar.history")}
-        title={t("editorBar.history")}
+        data-tooltip={t("editorBar.history")}
         onClick={onHistory}
       >
         <History size={18} aria-hidden />
       </button>
+
+      <OpenFullLink kind="document" id={id} />
 
       <HandoutExportButton
         kind="document"
@@ -181,7 +184,7 @@ export const DocumentBar = ({
           type="button"
           className="button button--primary button--icon"
           aria-label={t("editorBar.save")}
-          title={t("editorBar.saveTitle")}
+          data-tooltip={t("editorBar.saveTitle")}
           disabled={saving || !dirty}
           onClick={onSave}
         >

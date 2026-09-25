@@ -83,14 +83,14 @@ export const ShareButton = ({
   return (
     <div className="share-button">
       <div className="share-button__anchor">
-        {/* アイコンだけ。名前は読み上げと title に持たせる */}
+        {/* アイコンだけ。名前は読み上げと吹き出し(data-tooltip)に持たせる */}
         <button
           type="button"
           className="button button--ghost button--icon"
           aria-label={
             share.isPending ? t("handouts.sharing") : t("handouts.share")
           }
-          title={disabledReason ?? t("handouts.share")}
+          data-tooltip={disabledReason ?? t("handouts.share")}
           disabled={share.isPending || disabledReason !== undefined}
           onClick={() => void run()}
         >

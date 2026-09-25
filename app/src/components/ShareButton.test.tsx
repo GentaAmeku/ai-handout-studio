@@ -149,7 +149,7 @@ describe("ShareButton", () => {
     expect(link.getAttribute("title")).toBe("https://claude.ai/artifacts/demo");
   });
 
-  it("disabledReason を渡すと押せず、理由が title に出る", () => {
+  it("disabledReason を渡すと押せず、理由が吹き出し(data-tooltip)に出る", () => {
     render(
       <Wrapper>
         <ShareButton
@@ -164,7 +164,9 @@ describe("ShareButton", () => {
       name: /共有の依頼をコピー/,
     }) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
-    expect(button.getAttribute("title")).toBe("保存してから共有します");
+    expect(button.dataset.tooltip).toBe("保存してから共有します");
+    // ブラウザーの title は使わない(吹き出しと二重になる)
+    expect(button.hasAttribute("title")).toBe(false);
     fireEvent.click(button);
     expect(fetchMock).not.toHaveBeenCalled();
   });
