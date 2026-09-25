@@ -21,13 +21,48 @@ const isMigrated = (doc: DocumentFile): boolean =>
   doc.sections[0]?.heading === "" &&
   doc.sections[0].blocks.length === 1;
 
+// 文中のコード(` `で囲む)を描く欄の文字列。見出し・題名・カードの題・引用の出典などは含めない
+const inlineCodeTexts = (block: DocumentBlock): string[] => {
+  if (block.type === "text") return [block.props.text];
+  if (block.type === "bullets") return block.props.items;
+  if (block.type === "ordered")
+    return block.props.items.flatMap((item) =>
+      item.why ? [item.text, item.why] : [item.text],
+    );
+  if (block.type === "table") return block.props.rows.flat();
+  if (block.type === "cards") return block.props.items.map((item) => item.body);
+  if (
+    block.type === "notice" ||
+    block.type === "note" ||
+    block.type === "alert" ||
+    block.type === "open" ||
+    block.type === "quote"
+  )
+    return [block.props.text];
+  return [];
+};
+
+// 同じ行の中で ` の数が奇数なら、対にならない ` がある
+const hasUnpairedBacktick = (text: string): boolean =>
+  text.split("\n").some((line) => (line.match(/`/g) ?? []).length % 2 !== 0);
+
+const codeWarnings = (block: DocumentBlock): string[] =>
+  inlineCodeTexts(block).some(hasUnpairedBacktick)
+    ? [`ブロック ${block.id}: 文中の \` が対になっていない`]
+    : [];
+
 const blockWarnings = (block: DocumentBlock): string[] => {
+  const warnings = codeWarnings(block);
   if (block.type === "html") {
-    return [`ブロック ${block.id}: html は受け皿。まず他の型を使う`];
+    return [
+      ...warnings,
+      `ブロック ${block.id}: html は受け皿。まず他の型を使う`,
+    ];
   }
   if (block.type === "table") {
     const { headers, rows, numeric } = block.props;
     return [
+      ...warnings,
       ...rows.flatMap((row, index) =>
         row.length === headers.length
           ? []
@@ -44,23 +79,36 @@ const blockWarnings = (block: DocumentBlock): string[] => {
     ];
   }
   if (block.type === "bullets" && block.props.items.length === 0) {
-    return [`ブロック ${block.id}: 項目が無い`];
+    return [...warnings, `ブロック ${block.id}: 項目が無い`];
   }
   if (block.type === "cards" && block.props.items.length === 0) {
-    return [`ブロック ${block.id}: カードが無い`];
+    return [...warnings, `ブロック ${block.id}: カードが無い`];
   }
-  return [];
+  return warnings;
 };
+
+// 要約とリードも文中のコードを描くので、対になっていない ` があれば警告する
+const headWarnings = (doc: DocumentFile): string[] => [
+  ...(doc.summary && hasUnpairedBacktick(doc.summary.text)
+    ? ["要約: 文中の ` が対になっていない"]
+    : []),
+  ...(doc.head.lede && hasUnpairedBacktick(doc.head.lede)
+    ? ["リード: 文中の ` が対になっていない"]
+    : []),
+];
 
 const documentWarnings = (doc: DocumentFile): string[] =>
   isMigrated(doc)
     ? []
-    : doc.sections.flatMap((section) => [
-        ...(section.heading.trim() === ""
-          ? [`セクション ${section.id}: 見出しが空`]
-          : []),
-        ...section.blocks.flatMap(blockWarnings),
-      ]);
+    : [
+        ...headWarnings(doc),
+        ...doc.sections.flatMap((section) => [
+          ...(section.heading.trim() === ""
+            ? [`セクション ${section.id}: 見出しが空`]
+            : []),
+          ...section.blocks.flatMap(blockWarnings),
+        ]),
+      ];
 
 export const checkDocumentFile = (input: unknown): DocumentFileCheck => {
   const checked = checkDocument(input);

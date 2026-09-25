@@ -25,13 +25,32 @@ type BlockRender<T extends DocumentBlockType> = (
   t: DocumentStrings,
 ) => string;
 
+// 同じ行の中で対になった ` で囲んだ部分を <code> にする。対にならない ` はそのまま字で出す。
+// 囲みの中は字のまま逃がすだけで、ほかの飾りは入れない。`[^`\n]*` が改行をまたがないので、
+// 複数行の文字列に使っても行をまたいだ対にはならない
+const INLINE_CODE = /`([^`\n]*)`/g;
+
+const inlineCode = (line: string): string => {
+  const parts: string[] = [];
+  let lastIndex = 0;
+  for (const match of line.matchAll(INLINE_CODE)) {
+    parts.push(escapeHtml(line.slice(lastIndex, match.index)));
+    parts.push(
+      `<code class="ds-code-inline">${escapeHtml(match[1] ?? "")}</code>`,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  parts.push(escapeHtml(line.slice(lastIndex)));
+  return parts.join("");
+};
+
 // 段落。改行(\n)ごとに p を分ける
 const paragraphs = (text: string): string =>
   text
     .split("\n")
     .map((line) => line.trim())
     .filter((line) => line.length > 0)
-    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .map((line) => `<p>${inlineCode(line)}</p>`)
     .join("");
 
 const cellClass = (
@@ -59,7 +78,7 @@ const tableHtml = (props: PropsOf<"table">): string =>
     props.rows
       .map(
         (row) =>
-          `<tr>${row.map((cell, index) => `<td${cellClass(index, props)}>${escapeHtml(cell)}</td>`).join("")}</tr>`,
+          `<tr>${row.map((cell, index) => `<td${cellClass(index, props)}>${inlineCode(cell)}</td>`).join("")}</tr>`,
       )
       .join(""),
     "</tbody>",
@@ -83,12 +102,12 @@ const copyButtonHtml = (t: DocumentStrings): string =>
 const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
   text: (props) => paragraphs(props.text),
   bullets: (props) =>
-    `<ul>${props.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`,
+    `<ul>${props.items.map((item) => `<li>${inlineCode(item)}</li>`).join("")}</ul>`,
   ordered: (props) =>
     `<ol class="ds-ordered">${props.items
       .map(
         (item) =>
-          `<li>${escapeHtml(item.text)}${item.why ? `<span class="ds-why">${escapeHtml(item.why)}</span>` : ""}</li>`,
+          `<li>${inlineCode(item.text)}${item.why ? `<span class="ds-why">${inlineCode(item.why)}</span>` : ""}</li>`,
       )
       .join("")}</ol>`,
   table: tableHtml,
@@ -96,15 +115,15 @@ const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
     `<div class="ds-columns${props.columns === 3 ? " ds-columns-3" : ""}">${props.items
       .map(
         (item) =>
-          `<div class="ds-card"><div class="ds-card-title">${escapeHtml(item.title)}</div><p>${escapeHtml(item.body)}</p></div>`,
+          `<div class="ds-card"><div class="ds-card-title">${escapeHtml(item.title)}</div><p>${inlineCode(item.body)}</p></div>`,
       )
       .join("")}</div>`,
   notice: (props, t) =>
-    `<div class="ds-notice ds-notice-${props.kind}"><span class="ds-notice-label">${escapeHtml(props.label ?? t.noticeLabel[props.kind])}</span><p>${escapeHtml(props.text)}</p></div>`,
+    `<div class="ds-notice ds-notice-${props.kind}"><span class="ds-notice-label">${escapeHtml(props.label ?? t.noticeLabel[props.kind])}</span><p>${inlineCode(props.text)}</p></div>`,
   note: (props, t) =>
-    `<div class="ds-note"><strong>${escapeHtml(t.noteLabel)}</strong> — ${escapeHtml(props.text)}</div>`,
+    `<div class="ds-note"><strong>${escapeHtml(t.noteLabel)}</strong> — ${inlineCode(props.text)}</div>`,
   alert: (props, t) =>
-    `<div class="ds-alert"><strong>${escapeHtml(t.alertLabel)}</strong> — ${escapeHtml(props.text)}</div>`,
+    `<div class="ds-alert"><strong>${escapeHtml(t.alertLabel)}</strong> — ${inlineCode(props.text)}</div>`,
   open: (props) => `<div class="ds-open">${paragraphs(props.text)}</div>`,
   quote: (props) =>
     `<div class="ds-quote">${paragraphs(props.text)}${props.source ? `<p class="ds-quote-source">${escapeHtml(props.source)}</p>` : ""}</div>`,
@@ -206,13 +225,13 @@ const asideHtml = (aside: NonNullable<DocumentFile["aside"]>): string =>
   ].join("");
 
 const headHtml = (head: DocumentFile["head"]): string =>
-  `<div class="ds-head"><h1>${escapeHtml(head.title)}</h1>${head.lede ? `<p class="ds-lede">${escapeHtml(head.lede)}</p>` : ""}</div>`;
+  `<div class="ds-head"><h1>${escapeHtml(head.title)}</h1>${head.lede ? `<p class="ds-lede">${inlineCode(head.lede)}</p>` : ""}</div>`;
 
 const summaryHtml = (
   summary: NonNullable<DocumentFile["summary"]>,
   t: DocumentStrings,
 ): string =>
-  `<div class="ds-summary"><div class="ds-label">${escapeHtml(summary.label ?? t.summaryLabel)}</div><p>${escapeHtml(summary.text)}</p></div>`;
+  `<div class="ds-summary"><div class="ds-label">${escapeHtml(summary.label ?? t.summaryLabel)}</div><p>${inlineCode(summary.text)}</p></div>`;
 
 // 上端の署名の行。組織名は資料に書いた値を優先し、空なら設定の組織名。どちらも無ければ出さない
 const signatureHtml = (doc: DocumentFile, orgName?: string): string => {

@@ -165,6 +165,135 @@ describe("documentBody のブロック", () => {
   });
 });
 
+describe("文中の短いコード", () => {
+  it("対になった ` を <code> にする。対にならない ` はそのまま字で出す", () => {
+    expect(
+      render({
+        id: "b1",
+        type: "text",
+        props: { text: "`pnpm dev` を実行する。半端な ` はそのまま" },
+      }),
+    ).toBe(
+      '<p><code class="ds-code-inline">pnpm dev</code> を実行する。半端な ` はそのまま</p>',
+    );
+  });
+
+  it("同じ行に2組あれば両方描く", () => {
+    expect(
+      render({
+        id: "b1",
+        type: "text",
+        props: { text: "`a` と `b`" },
+      }),
+    ).toBe(
+      '<p><code class="ds-code-inline">a</code> と <code class="ds-code-inline">b</code></p>',
+    );
+  });
+
+  it("囲みの中の記号は逃がすだけで、ほかの飾りは入れない", () => {
+    expect(
+      render({
+        id: "b1",
+        type: "text",
+        props: { text: '`<b>&"`' },
+      }),
+    ).toBe('<p><code class="ds-code-inline">&lt;b&gt;&amp;&quot;</code></p>');
+  });
+
+  it("段落・箇条書き・手順・表・カード・注記・補足・注意・未決・引用の本文に当てる", () => {
+    expect(
+      render({ id: "b1", type: "bullets", props: { items: ["`code`"] } }),
+    ).toBe('<ul><li><code class="ds-code-inline">code</code></li></ul>');
+    expect(
+      render({
+        id: "b1",
+        type: "ordered",
+        props: { items: [{ text: "`text`", why: "`why`" }] },
+      }),
+    ).toBe(
+      '<ol class="ds-ordered"><li><code class="ds-code-inline">text</code><span class="ds-why"><code class="ds-code-inline">why</code></span></li></ol>',
+    );
+    expect(
+      render({
+        id: "b1",
+        type: "table",
+        props: { headers: ["見出し"], rows: [["`cell`"]] },
+      }),
+    ).toContain('<td><code class="ds-code-inline">cell</code></td>');
+    expect(
+      render({
+        id: "b1",
+        type: "cards",
+        props: { columns: 2, items: [{ title: "`title`", body: "`body`" }] },
+      }),
+    ).toBe(
+      '<div class="ds-columns"><div class="ds-card"><div class="ds-card-title">`title`</div><p><code class="ds-code-inline">body</code></p></div></div>',
+    );
+    expect(
+      render({
+        id: "b1",
+        type: "notice",
+        props: { kind: "info", text: "`text`" },
+      }),
+    ).toContain('<p><code class="ds-code-inline">text</code></p>');
+    expect(render({ id: "b1", type: "note", props: { text: "`text`" } })).toBe(
+      '<div class="ds-note"><strong>補足</strong> — <code class="ds-code-inline">text</code></div>',
+    );
+    expect(render({ id: "b1", type: "alert", props: { text: "`text`" } })).toBe(
+      '<div class="ds-alert"><strong>危険</strong> — <code class="ds-code-inline">text</code></div>',
+    );
+    expect(render({ id: "b1", type: "open", props: { text: "`text`" } })).toBe(
+      '<div class="ds-open"><p><code class="ds-code-inline">text</code></p></div>',
+    );
+    expect(
+      render({
+        id: "b1",
+        type: "quote",
+        props: { text: "`text`", source: "`source`" },
+      }),
+    ).toBe(
+      '<div class="ds-quote"><p><code class="ds-code-inline">text</code></p><p class="ds-quote-source">`source`</p></div>',
+    );
+  });
+
+  it("見出し・題名・カードの題・引用の出典・図や画像の説明には当てない", () => {
+    // 見出し・題名(h1)・card-title・quote-source は上の表で確かめた。ここは見出しと caption
+    const html = documentBody(doc([{ id: "s1", heading: "`章`", blocks: [] }]));
+    expect(html).toContain("<h2>`章`</h2>");
+    expect(
+      render({
+        id: "b1",
+        type: "figure",
+        props: { html: "<svg></svg>", caption: "`fig`" },
+      }),
+    ).toContain("<figcaption>`fig`</figcaption>");
+  });
+
+  it("要約・リードにも当てる", () => {
+    const html = documentBody({
+      ...doc([]),
+      head: { title: "題", lede: "`lede`" },
+      summary: { text: "`summary`" },
+    });
+    expect(html).toContain(
+      '<p class="ds-lede"><code class="ds-code-inline">lede</code></p>',
+    );
+    expect(html).toContain(
+      '<p><code class="ds-code-inline">summary</code></p>',
+    );
+  });
+
+  it("コードブロックの中身はそのまま(すでにコードなので二重に描かない)", () => {
+    expect(
+      render({
+        id: "b1",
+        type: "code",
+        props: { text: "`pnpm dev`" },
+      }),
+    ).toContain("<code>`pnpm dev`</code>");
+  });
+});
+
 describe("documentBody の骨格", () => {
   const sections: DocumentSection[] = [
     { id: "s1", heading: "セクション1", level: 2, blocks: [] },

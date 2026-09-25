@@ -51,4 +51,89 @@ describe("document.json の検査", () => {
     expect(isDocumentInput({ slides: [], sections: [] })).toBe(false);
     expect(isDocumentInput([])).toBe(false);
   });
+
+  it("文中の ` が対になっていなければ警告する。止めはしない", () => {
+    const doc = documentSample();
+    const result = checkDocumentFile({
+      ...doc,
+      sections: [
+        {
+          id: "s01",
+          heading: "見出し",
+          blocks: [
+            { id: "b01", type: "text", props: { text: "半端な ` だけ" } },
+          ],
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warnings).toEqual([
+      "ブロック b01: 文中の ` が対になっていない",
+    ]);
+  });
+
+  it("対になっていれば警告しない", () => {
+    const doc = documentSample();
+    const result = checkDocumentFile({
+      ...doc,
+      sections: [
+        {
+          id: "s01",
+          heading: "見出し",
+          blocks: [
+            { id: "b01", type: "text", props: { text: "`pnpm dev` を実行" } },
+          ],
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warnings).toEqual([]);
+  });
+
+  it("要約とリードの ` も対になっているか確かめる", () => {
+    const doc = documentSample();
+    const result = checkDocumentFile({
+      ...doc,
+      sections: [],
+      head: { ...doc.head, lede: "半端な `" },
+      summary: { text: "半端な `" },
+    });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warnings).toEqual(
+      expect.arrayContaining([
+        "要約: 文中の ` が対になっていない",
+        "リード: 文中の ` が対になっていない",
+      ]),
+    );
+  });
+
+  it("見出し・題名・カードの題・引用の出典の ` は確かめない", () => {
+    const doc = documentSample();
+    const result = checkDocumentFile({
+      ...doc,
+      sections: [
+        {
+          id: "s01",
+          heading: "半端な `",
+          blocks: [
+            {
+              id: "b01",
+              type: "cards",
+              props: {
+                columns: 2,
+                items: [{ title: "半端な `", body: "本文" }],
+              },
+            },
+            {
+              id: "b02",
+              type: "quote",
+              props: { text: "本文", source: "半端な `" },
+            },
+          ],
+        },
+      ],
+    });
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.warnings).toEqual([]);
+  });
 });

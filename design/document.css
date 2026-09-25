@@ -377,6 +377,14 @@ pre.ds-code code {
   outline-offset: 2px;
 }
 
+/* 文中の短いコード(` `で囲んだ部分)。pre.ds-code の中の code には当てない */
+.ds-code-inline {
+  padding: 0.1em 0.4em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
 /* ---------- 表 ---------- */
 /* スライドの .ds-table と同じ変数(--table-*)を読む */
 
