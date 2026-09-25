@@ -1,0 +1,79 @@
+{
+  "label": "Documentation",
+  "description": "長い手順書・設計書の読み物。左に章と節の目次、右に用語を画面に残し、読んでいる章・節を緑で示す。コードと注記は角丸の細い枠の箱、手順は番号の丸と縦の線",
+  "tokens": {
+    "color": {
+      "bg": "#ffffff",
+      "text": "#3f4140",
+      "heading": "#171a18",
+      "muted": "#707371",
+      "primary": "#166e3f",
+      "primaryStrong": "#0f5530",
+      "surface": "#f8faf9",
+      "chip": "#f1f4f2",
+      "tint": "#bbf7d0",
+      "border": "#e3e7e4",
+      "rule": "#e3e7e4",
+      "link": "#166e3f",
+      "linkVisited": "#166e3f",
+      "linkHover": "#0f5530",
+      "linkActive": "#0f5530",
+      "focus": "#166e3f",
+      "primaryHoverTint": "#f0fdf4",
+      "primaryPressed": "#0f5530",
+      "success": "#166e3f",
+      "successTint": "#f0fdf4",
+      "accent2": "#1d4ed8",
+      "lavender": "#eff6ff",
+      "warning": "#92400e",
+      "warningTint": "#fffbeb",
+      "warningAccent": "#f6d58b"
+    },
+    "size": {
+      "body": 16,
+      "pageTitle": 32,
+      "cardTitle": 24,
+      "h3": 20,
+      "ui": 14,
+      "small": 13
+    },
+    "lineHeight": {
+      "body": 1.8,
+      "heading": 1.35,
+      "subheading": 1.35
+    },
+    "letterSpacing": {
+      "heading": "-0.01em"
+    },
+    "fontWeight": {
+      "heading": 600
+    },
+    "radius": {
+      "base": 16,
+      "sm": 10,
+      "card": 14
+    },
+    "shadow": {
+      "card": "none"
+    }
+  },
+  "components": {
+    "table": {
+      "variant": "minimal"
+    },
+    "card": {
+      "variant": "outlined"
+    },
+    "notice": {
+      "variant": "box"
+    },
+    "figure": {
+      "variant": "rounded"
+    }
+  },
+  "layout": {
+    "columns": [232, 720, 216],
+    "areas": [["toc", "main", "aside"]],
+    "head": "main"
+  }
+}

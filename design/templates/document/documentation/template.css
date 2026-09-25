@@ -1,0 +1,385 @@
+/* Documentation。長い読み物のための3列。左に章と節の目次、中央に本文、右に用語。
+   3列の升目と、題名の塊を本文の列に置く並びは layout(template.json)から生成される。
+   ここには升目を書かず、見た目(画面に残す目次と脇・現在地の色・部品の形)だけを書く */
+
+/* ---------- ページ ---------- */
+
+/* 目次と脇は上下に自分の余白を持つので、ページの上下の余白は外す */
+.ds-page {
+  --doc-page-width: 1440px;
+  column-gap: 56px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 目次と脇は、読み進めても画面に残す */
+.ds-toc,
+.ds-aside {
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 40px 0;
+  margin: 0;
+}
+
+/* ---------- 題名の塊 ---------- */
+
+/* 署名は題名の上の小さい肩(組織名 / 資料の種類) */
+.ds-signature {
+  justify-content: flex-start;
+  gap: var(--space-xs);
+  padding: 40px 0 0;
+  border: 0;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.ds-signature span + span::before {
+  content: "/";
+  margin-right: var(--space-xs);
+  color: var(--color-border);
+}
+
+.ds-head {
+  margin: var(--space-xs) 0 0;
+}
+
+.ds-head h1 {
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.ds-lede {
+  margin-top: var(--space-sm);
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.ds-summary {
+  margin: 32px 0 var(--space-xs);
+  padding: var(--space-md) 20px;
+  border-radius: var(--radius);
+}
+
+.ds-summary .ds-label {
+  color: var(--color-heading);
+}
+
+/* ---------- 本文 ---------- */
+
+.ds-main {
+  padding-top: var(--space-md);
+}
+
+.ds-main section {
+  margin: 0;
+}
+
+.ds-main h2 {
+  margin: 56px 0 var(--space-md);
+  scroll-margin-top: var(--space-gap);
+}
+
+.ds-main h3 {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-subheading);
+  margin: 40px 0 var(--space-sm);
+  scroll-margin-top: var(--space-gap);
+}
+
+.ds-main h2 + h3 {
+  margin-top: var(--space-gap);
+}
+
+.ds-main p.ds-label {
+  margin-bottom: var(--space-xs);
+  color: var(--color-heading);
+}
+
+/* ---------- 目次(左) ---------- */
+/* 章の下に節を入れ子で出す(共通の document.css は節を隠している)。
+   読んでいる章・節(aria-current。資料のスクリプトが付ける)は差し色にする */
+
+.ds-toc {
+  color: var(--color-text);
+}
+
+.ds-toc .ds-label {
+  color: var(--color-heading);
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+
+.ds-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ds-toc > ol > li {
+  margin-bottom: 4px;
+}
+
+.ds-toc a {
+  display: block;
+  padding: 6px 0;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.ds-toc > ol > li > a {
+  color: var(--color-heading);
+  font-weight: 500;
+}
+
+.ds-toc ol ol {
+  display: block;
+  margin: 2px 0 var(--space-xs);
+  padding-left: var(--space-sm);
+  border-left: 1px solid var(--color-border);
+}
+
+.ds-toc ol ol a {
+  padding: 5px 0 5px var(--space-sm);
+  margin-left: -13px;
+  border-left: 1px solid transparent;
+}
+
+.ds-toc a:hover {
+  text-decoration: none;
+  color: var(--color-heading);
+}
+
+.ds-toc a[aria-current],
+.ds-toc > ol > li > a[aria-current] {
+  color: var(--color-primary);
+}
+
+.ds-toc ol ol a[aria-current] {
+  font-weight: 500;
+  border-left-color: var(--color-primary);
+}
+
+/* ---------- 脇(右の用語) ---------- */
+
+.ds-aside > .ds-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0;
+  border: 0;
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.ds-aside > .ds-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.ds-glossary dt {
+  margin-top: var(--space-md);
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.ds-glossary dd {
+  margin: 2px 0 0;
+  font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+/* ---------- コード ---------- */
+
+pre.ds-code {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-md) 20px;
+  line-height: 1.7;
+}
+
+pre.ds-code code {
+  color: var(--color-heading);
+}
+
+.ds-code-copy {
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border-color: transparent;
+}
+
+/* 文中の短いコード。淡い地に細い枠、角丸は小さく */
+.ds-code-inline {
+  padding: 0.1em 0.35em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-heading);
+}
+
+/* ---------- 注記 ---------- */
+/* どれも角丸の細い枠の箱。成功は緑、情報は青、注意は琥珀の同じ形 */
+
+.ds-notice,
+.ds-note,
+.ds-alert {
+  padding: var(--space-md) 20px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.ds-notice {
+  gap: 10px;
+}
+
+.ds-notice-label {
+  font-weight: 600;
+}
+
+.ds-notice-success {
+  --notice-color: var(--color-tint);
+}
+
+.ds-notice-info {
+  --notice-color: color-mix(in srgb, var(--color-accent2) 25%, var(--color-bg));
+  --notice-ink: var(--color-accent2);
+  --notice-bg: var(--color-lavender);
+}
+
+.ds-notice-warning {
+  --notice-color: var(--color-warning-accent);
+  border-left-color: var(--notice-color);
+}
+
+.ds-note {
+  --notice-color: var(--color-border);
+  --notice-bg: var(--color-surface);
+}
+
+/* ---------- 手順 ---------- */
+/* 番号の丸と縦の線でつなぐ */
+
+ol.ds-ordered {
+  list-style: none;
+  counter-reset: step;
+  padding: 0;
+}
+
+ol.ds-ordered > li {
+  counter-increment: step;
+  position: relative;
+  margin: 0;
+  padding: 0 0 20px 44px;
+  color: var(--color-heading);
+  font-weight: 500;
+}
+
+ol.ds-ordered > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-chip);
+  color: var(--color-heading);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+
+ol.ds-ordered > li::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 34px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--color-border);
+}
+
+ol.ds-ordered > li:last-child::after {
+  display: none;
+}
+
+.ds-ordered .ds-why {
+  font-weight: 400;
+  font-size: 15px;
+}
+
+/* ---------- 表・カード ---------- */
+
+.ds-table {
+  font-size: 15px;
+}
+
+.ds-table th {
+  color: var(--color-heading);
+  font-weight: 600;
+}
+
+.ds-card {
+  padding: 20px;
+}
+
+.ds-card-title {
+  font-size: var(--fs-body);
+  color: var(--color-heading);
+}
+
+.ds-card p {
+  font-size: var(--fs-ui);
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+/* ---------- 末尾 ---------- */
+
+.ds-foot {
+  margin: 64px 0 40px;
+}
+
+/* ---------- 本文の列の幅 ---------- */
+
+/* 本文の列は広がっても、読む幅(--doc-measure)で中央に置く */
+.ds-page > .ds-signature,
+.ds-page > .ds-head,
+.ds-page > .ds-summary,
+.ds-page > .ds-foot,
+.ds-page .ds-main {
+  justify-self: center;
+  width: 100%;
+  max-width: var(--doc-measure);
+}
+
+/* ---------- 狭い画面・印刷 ---------- */
+/* 1080px 以下は用語が本文の下へ回る(layout が生成する並び)ので、画面に残さない。
+   760px 以下と印刷は目次・本文・用語を縦に並べる */
+
+@media (max-width: 1080px) {
+  .ds-aside {
+    position: static;
+    max-height: none;
+    padding: var(--space-gap) 0 0;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 760px), print {
+  .ds-toc,
+  .ds-aside {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    padding: var(--space-md) 0;
+  }
+}

@@ -189,6 +189,40 @@ describe("design:build の生成物", () => {
     expect(app).not.toContain("--color-primary:");
   });
 
+  it("Documentation は3列で題名を本文の列に置き、目次に節と読んでいる位置を出して目次と用語を画面に残す", async () => {
+    expect((await buildDesignCss(context.dir)).success).toBe(true);
+    const css = (path: string) =>
+      readFile(join(context.dir, "dist", path), "utf8");
+    const registry = JSON.parse(await css("document/templates.json"));
+    expect(registry.templates.documentation).toMatchObject({
+      label: "Documentation",
+    });
+    const documentation = await css("document/documentation.css");
+    // 骨格は layout から生成する(左に目次・中央に本文・右に用語。題名の塊は本文の列)
+    expect(documentation).toContain(
+      "--doc-columns: 232px minmax(0, 1fr) 216px;",
+    );
+    expect(documentation).toContain(
+      '--doc-page-areas: "toc signature aside" "toc head aside" "toc summary aside" "toc main aside" "toc foot aside";',
+    );
+    expect(documentation).toContain("--color-primary: #166e3f;");
+    // 升目はテンプレートの CSS に書かない
+    const own = await readFile(
+      join(designDir, "templates", "document", "documentation", "template.css"),
+      "utf8",
+    );
+    expect(own).not.toMatch(/grid-template-(columns|rows|areas)/);
+    expect(own).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    // 入れ子の目次を出し、現在地を差し色にし、目次と用語は sticky
+    expect(own).toMatch(/\.ds-toc ol ol \{\n {2}display: block;/);
+    expect(own).toMatch(
+      /a\[aria-current\][^{]*\{\n {2}color: var\(--color-primary\);/,
+    );
+    expect(own).toMatch(/\.ds-toc,\n\.ds-aside \{\n {2}position: sticky;/);
+    // 既定のテンプレートの目次は章だけのまま
+    expect(await css("document/default.css")).not.toContain("aria-current");
+  });
+
   it("専用の CSS に色の直書き・@import・外の url・</ があれば理由を返し、dist に触れない", async () => {
     const before = await readFile(
       join(context.dir, "dist", "slide", "default.css"),
