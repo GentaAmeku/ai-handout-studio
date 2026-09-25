@@ -47,6 +47,7 @@ build は `template.css` を、そのテンプレートの変数の後ろへ入�
 
 - DOM は区分ごとに共通のまま使う。class や要素を足さず、既存の `.ds-*` を CSS だけで変える。新しい並びが要るときは描画側(スライドは `app/src/renderer/`、質問票は `app/server/sheet-sample.ts` と質問票スキルの client.js、文書は見本と文書スキル)の作業にする
 - 色と大きさは変数(`var(--color-*)`・`var(--space-*)`・`var(--fs-*)`・`var(--radius-*)` など)から引く。値を変えたいときは `template.json` の tokens に書く。色の直書き(`#xxxxxx`)・`@import`・外の `url(http…)`・`</` は build が止める
+- 文書の目次は、章の `ol` の中に節の `ol` が入れ子で入る。共通の CSS は節を隠し(`.ds-toc ol ol`)、節を出すテンプレートは `.ds-toc ol ol` に display を書いて出す。章の並び(横並びなど)を変えるときは `.ds-toc > ol` と書く。専用の CSS は共通より強いので、`.ds-toc ol` に display を書くと節にも効いて節が目次に出る。これは build が止める
 - 入れ子の中なので、根そのものは `&`、根の class との組み合わせは `&.ds-slide--cover` のように書く。要素セレクタ(`body`・`h1`)もそのまま書ける(`:root body` になる)
 - スライドの飾りは `.ds-decoration__shape--1`〜`--6`(既定は `display: none`)に描く。どのページにもある空の箱で、塗りと線は PPTX にも箱として出る。疑似要素(`::before`・`::after`)は PPTX に出ないので、見出しや本文の地にしない。見出しの縦棒や左の帯は `border-left` などの辺の枠で描く。手描きの枠は `.ds-sketch`(SVG。既定は `display: none`)で、色は `.ds-sketch__line` の `stroke`。PPTX には撮った画像で入るので、使うテンプレートの `description` に書く
 - PPTX に出るもの: 塗り、枠線(辺ごとに違う幅・色も、その辺にだけ出る。角丸の箱で辺ごとに違う枠は、角の丸みを持たない辺の帯で近似する)、表のセルごとの罫(見出しの下だけの線・横罫だけ・縞)、字間(`letter-spacing`)、下線(`text-decoration-line: underline`。太さは落ち、字の色の一重の線になる)、手順の段のつなぎ(`.ds-process__link`。矢印や線を持つ要素で、疑似要素にしない)。落ちるもの: 疑似要素、影、半透明(不透明の色になる)、枠線の点線・破線(実線になる)、表の角丸

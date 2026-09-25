@@ -252,6 +252,37 @@ describe("design:build の生成物", () => {
     expect(before).toContain("--color-primary");
   });
 
+  it("文書の専用の CSS で .ds-toc ol に display を書くと、節が目次に出るので止める", async () => {
+    const path = join(
+      context.dir,
+      "templates",
+      "document",
+      "default",
+      "template.css",
+    );
+    const stopped = [
+      ".ds-toc ol {\n  display: flex;\n}\n",
+      "@media (max-width: 760px) {\n  .ds-page .ds-toc ol,\n  .ds-aside { display: block; }\n}\n",
+    ];
+    for (const css of stopped) {
+      await writeFile(path, css);
+      const result = await buildDesignCss(context.dir);
+      expect(result.success).toBe(false);
+      expect(!result.success && result.message).toContain(".ds-toc > ol");
+    }
+    // 章だけ(子の ol)・節だけ(入れ子の ol)・display 以外・コメントの中は構わない
+    const allowed = [
+      ".ds-toc > ol {\n  display: flex;\n}\n",
+      ".ds-toc ol ol {\n  display: block;\n}\n",
+      ".ds-toc ol {\n  padding: 0;\n  list-style: none;\n}\n",
+      "/* .ds-toc ol { display: flex; } */\n.ds-toc a { color: var(--color-text); }\n",
+    ];
+    for (const css of allowed) {
+      await writeFile(path, css);
+      expect((await buildDesignCss(context.dir)).success).toBe(true);
+    }
+  });
+
   it("区分ごとの既定を <区分>/tokens.css に写し、アプリの app.css はテンプレートに従わない", async () => {
     const template = JSON.parse(
       await readFile(
