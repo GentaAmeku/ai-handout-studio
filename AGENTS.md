@@ -34,9 +34,9 @@ Open a pull request by following `.claude/skills/pull-request/SKILL.md`: run the
 - Write functionally: `const`, early returns, `map`. Avoid `let`, `switch`, `class`.
 - Color, spacing, font size and corner radius live only in `design/tokens.json` and a theme (`design/themes/`). CSS under `design/` is a build output of `pnpm design:build` — don't hand-edit it, and don't write a hex color into a block component or `design/slide.css`.
 
-## Slide template names
+## Template names
 
-A slide template's identifier is a single lowercase English proper noun (e.g. `lumen`, `prism`) drawn from light, material or tool imagery — never a descriptive or purpose-based name. Its display name capitalizes the first letter. The one exception is the built-in default template (`default`), whose display name is "AI Handout Studio Design".
+This applies to every kind of template (slide, sheet and document). A template's identifier is a single lowercase English word (e.g. `lumen`, `prism`, `cobalt`). A new slide template takes a proper noun drawn from light, material or tool imagery — never a descriptive or purpose-based name. Its display name (`label`) is always English: the identifier with the first letter capitalized, including the built-in `default` ("Default"). The schema rejects a label that isn't English. When you rename or remove a template, add the old name to `TEMPLATE_RENAMES` in `app/server/template-renames.ts` so saved handouts move to the new one.
 
 ## Don't leak product names
 

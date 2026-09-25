@@ -33,7 +33,7 @@ const sheet = (id: string, title: string): HandoutSummary => ({
   kind: "sheet",
   id,
   title,
-  template: "civic",
+  template: "cobalt",
   createdAt: DATE,
   updatedAt: DATE,
 });
@@ -46,11 +46,11 @@ const entries = {
   ]),
   documentTemplate: templateEntries("document", [
     {
-      name: "civic",
-      label: "Civic",
+      name: "cobalt",
+      label: "Cobalt",
       description: "公共機関の資料でよく見る組み",
     },
-    { name: "reading", label: "読み物" },
+    { name: "report", label: "Report" },
   ]),
   slideTemplate: templateEntries("slide", [{ name: "lumen", label: "Lumen" }]),
 };
@@ -66,7 +66,7 @@ describe("searchGroups", () => {
     expect(summary("資料")).toEqual([
       ["slide", ["deck_001"]],
       ["sheet", ["sheet_001"]],
-      ["documentTemplate", ["civic"]],
+      ["documentTemplate", ["cobalt"]],
     ]);
   });
 
@@ -77,7 +77,7 @@ describe("searchGroups", () => {
 
   it("テンプレートは表示名・識別子・説明で当たる", () => {
     expect(summary("LUMEN")).toEqual([["slideTemplate", ["lumen"]]]);
-    expect(summary("reading")).toEqual([["documentTemplate", ["reading"]]]);
+    expect(summary("report")).toEqual([["documentTemplate", ["report"]]]);
   });
 
   it("語が無ければ何も出さない", () => {
@@ -97,11 +97,11 @@ describe("開く先", () => {
     });
     expect(entries.documentTemplate[0]?.target).toEqual({
       to: "/documents/templates/$name",
-      params: { name: "civic" },
+      params: { name: "cobalt" },
     });
   });
 
   it("説明の無いテンプレートは、行の右に識別子を出す", () => {
-    expect(entries.documentTemplate[1]?.meta).toBe("reading");
+    expect(entries.documentTemplate[1]?.meta).toBe("report");
   });
 });

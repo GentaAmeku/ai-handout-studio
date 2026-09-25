@@ -14,14 +14,14 @@ describe("documentInfoRows", () => {
         createdAt: "2026-09-21T00:30:00.000Z",
         updatedAt: "2026-09-21T09:05:00.000Z",
       },
-      "Civic",
+      "Cobalt",
       t,
     );
     expect(rows).toEqual([
       { label: "ID", value: "doc_20260921_001" },
       { label: "作成日時", value: "2026/09/21 09:30" },
       { label: "更新日時", value: "2026/09/21 18:05" },
-      { label: "テンプレート", value: "Civic" },
+      { label: "テンプレート", value: "Cobalt" },
     ]);
   });
 });

@@ -291,7 +291,7 @@ describe("open の出力", () => {
         id: "doc_20260920_001",
         root: "/ws",
         origin: "http://127.0.0.1:5190",
-        template: "civic",
+        template: "cobalt",
         createdAt: "2026-09-20T01:00:00.000Z",
         lanOrigins: ["http://192.168.1.20:5190"],
       }),
@@ -304,7 +304,7 @@ describe("open の出力", () => {
         "lanUrl: http://192.168.1.20:5190/documents/doc_20260920_001",
         "lanReadUrl: http://192.168.1.20:5190/api/documents/doc_20260920_001/preview",
         "createdAt: 2026-09-20T01:00:00.000Z",
-        "template: civic",
+        "template: cobalt",
       ].join("\n"),
     );
   });

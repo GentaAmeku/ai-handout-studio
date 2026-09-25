@@ -364,7 +364,7 @@ test("--template は同梱のテンプレート名か tokens の CSS のパス�
 	}
 	assert.throws(
 		() => render(doc, null, { template: "missing" }),
-		/テンプレート missing は同梱されていません。使えるのは civic \/ default \/ paper/,
+		/テンプレート missing は同梱されていません。使えるのは cobalt \/ default \/ paper/,
 	);
 	assert.throws(
 		() => render(doc, null, { template: "./missing.css" }),

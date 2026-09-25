@@ -1,6 +1,6 @@
 {
-  "label": "Civic",
-  "description": "申請フォームの形。白地に濃い青の選択肢、高さのそろった記入欄、見出しの横の「※必須」、黄と黒のフォーカス、番号の丸でたどる質問の一覧",
+  "label": "Cobalt",
+  "description": "公共の案内のような白地に濃い青。見出しは左に青の縦棒、カードは影を使わず灰の細い枠、表は灰の見出しと黒い下線と縞、手順は番号の丸を線でつなぐ。字はすべて明暗差 4.5 以上で 18px 以上。同梱の絵は PPTX には撮った画像で入る",
   "tokens": {
     "color": {
       "bg": "#ffffff",
@@ -30,28 +30,21 @@
       "focus": "#000000",
       "focusRing": "#ffd43d",
       "rule": "#000000",
-      "quote": "#767676",
-      "primaryHoverTint": "#c5d7fb",
-      "primaryPressed": "#000060",
-      "warningAccent": "#ffc700"
-    },
-    "font": {
-      "mono": ["Noto Sans Mono Variable", "Noto Sans Mono", "monospace"]
+      "quote": "#767676"
     },
     "size": {
-      "kicker": 16,
-      "h1": 32,
-      "h2": 24,
-      "body": 16,
-      "cardTitle": 18,
-      "small": 14,
-      "pageTitle": 32,
-      "ui": 16,
-      "label": 17
+      "kicker": 20,
+      "h1": 45,
+      "h2": 36,
+      "body": 24,
+      "cover": 64,
+      "cardTitle": 28,
+      "kpi": 57,
+      "small": 18
     },
     "lineHeight": {
-      "body": 1.7,
-      "heading": 1.5,
+      "body": 1.5,
+      "heading": 1.4,
       "display": 1.4,
       "dense": 1.3
     },
@@ -65,10 +58,11 @@
       "heading": 700
     },
     "space": {
+      "slide": 88,
       "xs": 8,
       "sm": 12,
       "md": 16,
-      "gap": 24,
+      "gap": 48,
       "card": 24
     },
     "radius": {
@@ -77,8 +71,7 @@
       "card": 16
     },
     "shadow": {
-      "card": "none",
-      "canvas": "none"
+      "card": "none"
     }
   },
   "components": {
@@ -92,20 +85,11 @@
       "variant": "box"
     },
     "figure": {
-      "variant": "square"
+      "variant": "rounded"
     }
   },
   "checks": {
     "strictContrast": true,
-    "minFontSize": 14
-  },
-  "layout": {
-    "base": "focus",
-    "width": 1280,
-    "list": {
-      "width": 280,
-      "side": "right"
-    },
-    "content": null
+    "minFontSize": 18
   }
 }

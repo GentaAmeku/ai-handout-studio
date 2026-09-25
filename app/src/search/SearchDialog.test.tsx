@@ -46,7 +46,7 @@ const handout = (
   kind,
   id,
   title,
-  template: "civic",
+  template: "cobalt",
   createdAt: DATE,
   updatedAt: DATE,
 });
@@ -65,16 +65,16 @@ const lists: Record<string, unknown> = {
     components: {},
     templates: {
       slide: [{ name: "lumen", label: "Lumen" }],
-      sheet: [{ name: "civic", label: "Civic" }],
+      sheet: [{ name: "cobalt", label: "Cobalt" }],
       document: [
         {
-          name: "civic",
-          label: "Civic",
+          name: "cobalt",
+          label: "Cobalt",
           description: "公共機関の資料でよく見る組み",
         },
       ],
     },
-    selection: { slide: "lumen", sheet: "civic", document: "civic" },
+    selection: { slide: "lumen", sheet: "cobalt", document: "cobalt" },
   },
 };
 
@@ -180,7 +180,7 @@ describe("サイト内検索", () => {
     const input = await openSearch();
     fireEvent.change(input, { target: { value: "資料" } });
     await waitFor(() =>
-      expect(rows()).toEqual(["AI が作る資料", "資料一覧の決めごと", "Civic"]),
+      expect(rows()).toEqual(["AI が作る資料", "資料一覧の決めごと", "Cobalt"]),
     );
     const labels = [...document.querySelectorAll(".search-dialog__group")].map(
       (group) => group.getAttribute("aria-label"),

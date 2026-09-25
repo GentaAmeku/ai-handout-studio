@@ -209,7 +209,7 @@ describe("型の変数", () => {
       "--doc-columns-no-aside": "minmax(0, 1fr)",
       "--doc-areas-no-aside": '"toc" "main"',
     });
-    // 読み物(1列)。畳む列が無いので、脇の有る無しで並びは変わらない
+    // 1列の型。畳む列が無いので、脇の有る無しで並びは変わらない
     expect(
       grid({
         columns: [660],
@@ -219,7 +219,7 @@ describe("型の変数", () => {
       "--doc-columns-no-aside": "minmax(0, 1fr)",
       "--doc-areas-no-aside": '"toc" "main" "aside"',
     });
-    // 報告書。脇の列は目次も使うので畳まない(本文の幅は変わらない)
+    // Report。脇の列は目次も使うので畳まない(本文の幅は変わらない)
     expect(
       grid({
         columns: [220, 660],

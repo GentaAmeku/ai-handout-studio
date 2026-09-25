@@ -521,12 +521,12 @@ describe("formatTemplates", () => {
     // 見た目のテンプレートの一覧の画面と同じ並び(識別子の順)。default が既定
     expect(lines.slice(3)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining("- default: AI Handout Studio Design(既定)"),
+        expect.stringContaining("- default: Default(既定)"),
         expect.stringContaining("- lumen: Lumen —"),
       ]),
     );
     // 説明を持たないテンプレートは — を付けない
-    expect(lines).toContain("- default: AI Handout Studio Design(既定)");
+    expect(lines).toContain("- default: Default(既定)");
     // 既定でないテンプレートには(既定)を付けない
     expect(lines.some((line) => line.startsWith("- lumen: Lumen(既定)"))).toBe(
       false,
@@ -547,14 +547,18 @@ describe("formatTemplates", () => {
   it("既定のテンプレートが替われば、その名前に(既定)を付ける", async () => {
     await writeFile(
       join(context.designDir, "selection.json"),
-      JSON.stringify({ slide: "civic", sheet: "default", document: "default" }),
+      JSON.stringify({
+        slide: "cobalt",
+        sheet: "default",
+        document: "default",
+      }),
     );
     const result = await formatTemplates(context.designDir, origin, "slide");
     if (!result.success) throw new Error(result.message);
-    expect(result.text).toContain("default: civic");
+    expect(result.text).toContain("default: cobalt");
     expect(result.text).toContain("(既定)");
     expect(
-      result.text.split("\n").find((line) => line.startsWith("- civic:")),
+      result.text.split("\n").find((line) => line.startsWith("- cobalt:")),
     ).toContain("(既定)");
     expect(
       result.text.split("\n").find((line) => line.startsWith("- default:")),

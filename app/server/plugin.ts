@@ -4,7 +4,7 @@ import { getRequestListener } from "@hono/node-server";
 import type { Connect, Plugin } from "vite";
 import { createAgentRunner } from "./agent-runs.ts";
 import { type ApiOptions, createApi } from "./api.ts";
-import { buildDesignCss } from "./design.ts";
+import { buildDesignCss, migrateTemplateLabels } from "./design.ts";
 import { buildDesignInProcess } from "./design-build-process.ts";
 import { migrateToTemplates } from "./design-migrate.ts";
 import { installExamplesIfEmpty } from "./examples.ts";
@@ -12,6 +12,7 @@ import { createExporter } from "./exporter.ts";
 import { toLoopbackAddress } from "./loopback.ts";
 import { migrateProfile, readSettings } from "./profile.ts";
 import { guardLocalRequests } from "./request-guard.ts";
+import { migrateRenamedTemplates } from "./template-renames.ts";
 import { migrateOutlineDecks } from "./workspace.ts";
 
 type ServerLike = {
@@ -64,51 +65,66 @@ export const aiHandoutStudioApi = (
     // vite preview(pnpm start)は dev-sync.mjs の対象外で、古い dist を掴んだまま起動しうるので、
     // そちらは alwaysBuildCss で毎回作り直す
     const designDir = join(options.repoRoot, "design");
-    void migrateToTemplates(designDir).then(async (templates) => {
-      if ("error" in templates) {
-        console.error(`[ai-handout-studio] ${templates.error}`);
-      }
-      if (templates.migrated) {
-        console.log(
-          `[ai-handout-studio] テーマと型をテンプレートへ移した: ${templates.templates.join(", ")}`,
+    // 表示名を英語に決める前に作ったテンプレートは、読む前に表示名を直す(読む検査に落ちないように)
+    void migrateTemplateLabels(designDir)
+      .then(() => migrateToTemplates(designDir))
+      .then(async (templates) => {
+        if ("error" in templates) {
+          console.error(`[ai-handout-studio] ${templates.error}`);
+        }
+        if (templates.migrated) {
+          console.log(
+            `[ai-handout-studio] テーマと型をテンプレートへ移した: ${templates.templates.join(", ")}`,
+          );
+        }
+        const renamed = await migrateRenamedTemplates(
+          options.workspaceRoot,
+          designDir,
         );
-      }
-      const moved = await migrateOutlineDecks(options.workspaceRoot, designDir);
-      if (moved.length > 0) {
-        console.log(
-          `[ai-handout-studio] 構成の名前を template に持っていた資料を既定のテンプレートへ直した: ${moved.join(", ")}`,
+        if (renamed.length > 0) {
+          console.log(
+            `[ai-handout-studio] 名前を変えたテンプレートを使う資料を付け替えた: ${renamed.join(", ")}`,
+          );
+        }
+        const moved = await migrateOutlineDecks(
+          options.workspaceRoot,
+          designDir,
         );
-      }
-      const profile = await migrateProfile(options.workspaceRoot, designDir);
-      if ("error" in profile)
-        console.error(`[ai-handout-studio] ${profile.error}`);
-      if (profile.migrated) {
-        console.log(
-          "[ai-handout-studio] プロフィールの色とテーマを design/ へ移した",
+        if (moved.length > 0) {
+          console.log(
+            `[ai-handout-studio] 構成の名前を template に持っていた資料を既定のテンプレートへ直した: ${moved.join(", ")}`,
+          );
+        }
+        const profile = await migrateProfile(options.workspaceRoot, designDir);
+        if ("error" in profile)
+          console.error(`[ai-handout-studio] ${profile.error}`);
+        if (profile.migrated) {
+          console.log(
+            "[ai-handout-studio] プロフィールの色とテーマを design/ へ移した",
+          );
+        }
+        const missing = ["templates.json", "slide-templates.css"].some(
+          (file) => !existsSync(join(designDir, "dist", file)),
         );
-      }
-      const missing = ["templates.json", "slide-templates.css"].some(
-        (file) => !existsSync(join(designDir, "dist", file)),
-      );
-      if (alwaysBuildCss || templates.migrated || missing) {
-        const built = await buildDesignCss(designDir);
-        if (!built.success)
-          console.error(`[ai-handout-studio] ${built.message}`);
-      }
-      // 初めて起きたとき(資料が1件も無く、印も無い)だけ、同梱資料を設定の言語で入れる
-      const examples = await installExamplesIfEmpty({
-        workspaceRoot: options.workspaceRoot,
-        repoRoot: options.repoRoot,
-        now: options.now?.() ?? new Date(),
+        if (alwaysBuildCss || templates.migrated || missing) {
+          const built = await buildDesignCss(designDir);
+          if (!built.success)
+            console.error(`[ai-handout-studio] ${built.message}`);
+        }
+        // 初めて起きたとき(資料が1件も無く、印も無い)だけ、同梱資料を設定の言語で入れる
+        const examples = await installExamplesIfEmpty({
+          workspaceRoot: options.workspaceRoot,
+          repoRoot: options.repoRoot,
+          now: options.now?.() ?? new Date(),
+        });
+        if (!examples.success) {
+          console.error(`[ai-handout-studio] ${examples.message}`);
+        } else if ("installed" in examples) {
+          console.log(
+            `[ai-handout-studio] 同梱資料を入れた: ${examples.installed.map((example) => example.id).join(", ")}`,
+          );
+        }
       });
-      if (!examples.success) {
-        console.error(`[ai-handout-studio] ${examples.message}`);
-      } else if ("installed" in examples) {
-        console.log(
-          `[ai-handout-studio] 同梱資料を入れた: ${examples.installed.map((example) => example.id).join(", ")}`,
-        );
-      }
-    });
     server.httpServer?.once("close", () => {
       void exporter.close();
       agentRunner.close();

@@ -108,7 +108,7 @@ afterAll(async () => {
 });
 
 describe("手順の段のつなぎの書き出し", () => {
-  it("AI Handout Studio Design(default)は回した矢印の箱として実測に出て、PPTX の XML に入る", async () => {
+  it("Default(default)は回した矢印の箱として実測に出て、PPTX の XML に入る", async () => {
     const slides = await measure("default");
     const found = links(slides);
     // 4段の手順は、最後以外の3段がつなぎを持つ
@@ -122,8 +122,8 @@ describe("手順の段のつなぎの書き出し", () => {
     expect(xml).toMatch(/<a:srgbClr val="FF00FF"/i);
   });
 
-  it("Civic は回さない1本の線の箱として実測に出て、PPTX の XML に入る", async () => {
-    const slides = await measure("civic");
+  it("Cobalt は回さない1本の線の箱として実測に出て、PPTX の XML に入る", async () => {
+    const slides = await measure("cobalt");
     const found = links(slides);
     expect(found.length).toBe(3);
     for (const link of found) {

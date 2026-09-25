@@ -99,5 +99,5 @@ what it runs under the hood.
 
 ## License
 
-[MIT](LICENSE). See [NOTICE](NOTICE) for the "Civic" template's source and
+[MIT](LICENSE). See [NOTICE](NOTICE) for the "Cobalt" template's source and
 the bundled fonts' licenses.

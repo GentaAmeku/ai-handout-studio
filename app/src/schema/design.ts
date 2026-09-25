@@ -505,10 +505,29 @@ export const withTextScale = <T extends { textScale?: number }>(
   ) as T;
 };
 
+// テンプレートの表示名は、どの区分も英語にする(英字で始め、英字・数字・空白・ハイフン)。
+// 識別子の頭を大文字にした名前が基本(cobalt → Cobalt)
+export const templateLabelPattern = /^[A-Za-z][A-Za-z0-9 -]*$/;
+
+export const isTemplateLabel = (label: string): boolean =>
+  templateLabelPattern.test(label) && label.length <= 40;
+
+// 識別子から表示名を作る(先頭を大文字に)
+export const labelOfTemplateName = (name: string): string =>
+  `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+
 // テンプレート(design/templates/<区分>/<名前>/template.json)。区分ごとの見た目一式。
 // 値は tokens.json への差分、部品は components.json の変種の選択。区分をまたぐ共通の値は持たない
 const templateFields = {
-  label: z.string().trim().min(1).max(40),
+  label: z
+    .string()
+    .trim()
+    .min(1)
+    .max(40)
+    .regex(
+      templateLabelPattern,
+      "表示名は英語にする(英字で始め、英字・数字・空白・ハイフン)",
+    ),
   description: z.string().trim().max(200).optional(),
   tokens: themeTokensSchema.optional(),
   components: themeComponentsSchema,

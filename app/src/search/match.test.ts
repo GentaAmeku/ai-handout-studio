@@ -3,7 +3,7 @@ import { highlight, matchesAll, termsOf } from "./match";
 
 describe("termsOf", () => {
   it("全角の空白も区切りにし、空の語は捨てる", () => {
-    expect(termsOf("  提案　Civic  ")).toEqual(["提案", "civic"]);
+    expect(termsOf("  提案　Cobalt  ")).toEqual(["提案", "cobalt"]);
     expect(termsOf("   ")).toEqual([]);
   });
 });
@@ -15,8 +15,8 @@ describe("matchesAll", () => {
   });
 
   it("語は全部を含むものだけが当たる(見るところをまたいでもよい)", () => {
-    const fields = ["ご提案書", "civic", "deck_001"];
-    expect(matchesAll(termsOf("提案 Civic"), fields)).toBe(true);
+    const fields = ["ご提案書", "cobalt", "deck_001"];
+    expect(matchesAll(termsOf("提案 Cobalt"), fields)).toBe(true);
     expect(matchesAll(termsOf("提案 lumen"), fields)).toBe(false);
   });
 
@@ -44,10 +44,10 @@ describe("highlight", () => {
       { text: "と", hit: false },
       { text: "ai", hit: true },
     ]);
-    expect(highlight("提案の Civic", termsOf("civic 提案"))).toEqual([
+    expect(highlight("提案の Cobalt", termsOf("cobalt 提案"))).toEqual([
       { text: "提案", hit: true },
       { text: "の ", hit: false },
-      { text: "Civic", hit: true },
+      { text: "Cobalt", hit: true },
     ]);
   });
 

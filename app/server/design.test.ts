@@ -109,7 +109,7 @@ describe("design:build の生成物", () => {
     );
     await writeTemplate("document", "acme", {
       ...template,
-      label: "アクメ",
+      label: "Acme",
       tokens: { color: { primary: "#0f766e" } },
     });
     expect((await buildDesignCss(context.dir)).success).toBe(true);
@@ -324,7 +324,7 @@ describe("design:build の生成物", () => {
   it("壊れたテンプレートと tokens という名前は理由を返し、dist に触れない", async () => {
     const before = await readdir(join(context.dir, "dist"));
     await writeTemplate("sheet", "broken", {
-      label: "壊れた",
+      label: "Broken",
       components: { table: { variant: "zebra" } },
     });
     const broken = await buildDesignCss(context.dir);
@@ -338,6 +338,23 @@ describe("design:build の生成物", () => {
     expect(reserved.success).toBe(false);
     expect(!reserved.success && reserved.message).toContain("tokens");
     expect(await readdir(join(context.dir, "dist"))).toEqual(before);
+  });
+
+  it("英語でない表示名の template.json は、build が識別子から作った名前へ直して通す", async () => {
+    await writeTemplate("slide", "old-deck", {
+      label: "古い資料",
+      components: {},
+    });
+    const result = await buildDesignCss(context.dir);
+    expect(result.success).toBe(true);
+    expect(
+      JSON.parse(
+        await readFile(
+          join(context.dir, "templates", "slide", "old-deck", "template.json"),
+          "utf8",
+        ),
+      ).label,
+    ).toBe("Old-deck");
   });
 });
 
@@ -374,7 +391,7 @@ describe("文字の大きさの倍率", () => {
       [
         "document",
         "small",
-        { ...(await readTemplate("document", "reading")), textScale: 0.85 },
+        { ...(await readTemplate("document", "report")), textScale: 0.85 },
       ],
       [
         "sheet",
@@ -711,7 +728,7 @@ describe("段 I より前のテーマと型の移行", () => {
       "slide/default",
     ]);
     expect(await readTemplateFile("sheet", "acme")).toEqual({
-      label: "acme",
+      label: "Acme",
       tokens: { color: { primary: "#0f766e", tint: "#ccfbf1" } },
       components: {
         table: { variant: "striped", params: { density: "compact" } },
@@ -725,12 +742,12 @@ describe("段 I より前のテーマと型の移行", () => {
       },
     });
     expect(await readTemplateFile("slide", "acme")).toEqual({
-      label: "acme",
+      label: "Acme",
       tokens: { color: { primary: "#0f766e" }, size: { h1: 40 } },
       components: { table: { variant: "lined" } },
     });
     expect((await readTemplateFile("document", "default")).label).toBe(
-      "AI Handout Studio Design",
+      "Default",
     );
     expect(
       JSON.parse(await readFile(join(context.dir, "selection.json"), "utf8")),
@@ -782,8 +799,9 @@ describe("段 I より前のテーマと型の移行", () => {
     expect(await readdir(join(context.dir, "templates", "document"))).toEqual([
       "default",
     ]);
+    // 英語でない表示名は、識別子から作る
     expect(await readTemplateFile("sheet", "big")).toMatchObject({
-      label: "大きな画面",
+      label: "Big",
       layout: { width: 1600 },
     });
   });

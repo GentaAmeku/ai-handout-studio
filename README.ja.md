@@ -66,4 +66,4 @@ ai-handout-studio doctor [--uninstall] [--json]
 
 ## ライセンス
 
-[MIT](LICENSE)。「Civic」テンプレートの出典と同梱の書体のライセンスは [NOTICE](NOTICE) にある。
+[MIT](LICENSE)。「Cobalt」テンプレートの出典と同梱の書体のライセンスは [NOTICE](NOTICE) にある。

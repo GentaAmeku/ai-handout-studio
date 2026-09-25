@@ -56,7 +56,7 @@ describe("質問票の案の画像の拡大", () => {
     if (!browser) throw new Error("ブラウザが起動していない");
     const html = await renderSheetHtml({
       designDir: join(repoRoot, "design"),
-      template: "civic",
+      template: "cobalt",
       doc,
       layout: "all",
     });
