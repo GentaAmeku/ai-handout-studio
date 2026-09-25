@@ -148,7 +148,8 @@ const sourceFor = (lang: Locale): string => `(() => {
       });
       // フォーカスを戻す処理は close イベント1か所にまとめる(ボタン・外側・Esc のどれでも通る)
       zoomDialog.addEventListener("close", () => {
-        zoomImg.src = "";
+        zoomImg.removeAttribute("src");
+        zoomImg.alt = "";
         if (zoomReturnFocus) zoomReturnFocus.focus();
         zoomReturnFocus = null;
       });

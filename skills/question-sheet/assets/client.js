@@ -427,7 +427,8 @@ const setUpImageZoom = () => {
 	});
 	// フォーカスを戻す処理は close イベント1か所にまとめる(ボタン・外側・Esc のどれでも通る)
 	zoomDialog.addEventListener("close", () => {
-		zoomImg.src = "";
+		zoomImg.removeAttribute("src");
+		zoomImg.alt = "";
 		zoomReturnFocus?.focus();
 		zoomReturnFocus = null;
 	});
