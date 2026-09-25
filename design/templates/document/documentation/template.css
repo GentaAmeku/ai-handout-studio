@@ -4,10 +4,11 @@
 
 /* ---------- ページ ---------- */
 
-/* 目次と脇は上下に自分の余白を持つので、ページの上下の余白は外す */
+/* 画面の横幅いっぱいに広げる(ページの最大幅を持たない)。列の間は狭めにして、本文の列を広く取る。
+   目次と脇は上下に自分の余白を持つので、ページの上下の余白は外す */
 .ds-page {
-  --doc-page-width: 1440px;
-  column-gap: 56px;
+  --doc-page-width: none;
+  column-gap: calc(var(--space-md) * 2.5);
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -346,19 +347,6 @@ ol.ds-ordered > li:last-child::after {
 
 .ds-foot {
   margin: 64px 0 40px;
-}
-
-/* ---------- 本文の列の幅 ---------- */
-
-/* 本文の列は広がっても、読む幅(--doc-measure)で中央に置く */
-.ds-page > .ds-signature,
-.ds-page > .ds-head,
-.ds-page > .ds-summary,
-.ds-page > .ds-foot,
-.ds-page .ds-main {
-  justify-self: center;
-  width: 100%;
-  max-width: var(--doc-measure);
 }
 
 /* ---------- 狭い画面・印刷 ---------- */
