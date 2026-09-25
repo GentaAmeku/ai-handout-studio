@@ -44,7 +44,12 @@ const renameIn = async (
 ): Promise<boolean> => {
   const parsed = await readObject(path);
   const current = parsed?.template ?? parsed?.theme;
-  if (!parsed || typeof current !== "string" || !(current in renames)) {
+  // 自分のキーだけを見る(in だと constructor などのプロトタイプのキーにも当たる)
+  if (
+    !parsed ||
+    typeof current !== "string" ||
+    !Object.hasOwn(renames, current)
+  ) {
     return false;
   }
   const { theme: _, ...rest } = parsed;
@@ -99,7 +104,10 @@ const renameSelection = async (designDir: string): Promise<boolean> => {
   const surfaces = Object.keys(TEMPLATE_RENAMES) as Surface[];
   const changed = surfaces.filter((surface) => {
     const current = parsed[surface];
-    return typeof current === "string" && current in TEMPLATE_RENAMES[surface];
+    return (
+      typeof current === "string" &&
+      Object.hasOwn(TEMPLATE_RENAMES[surface], current)
+    );
   });
   if (changed.length === 0) return false;
   await writeJsonAtomic(

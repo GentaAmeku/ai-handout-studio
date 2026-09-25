@@ -17,7 +17,9 @@ import {
   type Components,
   componentsSchema,
   DEFAULT_TEMPLATE,
+  isTemplateLabel,
   isTemplateName,
+  labelOfTemplateName,
   type Selection,
   type SlideSample,
   type Surface,
@@ -224,6 +226,53 @@ export const readSlideSample = async (
   if (!(await exists(path))) return undefined;
   const sample = await parseFile(path, slideSampleSchema);
   return sample.success ? sample.value : undefined;
+};
+
+// 表示名が英語でない template.json(表示名を英語に決める前に作ったテンプレート)を、
+// 識別子から作った名前へ書き換える。読む検査より先に回す。直したものを <区分>/<名前> で返す
+export const migrateTemplateLabels = async (
+  designDir: string,
+): Promise<string[]> => {
+  const fixed = await Promise.all(
+    surfaceNames.map(async (surface) => {
+      const names = (await templateNames(designDir, surface)).filter(
+        isTemplateName,
+      );
+      const moved = await Promise.all(
+        names.map(async (name) => {
+          const path = templatePath(designDir, surface, name);
+          const raw = await readFile(path, "utf8").catch(() => undefined);
+          const parsed = (() => {
+            try {
+              return raw === undefined
+                ? undefined
+                : (JSON.parse(raw) as unknown);
+            } catch {
+              return undefined;
+            }
+          })();
+          if (
+            !parsed ||
+            typeof parsed !== "object" ||
+            Array.isArray(parsed) ||
+            !("label" in parsed) ||
+            typeof parsed.label !== "string" ||
+            isTemplateLabel(parsed.label.trim())
+          ) {
+            return [];
+          }
+          await writeFile(
+            path,
+            `${JSON.stringify({ ...parsed, label: labelOfTemplateName(name) }, null, 2)}\n`,
+            "utf8",
+          );
+          return [`${surface}/${name}`];
+        }),
+      );
+      return moved.flat();
+    }),
+  );
+  return fixed.flat();
 };
 
 const readSurfaceTemplates = async <S extends Surface>(
@@ -588,6 +637,7 @@ export type BuildResult =
 export const buildDesignCss = async (
   designDir: string,
 ): Promise<BuildResult> => {
+  await migrateTemplateLabels(designDir);
   const design = await readDesign(designDir);
   if (!design.success) return design;
   const outputs = await cssOutputs(designDir, design.design);

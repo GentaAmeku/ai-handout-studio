@@ -68,6 +68,16 @@ describe("名前を変えたテンプレートの付け替え", () => {
 
     expect(await migrateRenamedTemplates(dirs.root, dirs.design)).toEqual([]);
   });
+
+  it("プロトタイプのキー(constructor など)の名前は付け替えない", async () => {
+    const sheet = join(dirs.root, "sheets", "sheet_20260901_001", "meta.json");
+    const selection = join(dirs.design, "selection.json");
+    await put(sheet, { template: "constructor" });
+    await put(selection, { slide: "tostring", sheet: "constructor" });
+    expect(await migrateRenamedTemplates(dirs.root, dirs.design)).toEqual([]);
+    expect((await read(sheet)).template).toBe("constructor");
+    expect((await read(selection)).sheet).toBe("constructor");
+  });
 });
 
 describe("テンプレートの表示名", () => {

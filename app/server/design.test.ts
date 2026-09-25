@@ -339,6 +339,23 @@ describe("design:build の生成物", () => {
     expect(!reserved.success && reserved.message).toContain("tokens");
     expect(await readdir(join(context.dir, "dist"))).toEqual(before);
   });
+
+  it("英語でない表示名の template.json は、build が識別子から作った名前へ直して通す", async () => {
+    await writeTemplate("slide", "old-deck", {
+      label: "古い資料",
+      components: {},
+    });
+    const result = await buildDesignCss(context.dir);
+    expect(result.success).toBe(true);
+    expect(
+      JSON.parse(
+        await readFile(
+          join(context.dir, "templates", "slide", "old-deck", "template.json"),
+          "utf8",
+        ),
+      ).label,
+    ).toBe("Old-deck");
+  });
 });
 
 describe("文字の大きさの倍率", () => {
