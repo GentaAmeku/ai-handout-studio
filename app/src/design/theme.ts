@@ -359,6 +359,29 @@ export const ownCssProblem = (own: string): string | undefined => {
   return undefined;
 };
 
+// 文書の専用の CSS に書けないもの。目次は章の ol の中に節の ol が入れ子で入り、共通の document.css が
+// 節を隠す(.ds-toc ol ol)。専用の CSS は :root の中に入って共通より強いので、.ds-toc ol に display を
+// 書くと節の ol にも効き、隠したはずの節が目次に出る
+const cssRules = (code: string): { selectors: string[]; body: string }[] =>
+  [...code.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(
+    ([, selectors = "", body = ""]) => ({
+      selectors: selectors.split(",").map((selector) => selector.trim()),
+      body,
+    }),
+  );
+
+export const documentOwnCssProblem = (own: string): string | undefined => {
+  const code = own.replace(/\/\*[\s\S]*?\*\//g, "");
+  const hit = cssRules(code).some(
+    ({ selectors, body }) =>
+      /(^|[;\s])display\s*:/.test(body) &&
+      selectors.some((selector) => /\.ds-toc\s+ol$/.test(selector)),
+  );
+  return hit
+    ? "目次の .ds-toc ol に display を書くと節の入れ子にも効き、節が目次に出る。章の並びは .ds-toc > ol、節は .ds-toc ol ol と書く"
+    : undefined;
+};
+
 // アプリの画面の変数。テーマから切り離し、tokens.json と部品の既定だけで作る
 export const appCss = (base: ResolvedSurface): string =>
   rootCss("アプリの画面。tokens.json の既定の値", base, []);

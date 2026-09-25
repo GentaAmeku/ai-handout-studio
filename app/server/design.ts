@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { z } from "zod";
 import {
   appCss,
+  documentOwnCssProblem,
   GENERATED_NOTE,
   ownCssProblem,
   type ResolvedTemplate,
@@ -291,7 +292,7 @@ export const missingInSelection = (
     : undefined;
 };
 
-// 区分ごとの専用の CSS を読み、書けないもの(ownCssProblem)があれば理由を返す
+// 区分ごとの専用の CSS を読み、書けないもの(ownCssProblem・文書は documentOwnCssProblem も)があれば理由を返す
 const readStyles = async (
   designDir: string,
   templates: SurfaceTemplates,
@@ -308,8 +309,12 @@ const readStyles = async (
       }),
     ),
   );
-  const problems = entries.flatMap(({ path, css }) => {
-    const problem = css === undefined ? undefined : ownCssProblem(css);
+  const problems = entries.flatMap(({ surface, path, css }) => {
+    const problem =
+      css === undefined
+        ? undefined
+        : (ownCssProblem(css) ??
+          (surface === "document" ? documentOwnCssProblem(css) : undefined));
     return problem ? [`${path}: ${problem}`] : [];
   });
   if (problems.length > 0)
