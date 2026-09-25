@@ -12,10 +12,13 @@ const AT = "2026-09-18T00:00:00.000Z";
 
 const SAMPLE_IMAGE_SRC = "assets/sample-screen.jpg";
 
-// 設計図。ai-handout-studio diagram で書き出した画像(構成図とシーケンス図)
+// 設計図。ai-handout-studio diagram で書き出した画像(描ける5種類を1枚ずつ)
 const SAMPLE_DIAGRAMS = [
   "sample-architecture.webp",
   "sample-sequence.webp",
+  "sample-workflow.webp",
+  "sample-dataflow.webp",
+  "sample-lifecycle.webp",
 ] as const;
 
 // 見本の図。分かれ目・外・保管の形と、枝分かれ・合流の線を1枚に入れる
@@ -197,7 +200,7 @@ const sample: DocumentFile = {
           id: "diagram-lede",
           type: "text",
           props: {
-            text: "構成・シーケンスのような設計図は ai-handout-studio diagram で画像に書き出し、画像として載せる。配色は図のものなので、テンプレートでは変わらない。",
+            text: "構成・シーケンス・ワークフロー・データの流れ・状態の移り変わりの設計図は ai-handout-studio diagram で画像に書き出し、画像として載せる。配色は図のものなので、テンプレートでは変わらない。",
           },
         },
       ],
@@ -232,6 +235,57 @@ const sample: DocumentFile = {
             alt: "利用者・画面・API・workspace・印刷のあいだのやり取り",
             caption:
               "シーケンス図: 画面で書き出すを押してから PDF を受け取るまで",
+          },
+        },
+      ],
+    },
+    {
+      id: "diagram-workflow",
+      heading: "ワークフロー",
+      level: 3,
+      blocks: [
+        {
+          id: "diagram-workflow-body",
+          type: "image",
+          props: {
+            src: `assets/${SAMPLE_DIAGRAMS[2]}`,
+            alt: "利用者・エージェント・Studio・差し戻しの段に分けた、依頼から反映までの流れ",
+            caption:
+              "ワークフロー: 画面で書いた依頼をエージェントが直し、検査を通ったものだけ残す",
+          },
+        },
+      ],
+    },
+    {
+      id: "diagram-dataflow",
+      heading: "データの流れ",
+      level: 3,
+      blocks: [
+        {
+          id: "diagram-dataflow-body",
+          type: "image",
+          props: {
+            src: `assets/${SAMPLE_DIAGRAMS[3]}`,
+            alt: "JSON と画像が取り込み・保存・描画を経て、画面と書き出しへ届く流れ",
+            caption:
+              "データの流れ: JSON と画像を取り込み、描いて画面と書き出しへ渡す",
+          },
+        },
+      ],
+    },
+    {
+      id: "diagram-lifecycle",
+      heading: "状態の移り変わり",
+      level: 3,
+      blocks: [
+        {
+          id: "diagram-lifecycle-body",
+          type: "image",
+          props: {
+            src: `assets/${SAMPLE_DIAGRAMS[4]}`,
+            alt: "依頼・作成・編集中・検査・書き出し済みと、要修正から編集中へ戻る移り変わり",
+            caption:
+              "状態の移り変わり: 頼んでから書き出すまで。検査に落ちたら編集へ戻る",
           },
         },
       ],

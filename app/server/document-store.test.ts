@@ -151,8 +151,15 @@ describe("document.json の言語", () => {
 });
 
 describe("画像の取り込みと埋め込み", () => {
-  // 見本の画像は、画面の写真1枚と設計図2枚
-  const SAMPLE_FILES = ["img-1.jpg", "img-2.webp", "img-3.webp"];
+  // 見本の画像は、画面の写真1枚と設計図5枚
+  const SAMPLE_FILES = [
+    "img-1.jpg",
+    "img-2.webp",
+    "img-3.webp",
+    "img-4.webp",
+    "img-5.webp",
+    "img-6.webp",
+  ];
   const SAMPLE_SRCS = SAMPLE_FILES.map((file) => `assets/${file}`);
   const imageSrcs = (doc: DocumentFile): string[] =>
     doc.sections.flatMap((section) =>
