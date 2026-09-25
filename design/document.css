@@ -441,6 +441,61 @@ table.ds-table {
   font-variant-numeric: tabular-nums;
 }
 
+/* 列の幅を変える取っ手(document-client.ts が見出しの列の境目に置く。スクリプトが動かなければ出ない)。
+   つかめる幅は境目の左右にまたがる。隣の見出しのセルより手前に出すので z-index を付ける */
+table.ds-table[data-col-resize] th {
+  position: relative;
+}
+
+.ds-col-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(var(--space-sm) / -2);
+  z-index: 1;
+  width: var(--space-sm);
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.ds-col-resize::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+}
+
+.ds-col-resize:hover::after,
+.ds-col-resize[data-dragging]::after {
+  background: var(--color-primary);
+}
+
+.ds-col-resize:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+/* 幅を変えた表は、写した幅(colgroup)どおりに割り付ける。細くした列に長い語が来ても、はみ出さずに折り返す */
+table.ds-table[data-col-resized] {
+  table-layout: fixed;
+}
+
+table.ds-table[data-col-resized] :is(th, td) {
+  overflow-wrap: anywhere;
+}
+
+table.ds-table[data-col-resized] .ds-rowlabel {
+  white-space: normal;
+}
+
+@media print {
+  .ds-col-resize {
+    display: none;
+  }
+}
+
 /* ---------- カード ---------- */
 /* スライドの .ds-card と同じ変数(--card-*)を読む */
 
