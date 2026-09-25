@@ -383,3 +383,17 @@ ol.ds-ordered > li:last-child::after {
     padding: var(--space-md) 0;
   }
 }
+
+/* 紙には読んでいる位置が無いので、目次の現在地の色を外す */
+@media print {
+  .ds-toc a[aria-current],
+  .ds-toc > ol > li > a[aria-current] {
+    color: var(--color-heading);
+  }
+
+  .ds-toc ol ol a[aria-current] {
+    color: var(--color-text);
+    font-weight: 400;
+    border-left-color: transparent;
+  }
+}
