@@ -205,13 +205,17 @@ const registerShared = (
     );
   });
 
-  // 画面の見本。書き出すものと同じ1枚の HTML を、外への通信を止めて返す
+  // 画面の見本。書き出すものと同じ1枚の HTML を、外への通信を止めて返す。
+  // 編集画面の枠は ?view=edit を付けて開き、章ごとに読む HTML 資料でも全章を流す
   app.get(`${base}/:id/preview`, async (c) => {
     const result = await renderHandout(
       workspaceRoot,
       designDir,
       kind,
       paramId(c),
+      "hosted",
+      false,
+      c.req.query("view") === "edit",
     );
     if (!result.success) {
       return c.json(errorBody(result.message), result.status);

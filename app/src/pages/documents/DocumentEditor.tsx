@@ -5,8 +5,8 @@ import { errorStatus } from "../../api/client";
 import {
   designTemplatesQuery,
   documentAiPreviewUrl,
+  documentEditPreviewUrl,
   documentQuery,
-  handoutPreviewUrl,
   handoutQuery,
   useSaveDocument,
 } from "../../api/queries";
@@ -185,7 +185,7 @@ export const DocumentEditor = ({
               )}
               <FrameView
                 key={updatedAt}
-                src={handoutPreviewUrl("document", id)}
+                src={documentEditPreviewUrl(id)}
                 title={title}
                 // コードブロックの「コピー」を押せる
                 interactive
