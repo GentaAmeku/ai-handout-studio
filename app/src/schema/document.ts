@@ -233,6 +233,9 @@ export const documentFileSchema = z
       .optional(),
     // 目次はセクションの見出しから作る。並びと位置はテンプレートの layout.areas が決める
     toc: z.enum(["auto", "none"]),
+    // 章の見せ方。chapter は章を1つずつ切り替えて見せる(資料に埋めたスクリプトが切り替える。
+    // 見本・編集中のプレビュー・印刷では全章を流す)。無ければ全章を1ページに流す
+    paging: z.enum(["chapter"]).optional(),
     sections: z.array(sectionSchema),
     aside: z
       .strictObject({

@@ -170,6 +170,8 @@ export const renderDocumentHtml = async (
     fonts?: FontSource;
     // 資料の assets/。画像はここから読んで data: で埋め込む
     assetsDir?: string;
+    // false なら章ごとに読む資料でも全章を流す(編集画面のプレビュー)
+    paging?: boolean;
   } & DocumentSource,
 ): Promise<string> =>
   page({
@@ -188,6 +190,7 @@ export const renderDocumentHtml = async (
               : new Map(),
             // 画面の文言の言語。資料に無ければ ja で描く
             input.doc.lang ?? "ja",
+            input.paging ?? true,
           )
         : input.body,
     // コードブロックの「コピー」を動かすだけのスクリプト

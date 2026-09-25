@@ -413,6 +413,8 @@ export const renderHandout = async (
   id: string,
   fonts: FontSource = "hosted",
   share = false,
+  // 編集画面のプレビュー。章ごとに読む資料でも全章を流す
+  editing = false,
 ): Promise<StoreResult<{ html: string; title: string; lang: Locale }>> => {
   const meta = await readMeta(root, kind, id);
   if (meta.state !== "ready") return fail(404, "資料が見つからない");
@@ -436,6 +438,7 @@ export const renderHandout = async (
         orgName,
         fonts,
         assetsDir: assetsDirOf(root, "document", id),
+        paging: !editing,
       }),
     };
   }

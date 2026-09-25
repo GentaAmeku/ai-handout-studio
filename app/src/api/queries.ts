@@ -312,6 +312,10 @@ export const handoutApiPath = (kind: HandoutKind, id: string): string =>
 export const handoutPreviewUrl = (kind: HandoutKind, id: string): string =>
   `${handoutApiPath(kind, id)}/preview`;
 
+// 編集画面の枠が読む HTML 資料。章ごとに読む資料でも全章を流す(直す場所を探しやすくする)
+export const documentEditPreviewUrl = (id: string): string =>
+  `${handoutPreviewUrl("document", id)}?view=edit`;
+
 export const handoutsQuery = (kind: HandoutKind) =>
   queryOptions({
     queryKey: ["handouts", kind],

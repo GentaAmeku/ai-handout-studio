@@ -163,6 +163,24 @@
   border-left-color: var(--color-primary);
 }
 
+/* 章ごとに読む資料では、開いている章の見出しを差し色にする(資料のスクリプトが li に data-current を付ける) */
+.ds-toc > ol > li[data-current] > a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.ds-paging-toggle {
+  margin: 0 0 var(--space-sm);
+}
+
+/* 2章目からの章の見出し(ページの題名)は、1章目の題名と同じく肩のすぐ下に置く */
+.ds-page[data-paging-active]:not([data-paging-index="1"])
+  .ds-main
+  > section
+  > :is(h2, h3):first-child {
+  margin-top: var(--space-xs);
+}
+
 /* ---------- 脇(右の用語) ---------- */
 
 .ds-aside > .ds-label {

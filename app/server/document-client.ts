@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-// HTML 資料に埋めるスクリプト。次の2つを動かす。
+// HTML 資料に埋めるスクリプト。次の3つを動かす。
 // - コードブロックの「コピー」ボタン。相手にするのは document-render.ts の code が組んだ DOM
 //   (.ds-code-block > pre.ds-code > code と、hidden の button[data-code-copy] > .ds-code-copy-text)。
 //   ボタンは hidden で描き、このスクリプトが動いたときだけ出す。スクリプトを止めた見本
@@ -9,6 +9,8 @@ import { createHash } from "node:crypto";
 // - 読んでいる位置。スクロールに合わせ、読んでいる章・節の目次(.ds-toc)のリンクに aria-current="location" を付ける。
 //   見た目は付けない(色はテンプレートの CSS が付ける)。目次の無い資料では何もしない。
 //   スクリプトが動かない見本と印刷では付かないだけで、読むのに困らない。
+// - 章ごとに読む資料(paging: "chapter")。章を1つずつ見せ、前へ・次へと「すべての章を表示」を置く。
+//   隠すのは document.css の画面だけの規則なので、スクリプトが動かない見本と印刷(PDF)では全章が流れる。
 // 中身が言語で変わらないので、指紋は1つ。
 // この中では ` と ${ を使わない(handout-html.ts の safeInline と衝突させない)
 
@@ -27,14 +29,16 @@ const SOURCE = `(() => {
     if (entries.length === 0) return;
 
     const current = () => {
+      // 章ごとに読む資料では、表示している章の中だけで数える
+      const shown = entries.filter((entry) => !entry.target.closest("[data-paging-hidden]"));
       const root = document.documentElement;
       const line = Math.min(LINE, window.innerHeight / 4);
       // 下まで読み切ったら、線を越えられない短い最後の節も読んだことにする
       const scrollable = root.scrollHeight > window.innerHeight;
       const atEnd = scrollable && window.scrollY + window.innerHeight >= root.scrollHeight - 2;
-      if (atEnd) return entries[entries.length - 1];
-      const passed = entries.filter((entry) => entry.target.getBoundingClientRect().top <= line);
-      return passed[passed.length - 1] || entries[0];
+      if (atEnd) return shown[shown.length - 1];
+      const passed = shown.filter((entry) => entry.target.getBoundingClientRect().top <= line);
+      return passed[passed.length - 1] || shown[0];
     };
 
     const update = () => {
@@ -156,7 +160,116 @@ const SOURCE = `(() => {
     });
   };
 
+  // 章ごとに読む資料(.ds-page[data-paging="chapter"])。表示しない章に data-paging-hidden を付け、
+  // .ds-page に data-paging-active と今の章の番号(data-paging-index、1 から)を付ける。隠すのは CSS(画面だけ)。
+  // 章は #章の id で選ぶ(戻る・進むも効く)。#節の id なら、その節を持つ章に切り替えてから節へ移る。
+  // 本文の下に前へ・次へ、目次の上(目次が無ければ本文の上)に「すべての章を表示」の切り替えを置く。
+  // 文言は .ds-page の data 属性(資料の言語)から読む
+  const pageByChapter = () => {
+    const page = document.querySelector(".ds-page[data-paging='chapter']");
+    const main = page && page.querySelector(".ds-main");
+    if (!main) return;
+    const chapters = Array.from(main.children).filter((node) => node.tagName === "SECTION");
+    if (chapters.length < 2) return;
+    const toc = page.querySelector(".ds-toc");
+    const tocItems = toc ? Array.from(toc.querySelectorAll(":scope > ol > li")) : [];
+    const state = { all: false, index: 0 };
+
+    const pager = document.createElement("nav");
+    pager.className = "ds-pager";
+    pager.setAttribute("aria-label", page.dataset.pagerLabel || "");
+    main.appendChild(pager);
+
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "ds-paging-toggle";
+    const list = toc && toc.querySelector(":scope > ol");
+    if (list) toc.insertBefore(toggle, list);
+    else main.insertBefore(toggle, main.firstChild);
+
+    const pagerLink = (chapter, kind) => {
+      const link = document.createElement("a");
+      link.className = "ds-pager-" + kind;
+      link.href = "#" + chapter.id;
+      const label = document.createElement("span");
+      label.className = "ds-pager-label";
+      label.textContent = (kind === "prev" ? page.dataset.pagerPrev : page.dataset.pagerNext) || "";
+      const title = document.createElement("span");
+      title.className = "ds-pager-title";
+      const heading = chapter.querySelector("h2, h3");
+      title.textContent = heading ? heading.textContent : "";
+      link.append(label, title);
+      return link;
+    };
+
+    const render = () => {
+      const current = chapters[state.index];
+      chapters.forEach((chapter) => {
+        chapter.toggleAttribute("data-paging-hidden", !state.all && chapter !== current);
+      });
+      page.toggleAttribute("data-paging-active", !state.all);
+      page.dataset.pagingIndex = String(state.index + 1);
+      tocItems.forEach((item) => {
+        const link = item.querySelector("a");
+        item.toggleAttribute("data-current", !state.all && Boolean(link) && link.getAttribute("href") === "#" + current.id);
+      });
+      pager.textContent = "";
+      pager.hidden = state.all;
+      const prev = chapters[state.index - 1];
+      const next = chapters[state.index + 1];
+      if (prev) pager.appendChild(pagerLink(prev, "prev"));
+      if (next) pager.appendChild(pagerLink(next, "next"));
+      toggle.textContent = (state.all ? page.dataset.pagingShowOne : page.dataset.pagingShowAll) || "";
+      toggle.setAttribute("aria-pressed", state.all ? "true" : "false");
+      // 読んでいる位置の印を、表示した章で数え直す
+      window.dispatchEvent(new Event("scroll"));
+    };
+
+    const targetOf = () => {
+      const raw = window.location.hash.slice(1);
+      const id = (() => {
+        try {
+          return decodeURIComponent(raw);
+        } catch {
+          return raw;
+        }
+      })();
+      return id ? document.getElementById(id) : null;
+    };
+
+    // scroll: 章なら上端へ、節ならその節へ移る。開いたとき # が無ければ移らない
+    const follow = (scroll) => {
+      if (state.all) return;
+      const target = targetOf();
+      const index = target ? chapters.findIndex((chapter) => chapter.contains(target)) : -1;
+      if (index === -1 && target) return;
+      state.index = Math.max(0, index);
+      render();
+      if (!scroll) return;
+      if (target && target !== chapters[state.index]) target.scrollIntoView();
+      else window.scrollTo(0, 0);
+    };
+
+    // 全章を流している間に読み進めた章。章ごとに戻すとき、その章を開く
+    const readingIndex = () => {
+      if (window.scrollY <= 0) return state.index;
+      const passed = chapters.filter((chapter) => chapter.getBoundingClientRect().top <= LINE);
+      return Math.max(0, passed.length - 1);
+    };
+
+    toggle.addEventListener("click", () => {
+      if (state.all) state.index = readingIndex();
+      state.all = !state.all;
+      render();
+      if (state.all) chapters[state.index].scrollIntoView();
+      else window.scrollTo(0, 0);
+    });
+    window.addEventListener("hashchange", () => follow(true));
+    follow(Boolean(targetOf()));
+  };
+
   copyButtons();
+  pageByChapter();
   markLocation();
 })();`;
 

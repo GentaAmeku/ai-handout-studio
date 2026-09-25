@@ -70,6 +70,13 @@ export type DocumentStrings = {
   readonly copyCode: string;
   readonly copiedCode: string;
   readonly copyCodeFailed: string;
+  // 章ごとに読む資料(paging: "chapter")の、本文の下の前へ・次へと、目次の上の切り替え
+  // (document-client.ts が .ds-page の data 属性から読む)
+  readonly pagerLabel: string;
+  readonly pagerPrev: string;
+  readonly pagerNext: string;
+  readonly pagingShowAll: string;
+  readonly pagingShowOne: string;
 };
 
 const ja: { sheet: SheetStrings; document: DocumentStrings } = {
@@ -128,6 +135,11 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     copyCode: "コードをコピー",
     copiedCode: "コピーしました",
     copyCodeFailed: "選択しました。手でコピーしてください",
+    pagerLabel: "前後の章",
+    pagerPrev: "前へ",
+    pagerNext: "次へ",
+    pagingShowAll: "すべての章を表示",
+    pagingShowOne: "章ごとに表示",
   },
 };
 
@@ -189,6 +201,11 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     copyCode: "Copy code",
     copiedCode: "Copied",
     copyCodeFailed: "Selected. Please copy it manually",
+    pagerLabel: "Chapters",
+    pagerPrev: "Previous",
+    pagerNext: "Next",
+    pagingShowAll: "Show all chapters",
+    pagingShowOne: "Show one chapter at a time",
   },
 };
 

@@ -749,6 +749,106 @@ ol.ds-ordered {
   }
 }
 
+/* ---------- 章ごとに読む(document.json の paging: "chapter") ----------
+   document-client.ts が、表示しない章に data-paging-hidden、.ds-page に data-paging-active と
+   今の章の番号(data-paging-index)を付け、前へ・次へ(.ds-pager)と切り替え(.ds-paging-toggle)を足す。
+   隠すのは画面だけ。スクリプトが動かない見本と印刷(PDF)では全章を流す */
+
+@media screen {
+  .ds-main > section[data-paging-hidden] {
+    display: none;
+  }
+
+  /* 題名・リード・要約は最初の章にだけ。2章目からは章の見出しがそのページの題名 */
+  .ds-page[data-paging-active]:not([data-paging-index="1"]) > .ds-head,
+  .ds-page[data-paging-active]:not([data-paging-index="1"]) > .ds-summary {
+    display: none;
+  }
+
+  .ds-page[data-paging-active]:not([data-paging-index="1"])
+    .ds-main
+    > section
+    > :is(h2, h3):first-child {
+    margin-top: var(--space-gap);
+    font-size: var(--fs-page-title);
+    line-height: var(--lh-display);
+  }
+
+  /* 目次は今の章だけ節を開く(節を出さないテンプレートでも、今の章の節は出す) */
+  .ds-page[data-paging-active] .ds-toc > ol > li[data-current] > ol {
+    display: block;
+  }
+
+  .ds-page[data-paging-active] .ds-toc > ol > li:not([data-current]) > ol {
+    display: none;
+  }
+
+  .ds-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md);
+    margin-top: calc(var(--space-gap) * 2);
+  }
+
+  /* display を決めているので、hidden(全章を流している間)はここで隠す */
+  .ds-pager[hidden] {
+    display: none;
+  }
+
+  .ds-pager a {
+    display: block;
+    padding: var(--space-md) var(--space-gap);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: var(--color-heading);
+    text-decoration: none;
+  }
+
+  .ds-pager a:hover {
+    border-color: var(--color-primary);
+  }
+
+  .ds-pager-next {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .ds-pager-label {
+    display: block;
+    font-size: var(--fs-small);
+    color: var(--color-muted);
+  }
+
+  .ds-pager-title {
+    font-weight: var(--fw-heading);
+  }
+
+  /* 字と同じ並び方にして、目次の寄せ(左・中央)に従わせる */
+  .ds-paging-toggle {
+    display: inline-block;
+    margin: var(--space-xs) 0;
+    padding: 2px var(--space-sm);
+    font: inherit;
+    font-size: var(--fs-small);
+    color: var(--color-link);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .ds-paging-toggle:hover {
+    border-color: var(--color-primary);
+  }
+}
+
+@media print {
+  .ds-pager,
+  .ds-paging-toggle {
+    display: none;
+  }
+}
+
 /* ---------- 印刷 ---------- */
 
 @media print {

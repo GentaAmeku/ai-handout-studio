@@ -281,14 +281,29 @@ const withImageData = (
   })),
 });
 
+// 章ごとに読む資料の印と、スクリプトが組む前へ・次へ・切り替えの文言(資料の言語)
+const pagingAttributes = (doc: DocumentFile, t: DocumentStrings): string =>
+  doc.paging === "chapter"
+    ? [
+        ' data-paging="chapter"',
+        ` data-pager-label="${escapeHtml(t.pagerLabel)}"`,
+        ` data-pager-prev="${escapeHtml(t.pagerPrev)}"`,
+        ` data-pager-next="${escapeHtml(t.pagerNext)}"`,
+        ` data-paging-show-all="${escapeHtml(t.pagingShowAll)}"`,
+        ` data-paging-show-one="${escapeHtml(t.pagingShowOne)}"`,
+      ].join("")
+    : "";
+
 // <div class="ds-page"> の丸ごと。目次・本文・脇の並びは見本のまま(置き場所はテンプレートの layout.areas が決める)。
 // images は画像の src から data: への対応(資料の assets/ から読んだもの)。
-// lang は画面の文言(目次・要約の見出しなど)の言語。資料に無ければ ja
+// lang は画面の文言(目次・要約の見出しなど)の言語。資料に無ければ ja。
+// paging を false にすると、章ごとに読む資料でも全章を流す(編集中のプレビュー)
 export const documentBody = (
   source: DocumentFile,
   orgName?: string,
   images: ReadonlyMap<string, string> = new Map(),
   lang: Locale = "ja",
+  paging = true,
 ): string => {
   const t = HANDOUT_STRINGS[lang].document;
   const doc = withImageData(source, images);
@@ -296,7 +311,7 @@ export const documentBody = (
   if (raw !== undefined) return raw;
   const groups = groupSections(doc.sections);
   return [
-    '<div class="ds-page">',
+    `<div class="ds-page"${paging ? pagingAttributes(doc, t) : ""}>`,
     signatureHtml(doc, orgName),
     headHtml(doc.head),
     doc.summary ? summaryHtml(doc.summary, t) : "",

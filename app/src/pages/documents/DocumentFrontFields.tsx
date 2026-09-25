@@ -221,6 +221,17 @@ export const DocumentFrontFields = ({
           ]}
           onChange={(toc) => set({ toc })}
         />
+        <SelectField
+          label={t("doc.pagingLabel")}
+          value={document.paging ?? "all"}
+          options={[
+            { value: "all", label: t("doc.pagingAll") },
+            { value: "chapter", label: t("doc.pagingChapter") },
+          ]}
+          onChange={(paging) =>
+            set({ paging: paging === "chapter" ? "chapter" : undefined })
+          }
+        />
       </Group>
 
       <Group title={t("doc.signature")}>

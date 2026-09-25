@@ -90,6 +90,10 @@
       "type": "string",
       "enum": ["auto", "none"]
     },
+    "paging": {
+      "type": "string",
+      "enum": ["chapter"]
+    },
     "sections": {
       "type": "array",
       "items": {
