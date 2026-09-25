@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-// HTML 資料に埋めるスクリプト。次の3つを動かす。
+// HTML 資料に埋めるスクリプト。次の4つを動かす。
 // - コードブロックの「コピー」ボタン。相手にするのは document-render.ts の code が組んだ DOM
 //   (.ds-code-block > pre.ds-code > code と、hidden の button[data-code-copy] > .ds-code-copy-text)。
 //   ボタンは hidden で描き、このスクリプトが動いたときだけ出す。スクリプトを止めた見本
@@ -11,6 +11,8 @@ import { createHash } from "node:crypto";
 //   スクリプトが動かない見本と印刷では付かないだけで、読むのに困らない。
 // - 章ごとに読む資料(paging: "chapter")。章を1つずつ見せ、前へ・次へと「すべての章を表示」を置く。
 //   隠すのは document.css の画面だけの規則なので、スクリプトが動かない見本と印刷(PDF)では全章が流れる。
+// - 表の列の幅。読む人が見出しの列の境目をドラッグして変える。幅は保存しない(読み込み直すと戻る)。
+//   取っ手はこのスクリプトが置くので、スクリプトが動かない見本には出ない。印刷では隠す。
 // 中身が言語で変わらないので、指紋は1つ。
 // この中では ` と ${ を使わない(handout-html.ts の safeInline と衝突させない)
 
@@ -268,7 +270,116 @@ const SOURCE = `(() => {
     follow(Boolean(targetOf()));
   };
 
+  // 表の列の幅(document-render.ts の table.ds-table[data-col-resize])。見出しの列の境目ごとに取っ手を置き、
+  // ドラッグか左右キーで、隣り合う2列の間で幅をやり取りする。表全体の幅は変えない。ダブルクリックで元に戻す。
+  // 初めて動かすときに今の見た目の幅を colgroup の % へ写し、data-col-resized で固定の割り付けに切り替える
+  // (測るのを動かすときまで待つのは、章ごとに読む資料の隠れた章では幅が測れないため)。
+  // 取っ手の名前は表の data-col-resize(資料の言語)から読む
+  const resizeColumns = () => {
+    // 1列の最小の幅(px)と、キー1回で動かす幅(表の幅に対する %)
+    const MIN = 48;
+    const STEP = 2;
+
+    const setUp = (table) => {
+      const row = table.tHead && table.tHead.rows[0];
+      const heads = row ? Array.from(row.cells) : [];
+      if (heads.length < 2 || heads.some((cell) => cell.colSpan !== 1)) return;
+      const label = table.dataset.colResize || "";
+      const percent = (px) => (px / row.getBoundingClientRect().width) * 100;
+      const widthOf = (col) => parseFloat(col.style.width) || 0;
+
+      const cols = () => {
+        const current = table.querySelector(":scope > colgroup[data-col-resize-group]");
+        if (current) return Array.from(current.children);
+        const group = document.createElement("colgroup");
+        group.setAttribute("data-col-resize-group", "");
+        heads.forEach((cell) => {
+          const col = document.createElement("col");
+          col.style.width = percent(cell.getBoundingClientRect().width) + "%";
+          group.appendChild(col);
+        });
+        table.insertBefore(group, table.firstChild);
+        table.setAttribute("data-col-resized", "");
+        return Array.from(group.children);
+      };
+
+      const handles = heads.slice(0, -1).map((cell) => {
+        const handle = document.createElement("span");
+        handle.className = "ds-col-resize";
+        handle.setAttribute("role", "separator");
+        handle.setAttribute("aria-orientation", "vertical");
+        handle.setAttribute("aria-label", label);
+        handle.setAttribute("aria-valuemin", "0");
+        handle.setAttribute("aria-valuemax", "100");
+        handle.title = label;
+        handle.tabIndex = 0;
+        cell.appendChild(handle);
+        return handle;
+      });
+
+      // 取っ手の値は、左の列が表の幅に占める %
+      const sync = () => {
+        if (row.getBoundingClientRect().width === 0) return;
+        handles.forEach((handle, index) => {
+          handle.setAttribute("aria-valuenow", String(Math.round(percent(heads[index].getBoundingClientRect().width))));
+        });
+      };
+
+      // index の列の幅を width(%)にし、右隣の列で差を受ける。どちらも MIN より細くしない
+      const place = (index, width) => {
+        const list = cols();
+        const left = list[index];
+        const right = list[index + 1];
+        const pair = widthOf(left) + widthOf(right);
+        const min = Math.min(percent(MIN), pair / 2);
+        const next = Math.min(Math.max(width, min), pair - min);
+        left.style.width = next + "%";
+        right.style.width = pair - next + "%";
+        sync();
+      };
+
+      const reset = () => {
+        const group = table.querySelector(":scope > colgroup[data-col-resize-group]");
+        if (group) group.remove();
+        table.removeAttribute("data-col-resized");
+        sync();
+      };
+
+      handles.forEach((handle, index) => {
+        handle.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
+          event.preventDefault();
+          const start = { x: event.clientX, width: widthOf(cols()[index]) };
+          handle.setPointerCapture(event.pointerId);
+          handle.setAttribute("data-dragging", "");
+          const move = (moved) => place(index, start.width + percent(moved.clientX - start.x));
+          const end = () => {
+            handle.removeAttribute("data-dragging");
+            handle.removeEventListener("pointermove", move);
+            handle.removeEventListener("pointerup", end);
+            handle.removeEventListener("pointercancel", end);
+          };
+          handle.addEventListener("pointermove", move);
+          handle.addEventListener("pointerup", end);
+          handle.addEventListener("pointercancel", end);
+        });
+        handle.addEventListener("keydown", (event) => {
+          const step = event.key === "ArrowLeft" ? -STEP : event.key === "ArrowRight" ? STEP : 0;
+          if (step === 0) return;
+          event.preventDefault();
+          place(index, widthOf(cols()[index]) + step);
+        });
+        handle.addEventListener("dblclick", reset);
+        handle.addEventListener("focus", sync);
+      });
+      sync();
+    };
+
+    Array.from(document.querySelectorAll("table.ds-table[data-col-resize]")).forEach(setUp);
+  };
+
   copyButtons();
+  resizeColumns();
   pageByChapter();
   markLocation();
 })();`;

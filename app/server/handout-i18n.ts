@@ -77,6 +77,8 @@ export type DocumentStrings = {
   readonly pagerNext: string;
   readonly pagingShowAll: string;
   readonly pagingShowOne: string;
+  // 表の列の境目に置く、幅を変える取っ手の名前(document-client.ts が表の data 属性から読む)
+  readonly resizeColumn: string;
 };
 
 const ja: { sheet: SheetStrings; document: DocumentStrings } = {
@@ -140,6 +142,7 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     pagerNext: "次へ",
     pagingShowAll: "すべての章を表示",
     pagingShowOne: "章ごとに表示",
+    resizeColumn: "列の幅を変える",
   },
 };
 
@@ -206,6 +209,7 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     pagerNext: "Next",
     pagingShowAll: "Show all chapters",
     pagingShowOne: "Show one chapter at a time",
+    resizeColumn: "Resize column",
   },
 };
 

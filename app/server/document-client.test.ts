@@ -324,3 +324,63 @@ describe("章ごとに読む", () => {
     expect(pager(page)).toEqual([["#s2", "Next動かす"]]);
   });
 });
+
+describe("表の列の幅", () => {
+  const withTables = (headers: string[][]): DocumentFile => ({
+    ...doc,
+    sections: [
+      {
+        id: "s1",
+        heading: "比べる",
+        blocks: headers.map((row, index) => ({
+          id: `t${index}`,
+          type: "table" as const,
+          props: { headers: row, rows: [row.map(() => "x")] },
+        })),
+      },
+    ],
+  });
+
+  const open = (body: string): Document => {
+    const dom = new JSDOM(`<!doctype html><body>${body}</body>`, {
+      runScripts: "outside-only",
+    });
+    dom.window.eval(documentScript().replaceAll("<\\/", "</"));
+    return dom.window.document;
+  };
+
+  const handles = (page: Document) =>
+    Array.from(page.querySelectorAll<HTMLElement>("table.ds-table")).map(
+      (table) =>
+        Array.from(table.querySelectorAll("thead th")).map(
+          (cell) => cell.querySelectorAll(".ds-col-resize").length,
+        ),
+    );
+
+  it("列の境目ごとに取っ手を置く。1列の表には置かない", () => {
+    const page = open(
+      documentBody(withTables([["名前", "値", "備考"], ["項目"]])),
+    );
+    expect(handles(page)).toEqual([[1, 1, 0], [0]]);
+    const handle = page.querySelector<HTMLElement>(".ds-col-resize");
+    expect(handle?.getAttribute("role")).toBe("separator");
+    expect(handle?.getAttribute("aria-orientation")).toBe("vertical");
+    expect(handle?.getAttribute("aria-label")).toBe("列の幅を変える");
+    expect(handle?.tabIndex).toBe(0);
+  });
+
+  it("描いた時点では取っ手が無く、名前は資料の言語で出る", () => {
+    const body = documentBody(
+      withTables([["name", "value"]]),
+      undefined,
+      new Map(),
+      "en",
+    );
+    expect(
+      new JSDOM(body).window.document.querySelector(".ds-col-resize"),
+    ).toBe(null);
+    expect(
+      open(body).querySelector(".ds-col-resize")?.getAttribute("aria-label"),
+    ).toBe("Resize column");
+  });
+});

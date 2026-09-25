@@ -68,7 +68,7 @@ describe("documentBody のブロック", () => {
         },
       }),
     ).toBe(
-      '<table class="ds-table"><thead><tr><th>段</th><th class="ds-num">日数</th></tr></thead><tbody><tr><td class="ds-rowlabel">調査</td><td class="ds-num">3</td></tr></tbody></table>',
+      '<table class="ds-table" data-col-resize="列の幅を変える"><thead><tr><th>段</th><th class="ds-num">日数</th></tr></thead><tbody><tr><td class="ds-rowlabel">調査</td><td class="ds-num">3</td></tr></tbody></table>',
     );
   });
 

@@ -63,9 +63,10 @@ const cellClass = (
       ? ' class="ds-num"'
       : "";
 
-const tableHtml = (props: PropsOf<"table">): string =>
+// data-col-resize は、読む人が列の幅を変える取っ手の名前(document-client.ts が読んで取っ手を置く)
+const tableHtml = (props: PropsOf<"table">, t: DocumentStrings): string =>
   [
-    '<table class="ds-table">',
+    `<table class="ds-table" data-col-resize="${escapeHtml(t.resizeColumn)}">`,
     "<thead><tr>",
     props.headers
       .map(
