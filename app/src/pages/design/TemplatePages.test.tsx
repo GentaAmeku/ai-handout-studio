@@ -20,7 +20,7 @@ import components from "../../../../design/components.json";
 import sheetFocusSample from "../../../../design/samples/sheet.focus.html?raw";
 import defaultDocument from "../../../../design/templates/document/default/template.json";
 import defaultSheet from "../../../../design/templates/sheet/default/template.json";
-import civicSlide from "../../../../design/templates/slide/civic/template.json";
+import cobaltSlide from "../../../../design/templates/slide/cobalt/template.json";
 import defaultSlide from "../../../../design/templates/slide/default/template.json";
 import tokens from "../../../../design/tokens.json";
 import type { Surface } from "../../schema/design";
@@ -46,7 +46,7 @@ const templateOf = (surface: string, name: string) => {
   return name === "acme"
     ? {
         ...base,
-        label: "アクメ",
+        label: "Acme",
         tokens: { color: { ...base.tokens.color, primary: ACME_PRIMARY } },
       }
     : base;
@@ -59,10 +59,10 @@ const selection = {
 };
 
 const summaries = [
-  { name: "acme", label: "アクメ" },
+  { name: "acme", label: "Acme" },
   {
     name: "default",
-    label: "AI Handout Studio Design",
+    label: "Default",
     description: "いつもの見た目",
   },
 ];
@@ -237,7 +237,7 @@ const stageSlide = () =>
 const card = async (label: string) =>
   screen.findByRole("article", { name: label });
 
-const DEFAULT_LABEL = "AI Handout Studio Design";
+const DEFAULT_LABEL = "Default";
 
 // 文字の大きさの節の今の値(例: 110%)
 const currentScale = () =>
@@ -251,15 +251,15 @@ describe("テンプレートの一覧", () => {
     "%s も写真のカードで、名前・☆(既定にする)・✎(編集)を出す",
     async (_surface, path) => {
       renderAt(path);
-      const acme = await card("アクメ");
+      const acme = await card("Acme");
       expect(
-        within(acme).getByText("アクメ", {
+        within(acme).getByText("Acme", {
           selector: ".photo-card__name",
         }),
       ).toBeTruthy();
-      expect(starOf(acme, "アクメ").getAttribute("aria-pressed")).toBe("false");
+      expect(starOf(acme, "Acme").getAttribute("aria-pressed")).toBe("false");
       // 編集を開くのは絵そのもの。✎ は絵の中央に出る飾りで、読み上げは絵の名前に任せる
-      const picture = within(acme).getByRole("link", { name: "アクメを編集" });
+      const picture = within(acme).getByRole("link", { name: "Acmeを編集" });
       expect(picture.classList.contains("photo-card__preview")).toBe(true);
       const pencil = picture.querySelector(".photo-card__icon");
       expect(pencil?.getAttribute("aria-hidden")).toBe("true");
@@ -273,7 +273,7 @@ describe("テンプレートの一覧", () => {
 
   it("スライドは見本の表紙だけを、そのテンプレートの値で描く", async () => {
     renderAt("/slides/templates");
-    const acme = await card("アクメ");
+    const acme = await card("Acme");
     await waitFor(() =>
       expect(
         acme
@@ -322,8 +322,8 @@ describe("テンプレートの一覧", () => {
     fireEvent.click(starOf(standard, DEFAULT_LABEL));
     expect(calls()).not.toContain("PUT /api/design/selection");
 
-    const acme = await card("アクメ");
-    fireEvent.click(starOf(acme, "アクメ"));
+    const acme = await card("Acme");
+    fireEvent.click(starOf(acme, "Acme"));
     await waitFor(() => expect(calls()).toContain("POST /api/design/build"));
     expect(sentSelection()).toEqual({ ...selection, sheet: "acme" });
     expect(calls().indexOf("POST /api/design/build")).toBeGreaterThan(
@@ -332,7 +332,7 @@ describe("テンプレートの一覧", () => {
     // 既定が移るとカードは区切りを移って作り直されるので、引き直す
     await waitFor(async () =>
       expect(
-        starOf(await card("アクメ"), "アクメ").getAttribute("aria-pressed"),
+        starOf(await card("Acme"), "Acme").getAttribute("aria-pressed"),
       ).toBe("true"),
     );
     expect(
@@ -341,9 +341,7 @@ describe("テンプレートの一覧", () => {
       ),
     ).toBe("false");
     const pinned = screen.getByRole("region", { name: "既定" });
-    expect(
-      within(pinned).getByRole("article", { name: "アクメ" }),
-    ).toBeTruthy();
+    expect(within(pinned).getByRole("article", { name: "Acme" })).toBeTruthy();
     expect(
       within(pinned).queryByRole("article", { name: DEFAULT_LABEL }),
     ).toBeNull();
@@ -353,7 +351,7 @@ describe("テンプレートの一覧", () => {
     "%s は既定のテンプレートを「既定」の見出しの下に分け、残りは見出しを付けずに下に並べる(116)",
     async (_surface, path) => {
       renderAt(path);
-      await card("アクメ");
+      await card("Acme");
       const pinned = screen.getByRole("region", { name: "既定" });
       expect(
         within(pinned)
@@ -363,7 +361,7 @@ describe("テンプレートの一覧", () => {
       const rest = document.querySelector<HTMLElement>(".list-rest");
       expect(rest?.closest(".list-section")).toBeNull();
       expect(
-        within(rest as HTMLElement).getByRole("article", { name: "アクメ" }),
+        within(rest as HTMLElement).getByRole("article", { name: "Acme" }),
       ).toBeTruthy();
       expect(
         within(rest as HTMLElement).queryByRole("article", {
@@ -376,10 +374,10 @@ describe("テンプレートの一覧", () => {
 
   it("カードの絵(中央の ✎ を含む)でテンプレートの編集を開く", async () => {
     const router = renderAt("/documents/templates");
-    const acme = await card("アクメ");
+    const acme = await card("Acme");
     fireEvent.click(
       within(acme)
-        .getByRole("link", { name: "アクメを編集" })
+        .getByRole("link", { name: "Acmeを編集" })
         .querySelector(".photo-card__icon") as Element,
     );
     await waitFor(() =>
@@ -485,7 +483,7 @@ describe("テンプレートの編集", () => {
   it("overview と移動の帯の位置を持つ前の形のテンプレートは、1問ずつが選ばれ、保存で帯の位置を捨てる", async () => {
     created.set("sheet/acme", {
       ...defaultSheet,
-      label: "アクメ",
+      label: "Acme",
       layout: { ...defaultSheet.layout, base: "overview", navigation: "top" },
     });
     renderAt("/sheets/templates/acme");
@@ -678,16 +676,16 @@ describe("テンプレートの編集", () => {
   });
 
   it("最小の字の検査を持つテンプレートは、その字を割るところまで下げられない", async () => {
-    created.set("slide/civic", civicSlide);
-    renderAt("/slides/templates/civic");
+    created.set("slide/cobalt", cobaltSlide);
+    renderAt("/slides/templates/cobalt");
     const slider = (await screen.findByRole("slider", {
       name: "文字の大きさの倍率",
     })) as HTMLInputElement;
-    // Civic は最小の字(注記 18px)がすでに検査の下限なので、100% より下げない
+    // Cobalt は最小の字(注記 18px)がすでに検査の下限なので、100% より下げない
     expect(slider.min).toBe("100");
     expect(
       screen.getByText(
-        `このテンプレートは最小の字を ${civicSlide.checks.minFontSize}px と決めているので、100% より小さくできません。`,
+        `このテンプレートは最小の字を ${cobaltSlide.checks.minFontSize}px と決めているので、100% より小さくできません。`,
       ),
     ).toBeTruthy();
   });

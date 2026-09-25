@@ -12,6 +12,12 @@ const AT = "2026-09-18T00:00:00.000Z";
 
 const SAMPLE_IMAGE_SRC = "assets/sample-screen.jpg";
 
+// 設計図。ai-handout-studio diagram で書き出した画像(構成図とシーケンス図)
+const SAMPLE_DIAGRAMS = [
+  "sample-architecture.webp",
+  "sample-sequence.webp",
+] as const;
+
 // 見本の図。分かれ目・外・保管の形と、枝分かれ・合流の線を1枚に入れる
 const sampleFigure: FigureInput = {
   figure: 1,
@@ -183,6 +189,54 @@ const sample: DocumentFile = {
       ],
     },
     {
+      id: "diagram",
+      heading: "設計図",
+      level: 2,
+      blocks: [
+        {
+          id: "diagram-lede",
+          type: "text",
+          props: {
+            text: "構成・シーケンスのような設計図は ai-handout-studio diagram で画像に書き出し、画像として載せる。配色は図のものなので、テンプレートでは変わらない。",
+          },
+        },
+      ],
+    },
+    {
+      id: "diagram-architecture",
+      heading: "構成図",
+      level: 3,
+      blocks: [
+        {
+          id: "diagram-architecture-body",
+          type: "image",
+          props: {
+            src: `assets/${SAMPLE_DIAGRAMS[0]}`,
+            alt: "AI エージェント・CLI・API・画面・workspace・design・書き出しのつながり",
+            caption:
+              "構成図: エージェントが書いた JSON を保存し、画面で直して書き出す",
+          },
+        },
+      ],
+    },
+    {
+      id: "diagram-sequence",
+      heading: "シーケンス図",
+      level: 3,
+      blocks: [
+        {
+          id: "diagram-sequence-body",
+          type: "image",
+          props: {
+            src: `assets/${SAMPLE_DIAGRAMS[1]}`,
+            alt: "利用者・画面・API・workspace・印刷のあいだのやり取り",
+            caption:
+              "シーケンス図: 画面で書き出すを押してから PDF を受け取るまで",
+          },
+        },
+      ],
+    },
+    {
       id: "other",
       heading: "そのほかの部品",
       level: 2,
@@ -285,4 +339,8 @@ const sample: DocumentFile = {
 export const documentSample = (): DocumentFile => sample;
 
 export const documentSampleBody = (): string =>
-  documentBody(sample, SAMPLE_ORG_NAME, sampleImages(["sample-screen.jpg"]));
+  documentBody(
+    sample,
+    SAMPLE_ORG_NAME,
+    sampleImages(["sample-screen.jpg", ...SAMPLE_DIAGRAMS]),
+  );

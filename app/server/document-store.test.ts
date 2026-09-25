@@ -151,6 +151,9 @@ describe("document.json の言語", () => {
 });
 
 describe("画像の取り込みと埋め込み", () => {
+  // 見本の画像は、画面の写真1枚と設計図2枚
+  const SAMPLE_FILES = ["img-1.jpg", "img-2.webp", "img-3.webp"];
+  const SAMPLE_SRCS = SAMPLE_FILES.map((file) => `assets/${file}`);
   const imageSrcs = (doc: DocumentFile): string[] =>
     doc.sections.flatMap((section) =>
       section.blocks.flatMap((block) =>
@@ -161,8 +164,8 @@ describe("画像の取り込みと埋め込み", () => {
   it("手元の画像を assets/ へ写して参照を書き換え、描くときに data: で埋め込む", async () => {
     await create();
     const saved = await readSaved();
-    expect(imageSrcs(saved)).toEqual(["assets/img-1.jpg"]);
-    expect(await readdir(join(dirOf(), "assets"))).toEqual(["img-1.jpg"]);
+    expect(imageSrcs(saved)).toEqual(SAMPLE_SRCS);
+    expect(await readdir(join(dirOf(), "assets"))).toEqual(SAMPLE_FILES);
     const rendered = await renderHandout(
       context.root,
       designDir,
@@ -187,8 +190,8 @@ describe("画像の取り込みと埋め込み", () => {
       at(5),
     );
     expect(updated).toMatchObject({ success: true });
-    expect(imageSrcs(await readSaved())).toEqual(["assets/img-1.jpg"]);
-    expect(await readdir(join(dirOf(), "assets"))).toEqual(["img-1.jpg"]);
+    expect(imageSrcs(await readSaved())).toEqual(SAMPLE_SRCS);
+    expect(await readdir(join(dirOf(), "assets"))).toEqual(SAMPLE_FILES);
   });
 
   it("画像が無ければ保存せず、資料の場所も確保しない", async () => {

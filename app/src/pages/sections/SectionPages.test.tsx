@@ -11,7 +11,7 @@ const sheet = (overrides: Partial<HandoutSummary> = {}): HandoutSummary => ({
   kind: "sheet",
   id: "sheet_20260921_001",
   title: "見本",
-  template: "civic",
+  template: "cobalt",
   createdAt: "2026-09-21T00:30:00.000Z",
   updatedAt: "2026-09-21T09:05:00.000Z",
   questionCount: 3,

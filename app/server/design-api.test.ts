@@ -56,7 +56,7 @@ const send = (method: string, path: string, body?: unknown) =>
 
 // 移動の帯の位置(navigation)を持つ古い形。読むときに捨てる
 const acmeSheet = {
-  label: "アクメ",
+  label: "Acme",
   tokens: { color: { primary: "#0f766e" } },
   components: { table: { variant: "striped" } },
   layout: {
@@ -69,13 +69,13 @@ const acmeSheet = {
 };
 
 const acmeSlide = {
-  label: "アクメ",
+  label: "Acme",
   tokens: { color: { primary: "#0f766e" }, size: { h1: 40 } },
   components: { table: { variant: "lined" } },
 };
 
 const wideDocument = {
-  label: "幅広",
+  label: "Wide",
   components: {},
   layout: { columns: [720, 240], areas: [["main", "aside"]] },
 };
@@ -93,7 +93,7 @@ describe("デザインの API", () => {
       expect.arrayContaining(["default", "linen", "lumen"]),
     );
     expect(body.templates.sheet.map((entry) => entry.name)).toEqual([
-      "civic",
+      "cobalt",
       "default",
       "paper",
     ]);
@@ -101,7 +101,7 @@ describe("デザインの API", () => {
       body.templates.document.find((entry) => entry.name === "default"),
     ).toMatchObject({
       name: "default",
-      label: "AI Handout Studio Design",
+      label: "Default",
     });
     expect(body.tokens.color.primary).toMatch(/^#/);
     expect(Object.keys(body.components)).toContain("table");
@@ -122,7 +122,10 @@ describe("デザインの API", () => {
       null,
     );
     // 見本を持つのはスライドだけ。ほかの区分は名前が合っていても null
-    const sheet = await send("GET", "/api/design/templates/sheet/civic/sample");
+    const sheet = await send(
+      "GET",
+      "/api/design/templates/sheet/cobalt/sample",
+    );
     expect(((await sheet.json()) as DesignTemplateSampleDetail).sample).toBe(
       null,
     );
@@ -163,7 +166,7 @@ describe("デザインの API", () => {
       JSON.parse(await css("sheet/templates.json")) as unknown,
     ).toMatchObject({
       default: "acme",
-      templates: { acme: { label: "アクメ", base: "focus" } },
+      templates: { acme: { label: "Acme", base: "focus" } },
     });
   });
 
@@ -173,7 +176,7 @@ describe("デザインの API", () => {
     });
     await writeFile(
       join(context.dir, "templates", "sheet", "old", "template.json"),
-      JSON.stringify({ ...acmeSheet, label: "前の形" }),
+      JSON.stringify({ ...acmeSheet, label: "Legacy" }),
     );
     const response = await send("GET", "/api/design/templates/sheet/old");
     expect(response.status).toBe(200);
@@ -280,19 +283,19 @@ describe("デザインの API", () => {
   it("複製で作ると、元の専用の CSS(template.css)も写す。持たないテンプレートはそのまま", async () => {
     const dir = join(context.dir, "templates", "document");
     const sourceCss = await readFile(
-      join(dir, "civic", "template.css"),
+      join(dir, "cobalt", "template.css"),
       "utf8",
     );
-    const civicTemplate = JSON.parse(
-      await readFile(join(dir, "civic", "template.json"), "utf8"),
+    const cobaltTemplate = JSON.parse(
+      await readFile(join(dir, "cobalt", "template.json"), "utf8"),
     );
     const created = await send(
       "PUT",
-      "/api/design/templates/document/civic-2",
-      { template: civicTemplate, create: true, source: "civic" },
+      "/api/design/templates/document/cobalt-2",
+      { template: cobaltTemplate, create: true, source: "cobalt" },
     );
     expect(created.status).toBe(201);
-    expect(await readFile(join(dir, "civic-2", "template.css"), "utf8")).toBe(
+    expect(await readFile(join(dir, "cobalt-2", "template.css"), "utf8")).toBe(
       sourceCss,
     );
     // 元がそもそも専用の CSS を持たないなら、複製先にも作らない
@@ -382,7 +385,7 @@ describe("デザインの API", () => {
       "--doc-measure: 640px;",
     );
     const registry = JSON.parse(await css("templates.json"));
-    expect(registry.slide.acme.label).toBe("アクメ");
+    expect(registry.slide.acme.label).toBe("Acme");
     expect(registry.slide.acme.variables["--fs-h1"]).toBe("40px");
     await rm(join(context.dir, "templates", "slide", "acme"), {
       recursive: true,

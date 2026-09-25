@@ -1,9 +1,9 @@
 This project is licensed under the MIT License (see LICENSE). It also includes
 the following third-party material.
 
-## Civic template (design/templates/slide/civic, document/civic, sheet/civic)
+## Cobalt template (design/templates/slide/cobalt, document/cobalt, sheet/cobalt)
 
-The "Civic" template's design values (color steps, type scale, border widths,
+The "Cobalt" template's design values (color steps, type scale, border widths,
 corner radius, spacing) are copied and adapted from the CSS of the Digital
 Agency of Japan's Design System example components:
 https://github.com/digital-go-jp/design-system-example-components-html

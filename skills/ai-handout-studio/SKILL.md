@@ -145,7 +145,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 ## 見た目とテンプレート
 
 - 色・書体・飾り(表紙のウェーブ、本文の帯、見出しの線など)はテンプレートが決める。飾りを図形や色付きのブロックで描かず、ブロックに色を書かない
-- 見た目のテンプレートは英語一語の固有名(`default`=AI Handout Studio Design、`civic`=Civic、`lumen`=Lumen など)。名前と説明は `ai-handout-studio templates --kind slide` で調べる。利用者が選んだときは `deck.json` の `template` に識別子を書く。中身の構成(`proposal` など)はテンプレートではなく、`template` には書かない。どちらも ai-handout-studio の `design/templates/slide/` にある
+- 見た目のテンプレートは英語一語の固有名(`default`=Default、`cobalt`=Cobalt、`lumen`=Lumen など)。名前と説明は `ai-handout-studio templates --kind slide` で調べる。利用者が選んだときは `deck.json` の `template` に識別子を書く。中身の構成(`proposal` など)はテンプレートではなく、`template` には書かない。どちらも ai-handout-studio の `design/templates/slide/` にある
 - テンプレートの飾りは基本配置(見出し `y48`、本文 `y176` から)に合わせてある。見出しは基本配置に置く
 - テンプレートそのものの見た目(変数では表せない帯や見出しの作り)を直す・作るときは、ai-handout-studio リポジトリで `design/templates/<区分>/<名前>/template.css` に書く。書き方は `design/templates/README.md`
 

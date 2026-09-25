@@ -12,6 +12,7 @@ import { createExporter } from "./exporter.ts";
 import { toLoopbackAddress } from "./loopback.ts";
 import { migrateProfile, readSettings } from "./profile.ts";
 import { guardLocalRequests } from "./request-guard.ts";
+import { migrateRenamedTemplates } from "./template-renames.ts";
 import { migrateOutlineDecks } from "./workspace.ts";
 
 type ServerLike = {
@@ -71,6 +72,15 @@ export const aiHandoutStudioApi = (
       if (templates.migrated) {
         console.log(
           `[ai-handout-studio] テーマと型をテンプレートへ移した: ${templates.templates.join(", ")}`,
+        );
+      }
+      const renamed = await migrateRenamedTemplates(
+        options.workspaceRoot,
+        designDir,
+      );
+      if (renamed.length > 0) {
+        console.log(
+          `[ai-handout-studio] 名前を変えたテンプレートを使う資料を付け替えた: ${renamed.join(", ")}`,
         );
       }
       const moved = await migrateOutlineDecks(options.workspaceRoot, designDir);

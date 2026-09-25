@@ -78,7 +78,7 @@ const resolve = (
   );
 
 const baseTemplate = {
-  label: "アクメ",
+  label: "Acme",
   components: { table: { variant: "lined" } },
 };
 
@@ -632,9 +632,9 @@ describe("文字の大きさの倍率(textScale)", () => {
     expect(minTextScale(sizes({ small: 12 }), 14)).toBe(1);
   });
 
-  it("最小の字の検査を持つ Civic は、どの区分も 100% より下げられない", () => {
+  it("最小の字の検査を持つ Cobalt は、どの区分も 100% より下げられない", () => {
     for (const surface of surfaceNames) {
-      const template = templateOf(surface, "civic");
+      const template = templateOf(surface, "cobalt");
       expect(template.checks?.minFontSize).toBeDefined();
       expect(
         minTextScale(

@@ -8,9 +8,11 @@ import {
 import { mergeComponents } from "../src/design/theme.ts";
 import {
   type DocumentLayout,
+  isTemplateLabel,
   isTemplateName,
   type LayoutOf,
   type LayoutSurface,
+  labelOfTemplateName,
   layoutSchemas,
   layoutSurfaceNames,
   type Selection,
@@ -141,10 +143,11 @@ const readLegacyLayouts = async <S extends LayoutSurface>(
         ? [
             {
               name,
+              // 表示名は英語にする。英語でない名前は識別子から作る
               label:
-                typeof label === "string" && label.trim().length > 0
-                  ? label.trim().slice(0, 40)
-                  : name,
+                typeof label === "string" && isTemplateLabel(label.trim())
+                  ? label.trim()
+                  : labelOfTemplateName(name),
               layout: layout.data as LayoutOf[S],
             },
           ]
@@ -292,11 +295,7 @@ export const migrateToTemplates = async (
       surface,
       from: name,
       fromTheme: true,
-      template: templateFrom(
-        surface,
-        theme,
-        name === "default" ? "AI Handout Studio Design" : name,
-      ),
+      template: templateFrom(surface, theme, labelOfTemplateName(name)),
     })),
   );
   // 選ばれていない型のうち用意した骨格と違うものは、その区分で選ばれていたテーマの値でテンプレートにする

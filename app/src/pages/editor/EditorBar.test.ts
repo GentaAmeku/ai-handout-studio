@@ -20,7 +20,7 @@ const deck = (overrides: Partial<Deck> = {}): Deck =>
   ({
     id: "deck_20260921_001",
     title: "見本",
-    template: "civic",
+    template: "cobalt",
     size: { width: 1280, height: 720 },
     status: "draft",
     meta: {
