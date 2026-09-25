@@ -84,6 +84,19 @@ describe("質問票の案の画像の拡大", () => {
     await expect.poll(() => dialog.isVisible()).toBe(false);
     // src を外すのは close イベント(ダイアログが閉じたあとに届く)
     await expect.poll(() => zoomed.getAttribute("src")).toBe(null);
+
+    // 閉じたらフォーカスは元の画像に戻り、輪は画像ではなくカードの枠に出る
+    const image = page.locator(".ds-images-item img").first();
+    const frame = page.locator(".ds-images-item .ds-figure-frame").first();
+    await expect
+      .poll(() => image.evaluate((node) => node === document.activeElement))
+      .toBe(true);
+    expect(
+      await image.evaluate((node) => getComputedStyle(node).outlineStyle),
+    ).toBe("none");
+    expect(
+      await frame.evaluate((node) => getComputedStyle(node).outlineStyle),
+    ).toBe("solid");
     await page.close();
   });
 });

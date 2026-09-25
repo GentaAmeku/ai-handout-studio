@@ -561,6 +561,21 @@ body:has(> .ds-board) {
   box-shadow: 0 0 0 calc(var(--focus-width) * 2) var(--color-focus-ring);
 }
 
+/* フォーカスの輪は画像ではなく、画像を囲むカードの枠(角丸)に描く。
+   :has() を読めないブラウザーでは、上の画像の輪のまま */
+@supports selector(:has(*)) {
+  .ds-image-zoomable:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .ds-images-item .ds-figure-frame:has(> .ds-image-zoomable:focus-visible) {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-width);
+    box-shadow: 0 0 0 calc(var(--focus-width) * 2) var(--color-focus-ring);
+  }
+}
+
 /* 拡大した画像を画面いっぱいに出すダイアログ。.ds-dialog より広く、中身は縦に並べて画像を余った高さいっぱいに見せる。
    display は開いているときだけ決める。ここで常に決めると、ブラウザーの「閉じたダイアログは隠す」
    (dialog:not([open]) の display: none)より強くなり、閉じていてもページの末尾に枠が出る */
