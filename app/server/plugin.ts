@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { getRequestListener } from "@hono/node-server";
 import type { Connect, Plugin } from "vite";
@@ -48,6 +49,7 @@ export const aiHandoutStudioApi = (
   };
   const attach = (
     server: ServerLike & { middlewares: Connect.Server },
+    { alwaysBuildCss }: { alwaysBuildCss: boolean },
   ): void => {
     current.server = server;
     // 別のサイトと LAN のほかの端末からの書き込みを、API より前に断る
@@ -56,8 +58,11 @@ export const aiHandoutStudioApi = (
     server.middlewares.use(handle);
     // 旧いテーマと型(段 I より前)をテンプレートへ移し、
     // 旧い profile.json の色(段 B より前)とテーマ(段 G より前)を design/ へ移す。どちらも起動時に一度だけ。
-    // そのあと dist の CSS を毎回作り直す。git pull で design/ だけ変わっても、
-    // 画面・プレビュー・書き出しが古い dist を読まないように(dist は git に入れていない)
+    // 画面が読む dist/templates.json・slide-templates.css が無ければ(段 I の後の初回)、CSS を作り直す。
+    // 開発サーバーは、これより前に dev-sync.mjs(pnpm dev・open・restart が起動前に揃える)が
+    // design/ の指紋で判って作り直しているので、ここでは無ければ作るだけでよい。
+    // vite preview(pnpm start)は dev-sync.mjs の対象外で、古い dist を掴んだまま起動しうるので、
+    // そちらは alwaysBuildCss で毎回作り直す
     const designDir = join(options.repoRoot, "design");
     void migrateToTemplates(designDir).then(async (templates) => {
       if ("error" in templates) {
@@ -82,8 +87,14 @@ export const aiHandoutStudioApi = (
           "[ai-handout-studio] プロフィールの色とテーマを design/ へ移した",
         );
       }
-      const built = await buildDesignCss(designDir);
-      if (!built.success) console.error(`[ai-handout-studio] ${built.message}`);
+      const missing = ["templates.json", "slide-templates.css"].some(
+        (file) => !existsSync(join(designDir, "dist", file)),
+      );
+      if (alwaysBuildCss || templates.migrated || missing) {
+        const built = await buildDesignCss(designDir);
+        if (!built.success)
+          console.error(`[ai-handout-studio] ${built.message}`);
+      }
       // 初めて起きたとき(資料が1件も無く、印も無い)だけ、同梱資料を設定の言語で入れる
       const examples = await installExamplesIfEmpty({
         workspaceRoot: options.workspaceRoot,
@@ -105,8 +116,9 @@ export const aiHandoutStudioApi = (
   };
   return {
     name: "ai-handout-studio-api",
-    configureServer: attach,
-    configurePreviewServer: attach,
+    configureServer: (server) => attach(server, { alwaysBuildCss: false }),
+    configurePreviewServer: (server) =>
+      attach(server, { alwaysBuildCss: true }),
     // 画面の言語は設定の locale で決める(149)。開発サーバーはリクエストごとに
     // <html lang> へ入れ直すので、開き直すだけで切り替わる(サーバーの起こし直しは要らない)。
     // ビルド済みを配るとき(ctx.server が無い)は、画面が起動後に /api/profile の locale で直す
