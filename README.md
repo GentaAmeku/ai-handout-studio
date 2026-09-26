@@ -90,12 +90,10 @@ what it runs under the hood.
 
 ## Known limits
 
-- The design system's built-in sample content (in `design/templates/slide/*/sample.json`)
-  is written in Japanese, regardless of your chosen language. It only
-  affects the preview shown while picking a template — handouts you create
-  use the language you set.
-- Screen text and generated handouts support Japanese and English
-  (`settings --set locale=en`).
+- Screen text, template samples and generated handouts support Japanese
+  and English (`settings --set locale=en`).
+- The images in the HTML document and question sheet samples (screenshots
+  and diagrams) show the Japanese screens, even in the English samples.
 
 ## License
 

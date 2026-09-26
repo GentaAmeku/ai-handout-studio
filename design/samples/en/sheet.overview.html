@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- 生成物。design/ の JSON から pnpm design:build で作る。手で直さない -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Question sheet sample (overview)</title>
+<link rel="stylesheet" href="../../dist/fonts.css" />
+<link rel="stylesheet" href="../../dist/sheet/tokens.css" />
+<link rel="stylesheet" href="../../dist/document.css" />
+<link rel="stylesheet" href="../../dist/interaction.css" />
+</head>
+<body>
+<main class="ds-board" data-layout="focus" id="app"><header class="ds-board-heading"><div class="ds-signature"><span>Organization</span></div><div class="ds-board-title"><h1>Decide how to proceed with the update</h1><p class="ds-subtle">This is a made-up sample. Check the test results and the scope of the change, then choose your answers.</p></div><div class="ds-board-actions"><button type="button" class="ds-button">Save draft</button><button type="button" class="ds-button ds-sidebar-toggle" aria-controls="question-sidebar" aria-expanded="true">Close question list</button></div></header><div class="ds-board-layout"><aside id="question-sidebar" class="ds-question-sidebar"><h2>Question list</h2><p class="ds-subtle" aria-live="polite"><span data-done-count="">1</span> / 4 answered</p><nav aria-label="Question list"><ol class="ds-question-nav"><li><button type="button" class="ds-question-link"><span class="ds-question-number">01</span><span class="ds-question-name">Which option should the update follow?</span><span class="ds-status" data-complete="true">✓ Answered</span></button></li><li><button type="button" class="ds-question-link" aria-current="step"><span class="ds-question-number">02</span><span class="ds-question-name">Where should a person review?</span><span class="ds-status" data-complete="false">Prefilled</span></button></li><li><button type="button" class="ds-question-link"><span class="ds-question-number">03</span><span class="ds-question-name">What should be checked before release?</span><span class="ds-status" data-complete="false">Not answered</span></button></li><li><button type="button" class="ds-question-link"><span class="ds-question-number">04</span><span class="ds-question-name">Which look should the list follow?</span><span class="ds-status" data-complete="false">Not answered</span></button></li></ol></nav><button type="button" class="ds-button">Answer list</button></aside><section class="ds-question-content" data-question="1" data-qid="approval" data-qtype="single" data-qtitle="Where should a person review?" aria-labelledby="question-heading"><article class="ds-question-card"><p class="ds-question-count">Question 2 / 4</p><div class="ds-question-title-row"><h2 id="question-heading" tabindex="-1">Where should a person review?</h2></div><p class="ds-question-summary">The flow from an AI-made fix to production.</p><div class="ds-inline-visual"><!-- ai-handout-studio 図の生成器の出力。手で直さず、入力の JSON を直して作り直す。 -->
+<figure class="ds-figure">
+  <div class="ds-figure-frame">
+    <svg width="374" height="234" viewBox="-1 -1 374 234" role="img" aria-label="A flow diagram from top to bottom. From &quot;Fix and test&quot; to &quot;A person reviews&quot;. &quot;A person reviews&quot; splits into 2: &quot;Keep fixing&quot;, &quot;Release to production&quot;.">
+      <line class="ds-link" x1="186" y1="48" x2="186" y2="84"/>
+      <polygon class="ds-arrow" points="182,84 190,84 186,92"/>
+      <line class="ds-link" x1="186" y1="140" x2="186" y2="162"/>
+      <line class="ds-link" x1="88" y1="162" x2="284" y2="162"/>
+      <line class="ds-link" x1="88" y1="162" x2="88" y2="176"/>
+      <polygon class="ds-arrow" points="84,176 92,176 88,184"/>
+      <line class="ds-link" x1="284" y1="162" x2="284" y2="176"/>
+      <polygon class="ds-arrow" points="280,176 288,176 284,184"/>
+      <rect class="ds-node" x="98" y="0" width="176" height="48"/>
+      <text x="186" y="29" text-anchor="middle">Fix and test</text>
+      <polygon class="ds-node" points="112,92 260,92 274,116 260,140 112,140 98,116"/>
+      <text x="186" y="121" text-anchor="middle">A person reviews</text>
+      <rect class="ds-node" x="0" y="184" width="176" height="48"/>
+      <text x="88" y="213" text-anchor="middle">Keep fixing</text>
+      <rect class="ds-node" x="196" y="184" width="176" height="48"/>
+      <text x="284" y="213" text-anchor="middle">Release to production</text>
+    </svg>
+  </div>
+  <figcaption>In the initial proposal, nothing goes to production until a person has reviewed it.</figcaption>
+</figure></div><div class="ds-notice ds-notice-info"><span class="ds-notice-label">ⓘ Info</span><p>The figure shows the initial proposal. Rewriting your answer doesn't change it.</p></div><div class="ds-notice ds-notice-warning"><span class="ds-notice-label">⚠ Warning</span><p>This answer alone doesn't approve a release to production.</p></div></article><div class="ds-answer-section"><h3>Your answer</h3><fieldset class="ds-options"><legend class="ds-sr-only">Answer choices</legend><label class="ds-choice"><input type="radio" name="approval" value="before" data-mutation="" checked><span>Review before it goes to production (recommended)</span></label><label class="ds-choice"><input type="radio" name="approval" value="after" data-mutation=""><span>Review the result after release</span></label></fieldset><label class="ds-field">Answer text<textarea class="ds-input" rows="3" maxlength="20000" data-mutation="" data-note="">Review before it goes to production (recommended)</textarea></label><p class="ds-subtle">Choosing an option fills in the answer text. You can edit the wording freely.</p></div><p class="ds-error" role="alert" hidden=""></p></section></div><nav class="ds-page-navigation" aria-label="Move between questions"><button type="button" class="ds-button">Back</button><p class="ds-page-progress" aria-live="polite"><span data-progress="">Question 2 / 4</span><span><span data-done-count="">1</span> answered</span></p><button type="button" class="ds-button ds-button-primary">Next question</button></nav><footer class="ds-board-tools"><p class="ds-subtle" role="status" aria-live="polite">Your draft is saved.</p><details><summary>Load a saved draft</summary><input type="file" accept=".json,application/json" class="ds-input" aria-label="Load draft JSON" data-mutation=""></details><p class="ds-subtle">A made-up consultation. Your answers don't trigger any outside actions.</p></footer></main>
+</body>
+</html>

@@ -36,8 +36,9 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    // 日時の表示は手元の時刻帯で書く。期待値は日本時間なので、CI(UTC)でも同じになるよう固定する
-    env: { TZ: "Asia/Tokyo" },
+    // 日時の表示は手元の時刻帯で書く。期待値は日本時間なので、CI(UTC)でも同じになるよう固定する。
+    // 設定の locale が無いときの言語(中身の見本の言語も)は LANG で決まる。期待値は日本語なので固定する
+    env: { TZ: "Asia/Tokyo", LANG: "ja_JP.UTF-8" },
     // 面が読む値(app/src/design/surface-usage.ts)は部品の CSS を ?raw で読む。
     // テストは既定で CSS を空にするので、この3枚と、テンプレートの専用の CSS(template.css)だけは中身を通す
     css: {

@@ -150,7 +150,7 @@ export const createApi = ({
     const result = await createDeckFromOutline(
       workspaceRoot,
       designDir,
-      body.data,
+      { ...body.data, lang: (await readSettings(workspaceRoot)).locale },
       now(),
     );
     if (!result.success) {
@@ -412,6 +412,7 @@ export const createApi = ({
     designDir,
     designBuilder,
     async () => (await readProfile(workspaceRoot))?.orgName || undefined,
+    async () => (await readSettings(workspaceRoot)).locale,
   );
   registerHandoutRoutes(app, { repoRoot, workspaceRoot, designDir, now });
 

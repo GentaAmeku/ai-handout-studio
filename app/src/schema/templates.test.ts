@@ -1,13 +1,49 @@
 import { describe, expect, it } from "vitest";
+import catalogEn from "../dev/block-catalog.en.json";
 import catalog from "../dev/block-catalog.json";
 import { isKnownBlock, knownBlockTypes } from "./block";
-import { SLIDE_HEIGHT, SLIDE_WIDTH, validateDeck } from "./deck";
+import { SLIDE_HEIGHT, SLIDE_WIDTH, type Slide, validateDeck } from "./deck";
 import { slideSampleSchema, slideTemplateSchema } from "./design";
 
 const samples = import.meta.glob<unknown>(
   "../../../design/templates/slide/*/sample.json",
   { eager: true, import: "default" },
 );
+
+// 英語の見本(sample.en.json)。日本語の見本の隣に置く
+const englishSamples = import.meta.glob<unknown>(
+  "../../../design/templates/slide/*/sample.en.json",
+  { eager: true, import: "default" },
+);
+
+// 文の中身を除いた形(ページとブロックの id・種類・座標)。英語の見本は日本語と同じ形にする
+const shapeOf = (deck: { slides: readonly Slide[] }) =>
+  deck.slides.map((slide) => ({
+    id: slide.id,
+    layout: slide.layout,
+    blocks: slide.blocks.map(({ id, type, x, y, w, h }) => ({
+      id,
+      type,
+      x,
+      y,
+      w,
+      h,
+    })),
+  }));
+
+// 未記入の印([[要確認]])は英語の資料でも同じなので、それを除いて日本語の文字を探す
+const japaneseIn = (value: unknown): string[] =>
+  typeof value === "string"
+    ? /[\u3000-\u30ff\u4e00-\u9fff\uff00-\uffef]/.test(
+        value.replaceAll("[[要確認]]", ""),
+      )
+      ? [value]
+      : []
+    : Array.isArray(value)
+      ? value.flatMap(japaneseIn)
+      : value !== null && typeof value === "object"
+        ? Object.values(value).flatMap(japaneseIn)
+        : [];
 
 // テンプレートに同梱の絵。中身は読まず、あるかだけを見る
 const templateAssets = import.meta.glob(
@@ -104,6 +140,26 @@ describe("design/templates/slide/ の中身の見本", () => {
     ).toEqual([]);
   });
 
+  it("中身の見本はどれも英語の見本(sample.en.json)を持つ", () => {
+    expect(Object.keys(englishSamples).sort()).toEqual(
+      Object.keys(samples)
+        .map((path) => path.replace(/sample\.json$/, "sample.en.json"))
+        .sort(),
+    );
+  });
+
+  it.each(Object.entries(englishSamples))(
+    "%s は日本語の見本と同じ形で、日本語が残らない",
+    (path, data) => {
+      const japanese =
+        samples[path.replace(/sample\.en\.json$/, "sample.json")];
+      expect(shapeOf(validateDeck(asDeck(data)))).toEqual(
+        shapeOf(validateDeck(asDeck(japanese))),
+      );
+      expect(japaneseIn(data)).toEqual([]);
+    },
+  );
+
   it("提案の見本は12〜20枚", () => {
     const deck = validateDeck(asDeck(samples[PROPOSAL]));
     expect(deck.slides.length).toBeGreaterThanOrEqual(12);
@@ -124,6 +180,13 @@ describe("design/templates/ のテンプレート", () => {
 });
 
 describe("確認用デッキ", () => {
+  it("英語の一覧は日本語と同じ形で、日本語が残らない", () => {
+    expect(shapeOf(validateDeck(catalogEn))).toEqual(
+      shapeOf(validateDeck(catalog)),
+    );
+    expect(japaneseIn(catalogEn)).toEqual([]);
+  });
+
   it("初期10種と未知の type を含む", () => {
     const blocks = validateDeck(catalog).slides.flatMap(
       (slide) => slide.blocks,

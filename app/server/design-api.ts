@@ -19,6 +19,7 @@ import {
   templateSchemas,
   withTextScale,
 } from "../src/schema/design.ts";
+import type { Locale } from "../src/schema/profile.ts";
 import {
   type BuildResult,
   missingInSelection,
@@ -27,6 +28,7 @@ import {
   readSlideSample,
   readTemplate,
   readTemplates,
+  SAMPLE_LANGS,
   samplePath,
   selectionPath,
   templateAssetNames,
@@ -62,11 +64,18 @@ const SAMPLE_CSP =
 
 const errorBody = (error: string): ApiErrorBody => ({ error });
 
-// 見本の HTML の区分。samples/slide.html・document.html・sheet.<骨格>.html
-const sampleSurface = (file: string): Surface | undefined =>
-  surfaceNames.find(
+// 見本の HTML の区分。samples/slide.html・document.html・sheet.<骨格>.html。
+// 英語の見本は samples/en/ に同じ名前で置く
+const sampleSurface = (path: string): Surface | undefined => {
+  const file = SAMPLE_LANGS.reduce(
+    (rest, lang) =>
+      rest.startsWith(`${lang}/`) ? rest.slice(lang.length + 1) : rest,
+    path,
+  );
+  return surfaceNames.find(
     (surface) => file === `${surface}.html` || file.startsWith(`${surface}.`),
   );
+};
 
 // 見本を別のテンプレートで描く(?template=<名前>)。既定の写し(tokens.css)をそのテンプレートの CSS に替え、
 // スライドは専用の CSS の閉じ込め(data-template)もその名前にする
@@ -106,6 +115,8 @@ export const registerDesignRoutes = (
   build: DesignBuilder | undefined,
   // 見本に出す設定の組織名。渡さなければ見本から組織名を外す
   readOrgName: () => Promise<string | undefined> = async () => undefined,
+  // 中身の見本の言語。設定の locale
+  readLocale: () => Promise<Locale> = async () => "ja",
 ): void => {
   // 区分と名前はパスの組み立てに使うので、形の違うものはここで止める
   const checkTarget: MiddlewareHandler = async (c, next) => {
@@ -184,12 +195,15 @@ export const registerDesignRoutes = (
   });
 
   // テンプレートが持つ中身の見本(sample.json)。一覧のカードと編集画面がこれを描く。
+  // 設定の言語の見本(sample.en.json)があればそれを返す。
   // 持たないテンプレートは sample を null で返し、画面は共通の見本に落とす
   app.get("/design/templates/:surface/:name/sample", async (c) => {
     const surface = surfaceName.parse(c.req.param("surface"));
     const name = c.req.param("name");
     const sample =
-      surface === "slide" ? await readSlideSample(designDir, name) : undefined;
+      surface === "slide"
+        ? await readSlideSample(designDir, name, await readLocale())
+        : undefined;
     const detail: DesignTemplateSampleDetail = {
       surface,
       name,
@@ -241,10 +255,14 @@ export const registerDesignRoutes = (
     // 中身の見本は画面で直さないので、ファイルのまま写す。元に無ければ写さない。
     // 見本が読む同梱の絵(スライドの assets/)と、専用の CSS(template.css)も一緒に写す
     if (source !== undefined) {
-      const from = samplePath(designDir, surface, source);
-      if (await exists(from)) {
-        await copyFile(from, samplePath(designDir, surface, name));
-      }
+      await Promise.all(
+        (["ja", ...SAMPLE_LANGS] as const).map(async (lang) => {
+          const from = samplePath(designDir, surface, source, lang);
+          if (await exists(from)) {
+            await copyFile(from, samplePath(designDir, surface, name, lang));
+          }
+        }),
+      );
       const ownCssFrom = templateStylePath(designDir, surface, source);
       if (await exists(ownCssFrom)) {
         await copyFile(ownCssFrom, templateStylePath(designDir, surface, name));

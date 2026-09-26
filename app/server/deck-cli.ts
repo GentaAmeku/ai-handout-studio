@@ -31,6 +31,7 @@ import {
   urlLines,
 } from "./handout-cli.ts";
 import { handoutKindOf } from "./handouts.ts";
+import { readLocale } from "./profile.ts";
 import { isShotTarget } from "./shot.ts";
 import {
   claimDeckDir,
@@ -531,7 +532,12 @@ export const createDeckForAgent = async ({
     ? await createDeckFromOutline(
         workspaceRoot,
         designDir,
-        { outlineId, templateId, title },
+        {
+          outlineId,
+          templateId,
+          title,
+          lang: await readLocale(workspaceRoot),
+        },
         now,
       )
     : { success: true as const, deck: undefined };
