@@ -10,7 +10,10 @@
   letter-spacing: -0.01em;
 }
 
+/* 小見出しは1行の札なので行送りを詰める。24px の小見出しと 44px の見出しを、
+   基本配置の見出しの枠(h96)に収める */
 .ds-heading__kicker {
+  line-height: 1;
   letter-spacing: 0.08em;
 }
 

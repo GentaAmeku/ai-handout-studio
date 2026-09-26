@@ -22,7 +22,7 @@ describe("buildFontAssets", () => {
     await buildFontAssets(context.dir);
     const target = join(context.dir, "dist", "fonts.css");
     const css = await readFile(target, "utf8");
-    const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(([, url]) =>
+    const urls = [...css.matchAll(/url\(([^)]+)\)/g)].map(([, url = ""]) =>
       url.replace(/^["']|["']$/g, ""),
     );
     expect(urls.length).toBeGreaterThan(0);
