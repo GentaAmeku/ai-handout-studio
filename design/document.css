@@ -42,8 +42,12 @@ body:has(> .ds-page) {
   background: var(--color-bg);
 }
 
-/* 本文・脇・目次の並び。テーマの文書の骨格(--doc-*)が決める */
+/* 本文・脇・目次の並び。テーマの文書の骨格(--doc-*)が決める。
+   上の空きはここが持つ(要約は下に空きを持たない)。題名や要約が無いとき、章ごとに読む2章目からも、
+   署名の罫や題名に目次・本文が付かず、どの組み合わせでも同じ幅になる。
+   .ds-cols を畳む骨格(display: contents)では効かず、升目の行が決める */
 .ds-cols {
+  margin-top: var(--space-slide);
   display: var(--doc-cols-display, grid);
   grid-template-columns: var(--doc-columns);
   grid-template-rows: var(--doc-rows);
@@ -184,7 +188,7 @@ code {
 /* ---------- 要約 ---------- */
 
 .ds-summary {
-  margin: var(--space-slide) 0;
+  margin: var(--space-slide) 0 0;
   padding: var(--space-card);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -824,7 +828,6 @@ ol.ds-ordered {
     .ds-main
     > section
     > :is(h2, h3):first-child {
-    margin-top: var(--space-gap);
     font-size: var(--fs-page-title);
     line-height: var(--lh-display);
   }

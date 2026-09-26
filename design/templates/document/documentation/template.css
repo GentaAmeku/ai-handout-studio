@@ -64,6 +64,11 @@
   border-radius: var(--radius);
 }
 
+/* 目次と脇が上下に自分の余白を持つので、縦に積む狭い画面と印刷でも題名の塊との間を足さない */
+.ds-cols {
+  margin-top: 0;
+}
+
 .ds-summary .ds-label {
   color: var(--color-heading);
 }
