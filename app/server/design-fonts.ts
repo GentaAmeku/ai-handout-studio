@@ -40,7 +40,7 @@ const buildFontPackage = async (
   await Promise.all(
     files.map((name) => copyFile(join(filesDir, name), join(targetDir, name))),
   );
-  return css.replaceAll("url(./files/", `url(./${dir}/`);
+  return css.replaceAll("url(./files/", `url(./fonts/${dir}/`);
 };
 
 // design/dist/fonts.css と design/dist/fonts/**。samples/ と読む画面はここを self で読む
