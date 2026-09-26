@@ -1,0 +1,705 @@
+{
+  "label": "Proposal",
+  "meta": {
+    "audience": "",
+    "tags": ["Proposal"]
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 64,
+          "y": 200,
+          "w": 820,
+          "h": 160,
+          "props": {
+            "kicker": "Proposal",
+            "text": "(Proposal title)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 64,
+          "y": 384,
+          "w": 820,
+          "h": 32,
+          "props": {
+            "text": "For (recipient)"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "text",
+          "x": 64,
+          "y": 424,
+          "w": 820,
+          "h": 32,
+          "props": {
+            "text": "[[要確認]] (Submission date)"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Contents",
+            "text": "Today's agenda",
+            "level": 1
+          }
+        },
+        {
+          "id": "b06",
+          "type": "bullets",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 440,
+          "props": {
+            "marker": "number",
+            "items": [
+              "Where things stand",
+              "Challenges",
+              "Approach",
+              "Scope",
+              "Process and schedule",
+              "Estimate",
+              "Assumptions"
+            ]
+          }
+        },
+        {
+          "id": "b07",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b08",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Where things stand",
+            "text": "(Sum up where things stand in one sentence)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b09",
+          "type": "two-col",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 440,
+          "props": {
+            "left": {
+              "title": "The business",
+              "body": "(What we heard about the business)"
+            },
+            "right": {
+              "title": "Work so far",
+              "body": "(What's been tried, and how it went)"
+            }
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Challenges",
+            "text": "(The problem to solve, in one sentence)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b12",
+          "type": "card-grid",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 240,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "Challenge 1",
+                "body": "(What's happening, and why it's a problem)",
+                "icon": "search"
+              },
+              {
+                "title": "Challenge 2",
+                "body": "(What's happening, and why it's a problem)",
+                "icon": "users"
+              },
+              {
+                "title": "Challenge 3",
+                "body": "(What's happening, and why it's a problem)",
+                "icon": "clock"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b13",
+          "type": "text",
+          "x": 64,
+          "y": 448,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "text": "(How the challenges relate, and which comes first)"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "section",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "heading",
+          "x": 64,
+          "y": 280,
+          "w": 1152,
+          "h": 120,
+          "props": {
+            "kicker": "Our proposal",
+            "text": "(The core of the proposal, in one sentence)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b16",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b17",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Approach",
+            "text": "(The approach, in one sentence)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b18",
+          "type": "text",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "(The key points of the approach, in about two sentences)"
+          }
+        },
+        {
+          "id": "b19",
+          "type": "card-grid",
+          "x": 64,
+          "y": 264,
+          "w": 1152,
+          "h": 240,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "Approach 1",
+                "body": "(Which challenge it addresses, and how)",
+                "icon": "target"
+              },
+              {
+                "title": "Approach 2",
+                "body": "(Which challenge it addresses, and how)",
+                "icon": "lightbulb"
+              },
+              {
+                "title": "Approach 3",
+                "body": "(Which challenge it addresses, and how)",
+                "icon": "rocket"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b20",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b21",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Goals",
+            "text": "Target state and measures",
+            "level": 1
+          }
+        },
+        {
+          "id": "b22",
+          "type": "kpi-row",
+          "x": 64,
+          "y": 192,
+          "w": 1152,
+          "h": 184,
+          "props": {
+            "items": [
+              {
+                "value": "[[要確認]]",
+                "label": "(Measure 1)",
+                "note": "(How it's measured)"
+              },
+              {
+                "value": "[[要確認]]",
+                "label": "(Measure 2)",
+                "note": "(How it's measured)"
+              },
+              {
+                "value": "[[要確認]]",
+                "label": "(Measure 3)",
+                "note": "(How it's measured)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b23",
+          "type": "text",
+          "x": 64,
+          "y": 408,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "(Where the numbers come from, and when they're measured)"
+          }
+        },
+        {
+          "id": "b24",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b25",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Scope",
+            "text": "What's in scope this time",
+            "level": 1
+          }
+        },
+        {
+          "id": "b26",
+          "type": "two-col",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 440,
+          "props": {
+            "left": {
+              "title": "In scope",
+              "body": "(What we'll do this time)"
+            },
+            "right": {
+              "title": "Out of scope",
+              "body": "(What we won't do this time)"
+            }
+          }
+        },
+        {
+          "id": "b27",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s09",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b28",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Process",
+            "text": "(The process, in one sentence)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b29",
+          "type": "process",
+          "x": 64,
+          "y": 192,
+          "w": 1152,
+          "h": 280,
+          "props": {
+            "steps": [
+              {
+                "title": "Assess",
+                "body": "(What we'll check)"
+              },
+              {
+                "title": "Decide",
+                "body": "(What we'll decide)"
+              },
+              {
+                "title": "Execute",
+                "body": "(What we'll change)"
+              },
+              {
+                "title": "Review",
+                "body": "(How we'll measure)"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b30",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b31",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Schedule",
+            "text": "Process and schedule",
+            "level": 1
+          }
+        },
+        {
+          "id": "b32",
+          "type": "table",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 320,
+          "props": {
+            "headers": ["Phase", "Period", "Main work"],
+            "rows": [
+              ["Assess", "[[要確認]]", "(The work)"],
+              ["Decide", "[[要確認]]", "(The work)"],
+              ["Execute", "[[要確認]]", "(The work)"],
+              ["Review", "[[要確認]]", "(The work)"]
+            ]
+          }
+        },
+        {
+          "id": "b33",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s11",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b34",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Estimate",
+            "text": "Rough cost",
+            "level": 1
+          }
+        },
+        {
+          "id": "b35",
+          "type": "table",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 296,
+          "props": {
+            "headers": ["Item", "Details", "Amount"],
+            "rows": [
+              ["(Item)", "(Details)", "[[要確認]]"],
+              ["(Item)", "(Details)", "[[要確認]]"],
+              ["(Item)", "(Details)", "[[要確認]]"],
+              ["Total", "", "[[要確認]]"]
+            ]
+          }
+        },
+        {
+          "id": "b36",
+          "type": "text",
+          "x": 64,
+          "y": 496,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "(What the amounts assume: tax, how long the estimate is valid, etc.)"
+          }
+        },
+        {
+          "id": "b37",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s12",
+      "layout": "content",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b38",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Assumptions",
+            "text": "What this proposal assumes",
+            "level": 1
+          }
+        },
+        {
+          "id": "b39",
+          "type": "bullets",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 440,
+          "props": {
+            "items": [
+              "(Information and environments you'll provide)",
+              "(Team and roles we assume)",
+              "(What would change the timeline or scope)"
+            ]
+          }
+        },
+        {
+          "id": "b40",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s13",
+      "layout": "closing",
+      "notes": "",
+      "blocks": [
+        {
+          "id": "b41",
+          "type": "heading",
+          "x": 64,
+          "y": 240,
+          "w": 1152,
+          "h": 120,
+          "props": {
+            "kicker": "What's next",
+            "text": "(What to decide next)",
+            "level": 1
+          }
+        },
+        {
+          "id": "b42",
+          "type": "text",
+          "x": 64,
+          "y": 384,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "(Contact, and dates for the next meeting)"
+          }
+        },
+        {
+          "id": "b43",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

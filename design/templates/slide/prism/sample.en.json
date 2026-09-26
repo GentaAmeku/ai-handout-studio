@@ -1,0 +1,348 @@
+{
+  "label": "Prism",
+  "meta": {
+    "audience": "People who make handouts",
+    "tags": ["Sample"]
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "notes": "Title and a one-liner on the left, the bundled picture on the right. Make the title wider than half the slide",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 64,
+          "y": 160,
+          "w": 736,
+          "h": 272,
+          "props": {
+            "kicker": "AI HANDOUT STUDIO",
+            "text": "Handouts, ready\nby tomorrow",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 64,
+          "y": 456,
+          "w": 736,
+          "h": 72,
+          "props": {
+            "text": "Finish your own handouts, fast"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "image",
+          "x": 848,
+          "y": 208,
+          "w": 368,
+          "h": 276,
+          "props": {
+            "src": "assets/hero.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "section",
+      "notes": "Section divider. Only the number and title, to show the template's full-bleed color",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 64,
+          "y": 272,
+          "w": 736,
+          "h": 176,
+          "props": {
+            "kicker": "01",
+            "text": "How it's made",
+            "level": 2
+          }
+        },
+        {
+          "id": "b06",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "notes": "A slide led by numbers. Add a one-liner below so the lower half isn't empty",
+      "blocks": [
+        {
+          "id": "b07",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Time it takes",
+            "text": "Outline in 30 min, done in 3 passes",
+            "level": 2
+          }
+        },
+        {
+          "id": "b08",
+          "type": "kpi-row",
+          "x": 64,
+          "y": 176,
+          "w": 1152,
+          "h": 320,
+          "props": {
+            "items": [
+              {
+                "value": "30",
+                "label": "Minutes to outline",
+                "note": "From a template"
+              },
+              {
+                "value": "3×",
+                "label": "Edits on screen",
+                "note": "Per slide"
+              },
+              {
+                "value": "4",
+                "label": "Export formats",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b09",
+          "type": "text",
+          "x": 64,
+          "y": 520,
+          "w": 1152,
+          "h": 64,
+          "props": {
+            "text": "Your hands only do the three passes on screen."
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "content",
+      "notes": "Two columns. A picture on one side, parts on the other",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Roles",
+            "text": "Split the work between AI and you",
+            "level": 2
+          }
+        },
+        {
+          "id": "b12",
+          "type": "two-col",
+          "x": 64,
+          "y": 176,
+          "w": 656,
+          "h": 432,
+          "props": {
+            "left": {
+              "title": "What AI does",
+              "body": "Writes the outline from the goal and readers\nEvens out the amount of text\nUses only numbers from the request"
+            },
+            "right": {
+              "title": "What you do",
+              "body": "Fix layout and wording on screen\nPick a template for the look\nChoose a format and export"
+            }
+          }
+        },
+        {
+          "id": "b13",
+          "type": "image",
+          "x": 768,
+          "y": 224,
+          "w": 448,
+          "h": 336,
+          "props": {
+            "src": "assets/idea.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "content",
+      "notes": "A flow slide. A one-liner under the heading, then the steps side by side",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "Four stages",
+            "text": "From draft to something you can hand over",
+            "level": 2
+          }
+        },
+        {
+          "id": "b16",
+          "type": "text",
+          "x": 64,
+          "y": 160,
+          "w": 1152,
+          "h": 40,
+          "props": {
+            "text": "After four stages, it's ready to hand over."
+          }
+        },
+        {
+          "id": "b17",
+          "type": "process",
+          "x": 64,
+          "y": 216,
+          "w": 1152,
+          "h": 392,
+          "props": {
+            "steps": [
+              {
+                "title": "Outline",
+                "body": "Draft from the goal and readers"
+              },
+              {
+                "title": "Finish",
+                "body": "Fix layout and wording on screen"
+              },
+              {
+                "title": "Look",
+                "body": "Switch the template"
+              },
+              {
+                "title": "Export",
+                "body": "Hand over as PDF and PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b18",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "closing",
+      "notes": "Closing. A one-liner next to a picture",
+      "blocks": [
+        {
+          "id": "b19",
+          "type": "heading",
+          "x": 64,
+          "y": 216,
+          "w": 736,
+          "h": 176,
+          "props": {
+            "kicker": "The end",
+            "text": "Start by making one slide",
+            "level": 1
+          }
+        },
+        {
+          "id": "b20",
+          "type": "text",
+          "x": 64,
+          "y": 416,
+          "w": 736,
+          "h": 64,
+          "props": {
+            "text": "Pick a look and start from an outline"
+          }
+        },
+        {
+          "id": "b21",
+          "type": "image",
+          "x": 848,
+          "y": 208,
+          "w": 368,
+          "h": 276,
+          "props": {
+            "src": "assets/path.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b22",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

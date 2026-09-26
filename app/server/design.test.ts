@@ -565,6 +565,32 @@ describe("文書と質問票の部品(段 D)", () => {
     }
   });
 
+  it("英語の見本は samples/en/ に同じ名前で並び、design/ を2段上に読み、日本語が残らない", async () => {
+    const outputs = await sampleOutputs(designDir);
+    const japanese = [...outputs.keys()].filter((path) =>
+      /^samples\/[^/]+\.html$/.test(path),
+    );
+    expect(japanese.length).toBeGreaterThan(0);
+    for (const path of japanese) {
+      const html = outputs.get(path.replace(/^samples\//, "samples/en/")) ?? "";
+      expect(html).toContain('<html lang="en">');
+      expect(html).toContain('href="../../dist/fonts.css"');
+      // 画像(data:)と、図の生成器が書く HTML のコメントは文ではないので除く
+      const text = html
+        .replace(/data:[^"]+/g, "")
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replaceAll("[[要確認]]", "");
+      expect([path, text.match(/[\u3040-\u30ff\u4e00-\u9fff]+/)?.[0]]).toEqual([
+        path,
+        undefined,
+      ]);
+    }
+    // 同梱の絵は言語によらず samples/slide.<名前>/assets/ の1組を読む
+    expect(outputs.get("samples/en/slide.lumen.html")).toContain(
+      'src="../slide.lumen/assets/',
+    );
+  });
+
   it("質問票の骨格ごとに、一覧・画面下の帯・入力部品の有無が違う", async () => {
     const outputs = await sampleOutputs(designDir);
     const sheet = (layout: string) =>

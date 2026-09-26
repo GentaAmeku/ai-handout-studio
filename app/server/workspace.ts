@@ -24,7 +24,11 @@ import {
   type SlideSample,
   type Surface,
 } from "../src/schema/design.ts";
-import { type Profile, parseProfile } from "../src/schema/profile.ts";
+import {
+  type Locale,
+  type Profile,
+  parseProfile,
+} from "../src/schema/profile.ts";
 import {
   outlineNames,
   readSelection,
@@ -287,13 +291,15 @@ export const readProfile = async (
   return file.state === "ready" ? file.value : undefined;
 };
 
-// スライドの中身の構成(sample.json)。テンプレート(template.json)とは別に読む
+// スライドの中身の構成(sample.json)。テンプレート(template.json)とは別に読む。
+// lang の見本(sample.en.json)があればそれを、無ければ日本語を読む
 export const readOutline = async (
   designDir: string,
   outlineId: string,
+  lang: Locale = "ja",
 ): Promise<{ label: string; sample: SlideSample } | undefined> => {
   if (!isTemplateName(outlineId)) return undefined;
-  const sample = await readSlideSample(designDir, outlineId);
+  const sample = await readSlideSample(designDir, outlineId, lang);
   return sample ? { label: sample.label ?? outlineId, sample } : undefined;
 };
 
@@ -301,6 +307,7 @@ export const readOutline = async (
 // 構成として並んで紛らわしいので外す。その見本は一覧のカードと編集画面が見せる
 export const listOutlines = async (
   designDir: string,
+  lang: Locale = "ja",
 ): Promise<OutlineSummary[]> => {
   const designs = await templateNames(designDir, "slide");
   const names = (await outlineNames(designDir))
@@ -308,7 +315,7 @@ export const listOutlines = async (
     .filter((name) => !designs.includes(name));
   const outlines = await Promise.all(
     names.map(async (outlineId) => {
-      const found = await readOutline(designDir, outlineId);
+      const found = await readOutline(designDir, outlineId, lang);
       return found
         ? {
             outlineId,
@@ -331,10 +338,16 @@ export type CreateDeckResult =
 export const createDeckFromOutline = async (
   root: string,
   designDir: string,
-  input: { outlineId: string; templateId?: string; title: string },
+  // lang は中身の見本の言語(設定の locale)
+  input: {
+    outlineId: string;
+    templateId?: string;
+    title: string;
+    lang?: Locale;
+  },
   now: Date,
 ): Promise<CreateDeckResult> => {
-  const found = await readOutline(designDir, input.outlineId);
+  const found = await readOutline(designDir, input.outlineId, input.lang);
   if (!found) return { success: false, reason: "outline-not-found" };
   const design = await resolveDesign(designDir, input.templateId);
   if (!design) return { success: false, reason: "template-not-found" };

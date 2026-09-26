@@ -25,7 +25,7 @@ import type {
 } from "../../schema/design";
 import { SearchButton } from "../../search/SearchButton";
 import { draftVariables, resolveDraft } from "../design/draft";
-import { DOCUMENT_PATH, FrameSample, sheetPath } from "../design/SampleStage";
+import { documentPath, FrameSample, sheetPath } from "../design/SampleStage";
 import { templateEditPath } from "./paths";
 
 // 区分ごとのテンプレートの一覧。見本の1枚目だけを写真のカードにして並べ、見比べる。
@@ -52,8 +52,9 @@ const TemplatePreview = ({
   title: string;
   sample: SlideSample | null | undefined;
 }) => {
+  const { lang } = useLanguage();
   if (surface === "slide") {
-    const cover = coverSlide(sample);
+    const cover = coverSlide(sample, lang);
     if (!cover) return null;
     return (
       <span className="photo-card__media">
@@ -77,7 +78,7 @@ const TemplatePreview = ({
       : undefined;
   return (
     <FrameSample
-      path={base ? sheetPath(base) : DOCUMENT_PATH}
+      path={base ? sheetPath(base, lang) : documentPath(lang)}
       template={name}
       title={title}
       variables={variables}
@@ -172,7 +173,7 @@ const TemplateCard = ({
 };
 
 export const TemplateListPage = ({ surface }: { surface: Surface }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const detail = useQuery(designTemplatesQuery);
   const summaries = detail.data?.templates[surface] ?? [];
   const templates = useQueries({
@@ -185,7 +186,7 @@ export const TemplateListPage = ({ surface }: { surface: Surface }) => {
     queries:
       surface === "slide"
         ? summaries.map((summary) =>
-            designTemplateSampleQuery(surface, summary.name),
+            designTemplateSampleQuery(surface, summary.name, lang),
           )
         : [],
   });

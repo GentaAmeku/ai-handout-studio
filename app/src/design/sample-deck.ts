@@ -1,11 +1,16 @@
+import catalogEn from "../dev/block-catalog.en.json";
 import catalog from "../dev/block-catalog.json";
 import { isKnownBlock } from "../schema/block.ts";
 import { type Deck, deckSchema } from "../schema/deck.ts";
+import type { Locale } from "../schema/profile.ts";
+
+const CATALOGS: Record<Locale, unknown> = { ja: catalog, en: catalogEn };
 
 // 見本のスライド。開発用のブロック一覧から、未知の type を除いて使う。
-// design/samples/slide.html とデザインページのはみ出し検査が同じ資料を描く
-export const sampleDeck = (): Deck => {
-  const deck = deckSchema.parse(catalog);
+// design/samples/slide.html とデザインページのはみ出し検査が同じ資料を描く。
+// 英語の一覧(block-catalog.en.json)は日本語と同じ並び・座標で、文だけを訳してある
+export const sampleDeck = (lang: Locale = "ja"): Deck => {
+  const deck = deckSchema.parse(CATALOGS[lang]);
   return {
     ...deck,
     slides: deck.slides.map((slide) => ({

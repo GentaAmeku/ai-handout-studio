@@ -16,6 +16,7 @@ import { validateDeck } from "../src/schema/deck";
 import { createApi } from "./api";
 import type { Exporter, ExportJob } from "./exporter";
 import { openFolderCommand } from "./open-folder";
+import { saveProfile } from "./profile";
 import {
   copyDesignWithDefaultSelection,
   proposalDeck,
@@ -204,6 +205,24 @@ describe("POST /api/decks", () => {
     expect(
       (await api().request(`/api/decks/${plain}/assets/hero.svg`)).status,
     ).toBe(404);
+  });
+
+  it("設定の言語が英語なら、中身の構成の英語の見本(sample.en.json)から作る", async () => {
+    await saveProfile(context.workspaceRoot, { orgName: "", locale: "en" });
+    const response = await postJson("/api/decks", {
+      outlineId: "proposal",
+      title: "English",
+    });
+    const detail = (await response.json()) as DeckDetail;
+    const english = JSON.parse(
+      await readFile(
+        join(context.designDir, "templates/slide/proposal/sample.en.json"),
+        "utf8",
+      ),
+    ) as { slides: unknown[] };
+    expect(detail.state === "ready" ? detail.deck.slides : []).toEqual(
+      english.slides,
+    );
   });
 
   it("空のタイトルは 400、無いテンプレートは 404", async () => {

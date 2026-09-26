@@ -1,0 +1,467 @@
+{
+  "id": "dev_block_catalog",
+  "title": "Block catalog (for checking)",
+  "theme": "default",
+  "size": {
+    "width": 1280,
+    "height": 720
+  },
+  "status": "draft",
+  "meta": {
+    "createdAt": "2026-09-15T00:00:00Z",
+    "updatedAt": "2026-09-15T00:00:00Z"
+  },
+  "slides": [
+    {
+      "id": "c01",
+      "layout": "cover",
+      "blocks": [
+        {
+          "id": "k01",
+          "type": "heading",
+          "x": 64,
+          "y": 176,
+          "w": 820,
+          "h": 240,
+          "props": {
+            "kicker": "AI Handout Studio",
+            "text": "Handouts ready\nto submit by tomorrow",
+            "level": 1
+          }
+        },
+        {
+          "id": "k02",
+          "type": "text",
+          "x": 64,
+          "y": 432,
+          "w": 820,
+          "h": 48,
+          "props": {
+            "text": "A deck for checking rendering"
+          }
+        },
+        {
+          "id": "k03",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "c02",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k04",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 192,
+          "props": {
+            "kicker": "heading / card-grid",
+            "text": "Finish your own handouts,\nquickly, by your own hand",
+            "level": 1
+          }
+        },
+        {
+          "id": "k05",
+          "type": "card-grid",
+          "x": 64,
+          "y": 256,
+          "w": 1152,
+          "h": 176,
+          "props": {
+            "columns": 2,
+            "items": [
+              {
+                "title": "MISSION",
+                "body": "Let AI draft the outline;\nyou finish it on screen",
+                "icon": "target"
+              },
+              {
+                "title": "VISION",
+                "body": "Every handout is ready\nto submit the next day",
+                "icon": "trending-up"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k06",
+          "type": "card-grid",
+          "x": 64,
+          "y": 456,
+          "w": 1152,
+          "h": 176,
+          "props": {
+            "columns": 3,
+            "items": [
+              {
+                "title": "Outline",
+                "body": "AI drafts it as JSON",
+                "icon": "book-open"
+              },
+              {
+                "title": "Finish",
+                "body": "Fix layout and wording",
+                "icon": "settings"
+              },
+              {
+                "title": "Export",
+                "body": "Hand over as PDF, PPTX",
+                "icon": "circle-check"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k07",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c03",
+      "layout": "section",
+      "blocks": [
+        {
+          "id": "k08",
+          "type": "heading",
+          "x": 64,
+          "y": 264,
+          "w": 1152,
+          "h": 170,
+          "props": {
+            "kicker": "02",
+            "text": "Numbers and process",
+            "level": 1
+          }
+        },
+        {
+          "id": "k09",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c04",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k10",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "kpi-row / process",
+            "text": "Numbers and steps",
+            "level": 2
+          }
+        },
+        {
+          "id": "k11",
+          "type": "kpi-row",
+          "x": 64,
+          "y": 168,
+          "w": 1152,
+          "h": 432,
+          "props": {
+            "items": [
+              {
+                "value": "30 min",
+                "label": "Outline",
+                "note": "From a template"
+              },
+              {
+                "value": "[[要確認]]",
+                "label": "Finish",
+                "note": "Edits on screen"
+              },
+              {
+                "value": "4",
+                "label": "Export formats",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k13",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c08",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k27",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "process",
+            "text": "Lay out the steps",
+            "level": 2
+          }
+        },
+        {
+          "id": "k12",
+          "type": "process",
+          "x": 64,
+          "y": 168,
+          "w": 1152,
+          "h": 400,
+          "props": {
+            "steps": [
+              {
+                "title": "Outline",
+                "body": "Give the goal and readers"
+              },
+              {
+                "title": "Generate",
+                "body": "AI writes the JSON"
+              },
+              {
+                "title": "Finish",
+                "body": "Fix it on screen"
+              },
+              {
+                "title": "Export",
+                "body": "Submit as PDF"
+              }
+            ]
+          }
+        },
+        {
+          "id": "k28",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c05",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k14",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "two-col / table",
+            "text": "Two columns and a table",
+            "level": 2
+          }
+        },
+        {
+          "id": "k15",
+          "type": "two-col",
+          "x": 64,
+          "y": 152,
+          "w": 1152,
+          "h": 216,
+          "props": {
+            "left": {
+              "title": "What it does",
+              "body": "Start from a template\nDraft the outline with AI"
+            },
+            "right": {
+              "title": "What it doesn't",
+              "body": "Co-editing\nCloud sync"
+            }
+          }
+        },
+        {
+          "id": "k16",
+          "type": "table",
+          "x": 64,
+          "y": 376,
+          "w": 1152,
+          "h": 284,
+          "props": {
+            "headers": ["Format", "Method", "Pass condition"],
+            "rows": [
+              ["PDF", "Print the same HTML", "One page per slide"],
+              ["PNG", "Capture each slide", "Matches the screen"],
+              ["PPTX", "Measure the DOM, rebuild", "Text stays selectable"]
+            ]
+          }
+        },
+        {
+          "id": "k17",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c06",
+      "layout": "content",
+      "blocks": [
+        {
+          "id": "k18",
+          "type": "heading",
+          "x": 64,
+          "y": 48,
+          "w": 1152,
+          "h": 96,
+          "props": {
+            "kicker": "bullets / text / image / unknown type",
+            "text": "Bullets, text and image",
+            "level": 2
+          }
+        },
+        {
+          "id": "k19",
+          "type": "bullets",
+          "x": 64,
+          "y": 160,
+          "w": 560,
+          "h": 176,
+          "props": {
+            "marker": "disc",
+            "items": [
+              "One message per slide",
+              "64px margins left and right",
+              "Three to five bullets"
+            ]
+          }
+        },
+        {
+          "id": "k20",
+          "type": "text",
+          "x": 64,
+          "y": 360,
+          "w": 560,
+          "h": 104,
+          "props": {
+            "text": "A text block. Line breaks\nare drawn as written."
+          }
+        },
+        {
+          "id": "k21",
+          "type": "image",
+          "x": 656,
+          "y": 160,
+          "w": 560,
+          "h": 320,
+          "props": {
+            "src": "assets/sample.svg",
+            "fit": "contain",
+            "caption": "An image read by a path relative to assets/"
+          }
+        },
+        {
+          "id": "k22",
+          "type": "timeline",
+          "x": 656,
+          "y": 496,
+          "w": 560,
+          "h": 128,
+          "props": {}
+        },
+        {
+          "id": "k23",
+          "type": "footer",
+          "x": 64,
+          "y": 664,
+          "w": 1152,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "c07",
+      "layout": "closing",
+      "blocks": [
+        {
+          "id": "k24",
+          "type": "heading",
+          "x": 64,
+          "y": 240,
+          "w": 1152,
+          "h": 120,
+          "props": {
+            "kicker": "What's next",
+            "text": "Thank you",
+            "level": 1
+          }
+        },
+        {
+          "id": "k25",
+          "type": "text",
+          "x": 64,
+          "y": 384,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "text": "We'll get back to you by [[要確認]]"
+          }
+        },
+        {
+          "id": "k26",
+          "type": "footer",
+          "x": 64,
+          "y": 640,
+          "w": 1152,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

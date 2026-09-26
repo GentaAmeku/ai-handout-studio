@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { SAMPLE_ORG_NAME, sampleWithOrgName } from "./sample-org.ts";
+import { SAMPLE_ORG_NAMES, sampleWithOrgName } from "./sample-org.ts";
+
+const SAMPLE_ORG_NAME = SAMPLE_ORG_NAMES.ja;
 
 // 見本は仮の組織名で作り、配信するときに設定の組織名へ差し替える
 describe("sampleWithOrgName", () => {
@@ -21,5 +23,13 @@ describe("sampleWithOrgName", () => {
       '<div class="ds-signature"><span>文書の見本</span></div>',
     );
     expect(sampleWithOrgName(alone, "")).toBe("<header><h1>題</h1></header>");
+  });
+
+  it("英語の見本の仮の組織名も差し替える", () => {
+    const en = `<div class="ds-signature"><span>${SAMPLE_ORG_NAMES.en}</span></div>`;
+    expect(sampleWithOrgName(en, "Acme")).toBe(
+      '<div class="ds-signature"><span>Acme</span></div>',
+    );
+    expect(sampleWithOrgName(en)).toBe("");
   });
 });

@@ -14,10 +14,12 @@ import {
 import { GENERATED_NOTE } from "../src/design/theme.ts";
 import { SlideView } from "../src/renderer/SlideView.tsx";
 import type { Slide } from "../src/schema/deck.ts";
+import type { Locale } from "../src/schema/profile.ts";
 import {
   figureExamples,
   readSelection,
   readSlideSample,
+  SAMPLE_LANGS,
   templateAssetNames,
   templateAssetsDir,
   templateNames,
@@ -32,29 +34,55 @@ import {
 // design/samples/ の見本と、図の生成器の見本(dist/figure/examples/*.html)。
 // どれも生成 CSS だけで描く。デザインページの iframe はスクリプトを動かさない
 
-// 見本の iframe は CSP で外の書体を止めるので、design build が写した自前の書体を self で読む
-const FONT_LINK = '<link rel="stylesheet" href="../dist/fonts.css" />';
+// 言語ごとの見本の置き場。日本語は samples/ の直下、ほかの言語は samples/<言語>/ に同じ名前で置く
+const sampleDir = (lang: Locale): string =>
+  lang === "ja" ? "samples" : `samples/${lang}`;
+
+// 見本の HTML から design/ への相対。samples/<言語>/ は1段深い
+const designRoot = (lang: Locale): string => (lang === "ja" ? ".." : "../..");
+
+// 見本の題
+const TITLES = {
+  ja: {
+    slide: "スライドの見本",
+    template: (label: string) => `${label}の見本`,
+    document: "文書の見本",
+    sheet: (layout: SheetLayout) => `質問票の見本(${layout})`,
+  },
+  en: {
+    slide: "Slide sample",
+    template: (label: string) => `${label} sample`,
+    document: "Document sample",
+    sheet: (layout: SheetLayout) => `Question sheet sample (${layout})`,
+  },
+} as const satisfies Record<Locale, unknown>;
 
 const htmlPage = ({
   title,
   styles,
   head = [],
   body,
+  lang,
 }: {
   title: string;
   styles: readonly string[];
   head?: readonly string[];
   body: string;
+  lang: Locale;
 }): string =>
   [
     "<!doctype html>",
     `<!-- ${GENERATED_NOTE} -->`,
-    '<html lang="ja">',
+    `<html lang="${lang}">`,
     "<head>",
     '<meta charset="utf-8" />',
     `<title>${title}</title>`,
-    FONT_LINK,
-    ...styles.map((href) => `<link rel="stylesheet" href="../dist/${href}" />`),
+    // 見本の iframe は CSP で外の書体を止めるので、design build が写した自前の書体を self で読む
+    `<link rel="stylesheet" href="${designRoot(lang)}/dist/fonts.css" />`,
+    ...styles.map(
+      (href) =>
+        `<link rel="stylesheet" href="${designRoot(lang)}/dist/${href}" />`,
+    ),
     ...head,
     "</head>",
     "<body>",
@@ -71,6 +99,7 @@ const slideDeckHtml = (
   title: string,
   slides: readonly Slide[],
   template: string,
+  lang: Locale,
   assetBaseUrl = ".",
 ): string => {
   const body = slides
@@ -92,6 +121,7 @@ const slideDeckHtml = (
     .join("\n");
   return htmlPage({
     title,
+    lang,
     styles: ["slide/tokens.css", "slide.css"],
     head: [
       "<style>",
@@ -105,31 +135,39 @@ const slideDeckHtml = (
 };
 
 // design/samples/slide.html。全ブロック種を描く。部品の見え方を測る
-export const slideSampleHtml = (template: string): string =>
-  slideDeckHtml("スライドの見本", sampleDeck().slides, template);
+export const slideSampleHtml = (
+  template: string,
+  lang: Locale = "ja",
+): string =>
+  slideDeckHtml(TITLES[lang].slide, sampleDeck(lang).slides, template, lang);
 
 // design/samples/slide.<名前>.html。そのテンプレートが持つ中身の見本(sample.json)を描く。
-// 一覧のカードと編集画面が出すものと同じ資料なので、はみ出しと明暗差はここで測れる
+// 一覧のカードと編集画面が出すものと同じ資料なので、はみ出しと明暗差はここで測れる。
+// 英語(samples/en/)は sample.en.json を描き、無ければ日本語の見本を描く
 const templateSampleHtmls = async (
   designDir: string,
+  lang: Locale,
 ): Promise<(readonly [string, string])[]> => {
   const names = await templateNames(designDir, "slide");
   const samples = await Promise.all(
     names.map(async (name) => ({
       name,
-      sample: await readSlideSample(designDir, name),
+      sample: await readSlideSample(designDir, name, lang),
     })),
   );
   return samples.flatMap(({ name, sample }) =>
     sample
       ? [
           [
-            `samples/slide.${name}.html`,
+            `${sampleDir(lang)}/slide.${name}.html`,
             slideDeckHtml(
-              `${sample.label ?? name}の見本`,
+              TITLES[lang].template(sample.label ?? name),
               sample.slides,
               name,
-              templateSampleAssetDir(name),
+              lang,
+              lang === "ja"
+                ? templateSampleAssetDir(name)
+                : `../${templateSampleAssetDir(name)}`,
             ),
           ] as const,
         ]
@@ -192,20 +230,25 @@ export const pruneSampleAssets = async (
 // design/samples/document.html。文書の部品を1枚に並べる。
 // DOM の正は document-render.ts、中身は document-sample.ts。
 // 骨格(本文幅・脇・目次)はテーマの --doc-* が決める
-export const documentSampleHtml = (): string =>
+export const documentSampleHtml = (lang: Locale = "ja"): string =>
   htmlPage({
-    title: "文書の見本",
+    title: TITLES[lang].document,
+    lang,
     styles: ["document/tokens.css", "document.css"],
-    body: documentSampleBody(),
+    body: documentSampleBody(lang),
   });
 
 // design/samples/sheet.<骨格>.html。質問票の画面を、client.js が作る DOM のまま静的に描く。
 // DOM の正は sheet-sample.ts
-export const sheetSampleHtml = (layout: SheetLayout): string =>
+export const sheetSampleHtml = (
+  layout: SheetLayout,
+  lang: Locale = "ja",
+): string =>
   htmlPage({
-    title: `質問票の見本(${layout})`,
+    title: TITLES[lang].sheet(layout),
+    lang,
     styles: ["sheet/tokens.css", "document.css", "interaction.css"],
-    body: sheetSampleBody(layout),
+    body: sheetSampleBody(layout, lang),
   });
 
 // dist/figure/examples/*.html。検査に通る入力だけを、default のテンプレートで単体の HTML にする
@@ -237,21 +280,38 @@ const figureExamplePages = async (
     ]);
 };
 
+// 1つの言語の見本の HTML。同梱の絵は言語によらず samples/slide.<名前>/assets/ の1組を読む
+const localizedSampleHtmls = async (
+  designDir: string,
+  slideTemplate: string,
+  lang: Locale,
+): Promise<(readonly [string, string])[]> => [
+  [`${sampleDir(lang)}/slide.html`, slideSampleHtml(slideTemplate, lang)],
+  ...(await templateSampleHtmls(designDir, lang)),
+  [`${sampleDir(lang)}/document.html`, documentSampleHtml(lang)],
+  ...SHEET_LAYOUTS.map(
+    (layout) =>
+      [
+        `${sampleDir(lang)}/sheet.${layout}.html`,
+        sheetSampleHtml(layout, lang),
+      ] as const,
+  ),
+];
+
 // 生成 CSS(dist/)を読むので、CSS を書いた後に呼ぶ
 export const sampleOutputs = async (
   designDir: string,
 ): Promise<Map<string, string>> => {
   const selection = await readSelection(designDir);
   if (!selection.success) throw new Error(selection.message);
-  return new Map([
-    ["samples/slide.html", slideSampleHtml(selection.value.slide)],
-    ...(await templateSampleHtmls(designDir)),
-    ...(await templateSampleAssets(designDir)),
-    ["samples/document.html", documentSampleHtml()],
-    ...SHEET_LAYOUTS.map(
-      (layout) =>
-        [`samples/sheet.${layout}.html`, sheetSampleHtml(layout)] as const,
+  const localized = await Promise.all(
+    (["ja", ...SAMPLE_LANGS] as const).map((lang) =>
+      localizedSampleHtmls(designDir, selection.value.slide, lang),
     ),
+  );
+  return new Map([
+    ...localized.flat(),
+    ...(await templateSampleAssets(designDir)),
     ...(await figureExamplePages(designDir)),
   ]);
 };

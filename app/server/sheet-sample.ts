@@ -1,12 +1,16 @@
+import type { Locale } from "../src/schema/profile.ts";
 import type { SheetAnswers, SheetDocument } from "../src/schema/sheet.ts";
+import { localizeSample } from "./sample-i18n.ts";
 import { sampleImages } from "./sample-images.ts";
-import { SAMPLE_ORG_NAME } from "./sample-org.ts";
+import { SAMPLE_ORG_NAMES } from "./sample-org.ts";
 import { withSheetImageSrcs } from "./sheet-images.ts";
 import { sheetBody, sheetView } from "./sheet-render.ts";
+import { SHEET_SAMPLE_EN } from "./sheet-sample.en.ts";
 
 // 質問票の見本(design/samples/sheet.<骨格>.html)の中身。
 // DOM を組むのは sheet-render.ts。ここが持つのは、質問票スキルの
-// examples/reading.json・visual-demo.json を元にした合成の4問だけ(4問目は案ごとのイメージ画像)
+// examples/reading.json・visual-demo.json を元にした合成の4問だけ(4問目は案ごとのイメージ画像)。
+// 英語の見本は同じ形のまま、文を sheet-sample.en.ts の表で置き換える
 
 export const SHEET_LAYOUTS = ["focus", "overview", "all", "print"] as const;
 export type SheetLayout = (typeof SHEET_LAYOUTS)[number];
@@ -185,18 +189,34 @@ const sampleAnswers: SheetAnswers = {
 const currentOf = (layout: SheetLayout): number =>
   layout === "focus" || layout === "overview" ? 1 : 0;
 
-export const sheetSampleBody = (layout: SheetLayout): string =>
-  sheetBody(
+export const sheetSample = (
+  lang: Locale = "ja",
+): { sheet: SheetDocument; answers: SheetAnswers } =>
+  lang === "ja"
+    ? { sheet: sample, answers: sampleAnswers }
+    : {
+        sheet: localizeSample(sample, SHEET_SAMPLE_EN),
+        answers: localizeSample(sampleAnswers, SHEET_SAMPLE_EN),
+      };
+
+export const sheetSampleBody = (
+  layout: SheetLayout,
+  lang: Locale = "ja",
+): string => {
+  const { sheet, answers } = sheetSample(lang);
+  return sheetBody(
     {
       ...sheetView(
         withSheetImageSrcs(
-          sample,
+          sheet,
           sampleImages(["sample-screen.jpg", "sample-templates.jpg"]),
         ),
-        sampleAnswers,
+        answers,
         currentOf(layout),
+        lang,
       ),
-      orgName: SAMPLE_ORG_NAME,
+      orgName: SAMPLE_ORG_NAMES[lang],
     },
     layout,
   );
+};

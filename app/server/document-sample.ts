@@ -1,12 +1,16 @@
 import { type FigureInput, render } from "../../design/figure/render.mjs";
 import type { DocumentFile } from "../src/schema/document.ts";
+import type { Locale } from "../src/schema/profile.ts";
 import { documentBody } from "./document-render.ts";
+import { DOCUMENT_SAMPLE_EN } from "./document-sample.en.ts";
+import { localizeSample } from "./sample-i18n.ts";
 import { sampleImages } from "./sample-images.ts";
-import { SAMPLE_ORG_NAME } from "./sample-org.ts";
+import { SAMPLE_ORG_NAMES } from "./sample-org.ts";
 
 // 文書の見本(design/samples/document.html)の中身。
 // DOM を組むのは document-render.ts。ここが持つのは、部品を1つずつ並べた document.json だけ。
-// 部品を足したら、この見本にも足して形が見えるようにする
+// 部品を足したら、この見本にも足して形が見えるようにする。
+// 英語の見本は同じ形のまま、文を document-sample.en.ts の表で置き換える
 
 const AT = "2026-09-18T00:00:00.000Z";
 
@@ -41,7 +45,8 @@ const sampleFigure: FigureInput = {
   ],
 };
 
-const sample: DocumentFile = {
+// 図は描いた SVG を持つので、訳した入力から描き直す
+const documentOf = (figure: FigureInput, lang: Locale): DocumentFile => ({
   id: "document-sample",
   title: "文書の見本",
   status: "draft",
@@ -162,8 +167,8 @@ const sample: DocumentFile = {
           id: "figure-body",
           type: "figure",
           props: {
-            html: render(sampleFigure).svg,
-            caption: sampleFigure.caption,
+            html: render(figure, lang).svg,
+            caption: figure.caption,
           },
         },
       ],
@@ -388,13 +393,23 @@ const sample: DocumentFile = {
     ],
   },
   foot: { showPage: true },
+});
+
+const samples: Record<Locale, DocumentFile> = {
+  ja: documentOf(sampleFigure, "ja"),
+  en: localizeSample(
+    documentOf(localizeSample(sampleFigure, DOCUMENT_SAMPLE_EN), "en"),
+    DOCUMENT_SAMPLE_EN,
+  ),
 };
 
-export const documentSample = (): DocumentFile => sample;
+export const documentSample = (lang: Locale = "ja"): DocumentFile =>
+  samples[lang];
 
-export const documentSampleBody = (): string =>
+export const documentSampleBody = (lang: Locale = "ja"): string =>
   documentBody(
-    sample,
-    SAMPLE_ORG_NAME,
+    samples[lang],
+    SAMPLE_ORG_NAMES[lang],
     sampleImages(["sample-screen.jpg", ...SAMPLE_DIAGRAMS]),
+    lang,
   );

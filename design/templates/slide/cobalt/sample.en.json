@@ -1,0 +1,357 @@
+{
+  "label": "Cobalt",
+  "meta": {
+    "audience": "People who make handouts",
+    "tags": ["Sample"]
+  },
+  "slides": [
+    {
+      "id": "s01",
+      "layout": "cover",
+      "notes": "Title and a one-liner on the left, the bundled picture on the right. The template draws the top band and the rule under the title. Positions follow a 12-column grid (column 48, gutter 48, side margins 88)",
+      "blocks": [
+        {
+          "id": "b01",
+          "type": "heading",
+          "x": 88,
+          "y": 152,
+          "w": 720,
+          "h": 248,
+          "props": {
+            "kicker": "AI HANDOUT STUDIO",
+            "text": "Handouts, ready\nby tomorrow",
+            "level": 1
+          }
+        },
+        {
+          "id": "b02",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "Finish your own handouts, fast"
+          }
+        },
+        {
+          "id": "b03",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/hero.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b04",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "layout": "section",
+      "notes": "Section divider. Only the number and title on full-bleed dark blue",
+      "blocks": [
+        {
+          "id": "b05",
+          "type": "heading",
+          "x": 88,
+          "y": 272,
+          "w": 816,
+          "h": 128,
+          "props": {
+            "kicker": "01",
+            "text": "How it's made",
+            "level": 1
+          }
+        },
+        {
+          "id": "b06",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "layout": "content",
+      "notes": "A slide led by numbers. Put them in framed cards and add a one-liner below",
+      "blocks": [
+        {
+          "id": "b07",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Time it takes",
+            "text": "Outline in 30 min, done in 3 passes",
+            "level": 1
+          }
+        },
+        {
+          "id": "b08",
+          "type": "kpi-row",
+          "x": 88,
+          "y": 184,
+          "w": 1104,
+          "h": 256,
+          "props": {
+            "items": [
+              {
+                "value": "30",
+                "label": "Minutes to outline",
+                "note": "From a template"
+              },
+              {
+                "value": "3×",
+                "label": "Edits on screen",
+                "note": "Per slide"
+              },
+              {
+                "value": "4",
+                "label": "Export formats",
+                "note": "PDF / PNG / HTML / PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b09",
+          "type": "text",
+          "x": 88,
+          "y": 472,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "text": "Your hands only do the three passes on screen."
+          }
+        },
+        {
+          "id": "b10",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "layout": "content",
+      "notes": "Two columns. A picture in the left 5 columns, numbered bullets in the right 6",
+      "blocks": [
+        {
+          "id": "b11",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Roles",
+            "text": "Split the work between AI and you",
+            "level": 1
+          }
+        },
+        {
+          "id": "b12",
+          "type": "image",
+          "x": 88,
+          "y": 192,
+          "w": 432,
+          "h": 324,
+          "props": {
+            "src": "assets/idea.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b13",
+          "type": "bullets",
+          "x": 664,
+          "y": 224,
+          "w": 528,
+          "h": 264,
+          "props": {
+            "items": [
+              "Tell AI the goal and readers",
+              "The outline comes back as JSON",
+              "Fix layout and wording on screen",
+              "Change the look with a template",
+              "Hand over as PDF and PPTX"
+            ],
+            "marker": "number"
+          }
+        },
+        {
+          "id": "b14",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "layout": "content",
+      "notes": "Flow and comparison. Steps linked by numbered circles, and a ruled, striped table",
+      "blocks": [
+        {
+          "id": "b15",
+          "type": "heading",
+          "x": 88,
+          "y": 48,
+          "w": 1104,
+          "h": 104,
+          "props": {
+            "kicker": "Flow and formats",
+            "text": "Four steps, three formats",
+            "level": 1
+          }
+        },
+        {
+          "id": "b16",
+          "type": "process",
+          "x": 88,
+          "y": 176,
+          "w": 1104,
+          "h": 176,
+          "props": {
+            "steps": [
+              {
+                "title": "Tell",
+                "body": "Goal and readers"
+              },
+              {
+                "title": "Build",
+                "body": "Outline as JSON"
+              },
+              {
+                "title": "Fix",
+                "body": "Edit on screen"
+              },
+              {
+                "title": "Hand over",
+                "body": "As PDF and PPTX"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b17",
+          "type": "table",
+          "x": 88,
+          "y": 384,
+          "w": 1104,
+          "h": 248,
+          "props": {
+            "headers": ["Format", "Method", "Done when"],
+            "rows": [
+              ["PDF", "Print the same HTML", "One page per slide"],
+              [
+                "PPTX",
+                "Measure the DOM, rebuild",
+                "Text can be selected and edited"
+              ],
+              ["HTML", "Bundle into one file", "Opens and reads as is"]
+            ]
+          }
+        },
+        {
+          "id": "b18",
+          "type": "footer",
+          "x": 88,
+          "y": 656,
+          "w": 1104,
+          "h": 32,
+          "props": {
+            "showPage": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "layout": "closing",
+      "notes": "Closing. The top band, a one-liner with a vertical bar, and a picture",
+      "blocks": [
+        {
+          "id": "b19",
+          "type": "heading",
+          "x": 88,
+          "y": 168,
+          "w": 720,
+          "h": 232,
+          "props": {
+            "kicker": "The end",
+            "text": "Start by making\none slide",
+            "level": 1
+          }
+        },
+        {
+          "id": "b20",
+          "type": "text",
+          "x": 88,
+          "y": 432,
+          "w": 720,
+          "h": 48,
+          "props": {
+            "text": "Pick a look and start from an outline"
+          }
+        },
+        {
+          "id": "b21",
+          "type": "image",
+          "x": 856,
+          "y": 176,
+          "w": 336,
+          "h": 252,
+          "props": {
+            "src": "assets/path.svg",
+            "fit": "contain"
+          }
+        },
+        {
+          "id": "b22",
+          "type": "footer",
+          "x": 88,
+          "y": 640,
+          "w": 1104,
+          "h": 48,
+          "props": {
+            "showPage": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -32,6 +32,7 @@ import {
   templateSchemas,
   tokensSchema,
 } from "../src/schema/design.ts";
+import type { Locale } from "../src/schema/profile.ts";
 
 // design/ の JSON を読み、design/dist/ の CSS を作る(pnpm design:build・ai-handout-studio design build)
 
@@ -102,11 +103,17 @@ export const templateStylePath = (
   name: string,
 ): string => join(templateDir(designDir, surface, name), "template.css");
 
+// 中身の見本。英語は隣の sample.en.json に置き、無ければ日本語の sample.json に落ちる
 export const samplePath = (
   designDir: string,
   surface: Surface,
   name: string,
-): string => join(templateDir(designDir, surface, name), "sample.json");
+  lang: Locale = "ja",
+): string =>
+  join(
+    templateDir(designDir, surface, name),
+    lang === "ja" ? "sample.json" : `sample.${lang}.json`,
+  );
 
 // スライドのテンプレートに同梱する絵(assets/*.svg)。見本の image は src に assets/<ファイル> と書く
 export const templateAssetsDir = (designDir: string, name: string): string =>
@@ -216,17 +223,24 @@ export const readTemplate = <S extends Surface>(
     templateSchemas[surface] as unknown as z.ZodType<TemplateOf[S]>,
   );
 
-// スライドのテンプレートの中身の見本。無ければ undefined
+// スライドのテンプレートの中身の見本。その言語の見本が無ければ日本語、それも無ければ undefined
 export const readSlideSample = async (
   designDir: string,
   name: string,
+  lang: Locale = "ja",
 ): Promise<SlideSample | undefined> => {
   if (!isTemplateName(name)) return undefined;
-  const path = samplePath(designDir, "slide", name);
+  const localized = samplePath(designDir, "slide", name, lang);
+  const path = (await exists(localized))
+    ? localized
+    : samplePath(designDir, "slide", name);
   if (!(await exists(path))) return undefined;
   const sample = await parseFile(path, slideSampleSchema);
   return sample.success ? sample.value : undefined;
 };
+
+// 日本語のほかに見本を持つ言語。日本語(sample.json)は元の見本なので含めない
+export const SAMPLE_LANGS = ["en"] as const satisfies readonly Locale[];
 
 // 表示名が英語でない template.json(表示名を英語に決める前に作ったテンプレート)を、
 // 識別子から作った名前へ書き換える。読む検査より先に回す。直したものを <区分>/<名前> で返す

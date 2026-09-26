@@ -19,6 +19,7 @@ import type {
 } from "../src/api/types";
 import { createApi } from "./api";
 import { buildDesign } from "./design-build";
+import { saveProfile } from "./profile";
 import { DEFAULT_SELECTION } from "./test-fixtures.ts";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
@@ -132,6 +133,28 @@ describe("デザインの API", () => {
     expect(
       (await send("GET", "/api/design/templates/slide/Zine/sample")).status,
     ).toBe(400);
+  });
+
+  it("設定の言語が英語なら英語の見本(sample.en.json)を返し、無ければ日本語に落ちる", async () => {
+    await saveProfile(context.workspaceRoot, { orgName: "", locale: "en" });
+    const english = (await (
+      await send("GET", "/api/design/templates/slide/crayon/sample")
+    ).json()) as DesignTemplateSampleDetail;
+    expect(JSON.stringify(english.sample)).not.toMatch(/[\u3040-\u30ff]/);
+    await rm(
+      join(context.dir, "templates", "slide", "crayon", "sample.en.json"),
+    );
+    const fallback = (await (
+      await send("GET", "/api/design/templates/slide/crayon/sample")
+    ).json()) as DesignTemplateSampleDetail;
+    expect(fallback.sample).toEqual(
+      JSON.parse(
+        await readFile(
+          join(context.dir, "templates", "slide", "crayon", "sample.json"),
+          "utf8",
+        ),
+      ),
+    );
   });
 
   it("区分ごとの既定を保存し、build でその区分の tokens.css だけが替わる", async () => {
@@ -257,11 +280,15 @@ describe("デザインの API", () => {
     expect(missing.status).toBe(404);
   });
 
-  it("複製で作ると、元の中身の見本(sample.json)も写す", async () => {
+  it("複製で作ると、元の中身の見本(sample.json と sample.en.json)も写す", async () => {
     const dir = join(context.dir, "templates", "slide");
     await writeFile(
       join(dir, "default", "sample.json"),
       JSON.stringify({ slides: [] }),
+    );
+    await writeFile(
+      join(dir, "default", "sample.en.json"),
+      JSON.stringify({ label: "Copied", slides: [] }),
     );
     const created = await send("PUT", "/api/design/templates/slide/copied", {
       template: acmeSlide,
@@ -271,6 +298,9 @@ describe("デザインの API", () => {
     expect(created.status).toBe(201);
     expect(await readFile(join(dir, "copied", "sample.json"), "utf8")).toBe(
       JSON.stringify({ slides: [] }),
+    );
+    expect(await readFile(join(dir, "copied", "sample.en.json"), "utf8")).toBe(
+      JSON.stringify({ label: "Copied", slides: [] }),
     );
     const bad = await send("PUT", "/api/design/templates/slide/other", {
       template: acmeSlide,
@@ -468,6 +498,27 @@ describe("デザインの API", () => {
       ].map(async (path) => (await send("GET", path)).status),
     );
     expect(statuses).toEqual([404, 404, 404]);
+  });
+
+  it("英語の見本(samples/en/)も同じ名前で、そのテンプレートの CSS と設定の組織名で返す", async () => {
+    await saveProfile(context.workspaceRoot, { orgName: "Acme" });
+    const document = await send(
+      "GET",
+      "/api/design/files/samples/en/document.html?template=report",
+    );
+    expect(document.status).toBe(200);
+    const html = await document.text();
+    expect(html).toContain('<html lang="en">');
+    expect(html).toContain('href="../../dist/document/report.css"');
+    expect(html).toContain("<span>Acme</span>");
+    const slide = await (
+      await send(
+        "GET",
+        "/api/design/files/samples/en/slide.lumen.html?template=lumen",
+      )
+    ).text();
+    expect(slide).toContain('href="../../dist/slide/lumen.css"');
+    expect(slide).toContain('src="../slide.lumen/assets/');
   });
 
   it("samples/ と dist/ の外、知らない拡張子は返さない", async () => {

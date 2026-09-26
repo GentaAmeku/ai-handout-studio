@@ -7,7 +7,7 @@ import {
 import type { Deck } from "../schema/deck";
 import type { Selection, Surface, Template } from "../schema/design";
 import type { DocumentFile } from "../schema/document";
-import type { Profile } from "../schema/profile";
+import type { Locale, Profile } from "../schema/profile";
 import { deckApiPath, requestJson } from "./client";
 import type {
   AgentId,
@@ -225,10 +225,15 @@ export const designTemplateQuery = (surface: Surface, name: string) =>
       requestJson<DesignTemplateDetail>(templateApiPath(surface, name)),
   });
 
-// テンプレートが持つ中身の見本。一覧のカードと編集画面が描く。持たないテンプレートは sample が null
-export const designTemplateSampleQuery = (surface: Surface, name: string) =>
+// テンプレートが持つ中身の見本。一覧のカードと編集画面が描く。持たないテンプレートは sample が null。
+// 見本の言語はサーバーが設定の locale で選ぶ。画面の言語(lang)はキャッシュを分けるために持つ
+export const designTemplateSampleQuery = (
+  surface: Surface,
+  name: string,
+  lang: Locale,
+) =>
   queryOptions({
-    queryKey: ["design", "templates", surface, name, "sample"],
+    queryKey: ["design", "templates", surface, name, "sample", lang],
     queryFn: () =>
       requestJson<DesignTemplateSampleDetail>(
         `${templateApiPath(surface, name)}/sample`,

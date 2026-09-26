@@ -7,6 +7,7 @@
 | `template.json` | 表示名(英語。識別子の頭を大文字にした名前)・説明・tokens の差分・部品の変種・レイアウト(質問票と文書) |
 | `template.css` | 任意。そのテンプレートだけの CSS(下の「専用の CSS」) |
 | `sample.json` | 任意。スライドの中身の見本 |
+| `sample.en.json` | 任意。`sample.json` の英語。設定の言語(`locale`)が英語のとき一覧・編集画面・新規作成が使い、無ければ `sample.json` に落ちる |
 | `assets/*.svg` | 任意。スライドのテンプレートに同梱する絵(小文字・数字・`-` の名前)。見本の `image` は `src` に `assets/<ファイル>` と書く。下の「同梱の絵」 |
 
 値(色・書体・大きさ・余白・角・影)と部品の変種・レイアウトで足りるなら `template.json` だけで作る。見出しの作り・帯・背景の飾り・カードの並びなど、変数では表せない見た目だけを `template.css` に書く。
@@ -31,6 +32,18 @@
 - 1枚に部品を2〜3つ置き、下半分を空けない
 - 絵は `assets/` の同梱の絵を `image` ブロックで置く。飾り(`.ds-decoration__shape--*`)は CSS が描く
 - 一覧のカードに出るのは表紙だけ(`coverSlide`)
+
+### 英語の見本(sample.en.json)
+
+中身の見本を持つ12件(見た目の7件と中身の構成5件)は、隣に英語の `sample.en.json` を持つ。
+
+- **形は日本語と同じ:** ページとブロックの id・種類・座標は `sample.json` のまま、文だけを訳す(`templates.test.ts` が形の一致と日本語の取り残しを確かめる)。`sample.json` の配置を変えたら `sample.en.json` も合わせる
+- **字数は英語で測る:** 英語は同じ意味でも幅を取る。KPI の数字は単位をラベルへ移して短くする(`4形式` → 数字 `4`・ラベル `Export formats`)など、枠に収まる言い方にする
+- **未記入の印はそのまま:** `[[要確認]]` は英語の資料でも同じ印なので訳さない
+- **選び方:** サーバーが設定の `locale` で読む(`readSlideSample`)。無ければ日本語に落ちる。複製すると `sample.en.json` も写る
+- **見本の HTML:** `pnpm design:build` が `design/samples/en/` に同じ名前で英語の見本を作る(スライド・文書・質問票)。同梱の絵は `samples/slide.<名前>/assets/` の1組を読む。文書と質問票の英語は `app/server/document-sample.en.ts`・`sheet-sample.en.ts` の表(日本語の文 → 英語)で置き換える。見た目の検査(`template-css.export.test.ts`)は英語の見本も測る
+- **共通の見本:** 見本を持たない `default` は、開発用のブロック一覧(`app/src/dev/block-catalog.json`)の英語 `block-catalog.en.json` に落ちる
+- **部品一覧:** 編集画面で見本の後ろに足す2枚(`app/src/pages/design/parts.ts`)も、画面の言語で文を選ぶ
 
 ## 専用の CSS(template.css)
 

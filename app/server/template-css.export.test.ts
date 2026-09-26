@@ -10,6 +10,7 @@ import {
   type TemplateChecks,
   templateChecksSchema,
 } from "../src/schema/design";
+import { SAMPLE_LANGS } from "./design";
 import { SHEET_LAYOUTS } from "./sheet-sample";
 
 // テンプレートごとに、専用の CSS を当てた見本を実ブラウザで描き、文字の明暗差とはみ出しを測る。
@@ -267,19 +268,32 @@ const overflowIssues = (page: Page, surface: string): Promise<string[]> =>
 // 文書の見本は document.json を document-render.ts で描いたもの、質問票の見本は
 // sheet-render.ts の出力。どちらも保存した資料の書き出しと同じ DOM なので、実描画を測っている。
 // スライドは部品の見本(slide.html)に加え、そのテンプレートが中身の見本(sample.json)を持てば
-// それを描いた slide.<名前>.html も測る。画面の一覧と編集画面が出すのと同じ資料
-const samplesOf = async (surface: string, name: string): Promise<string[]> => {
-  if (surface === "document") return ["document.html"];
+// それを描いた slide.<名前>.html も測る。画面の一覧と編集画面が出すのと同じ資料。
+// 英語の見本(samples/en/)も同じ名前で並ぶので、同じ検査にかける
+const samplesIn = async (
+  dir: string,
+  surface: string,
+  name: string,
+): Promise<string[]> => {
+  const prefix = dir === "" ? "" : `${dir}/`;
+  if (surface === "document") return [`${prefix}document.html`];
   if (surface === "sheet") {
-    return SHEET_LAYOUTS.map((layout) => `sheet.${layout}.html`);
+    return SHEET_LAYOUTS.map((layout) => `${prefix}sheet.${layout}.html`);
   }
-  const own = `slide.${name}.html`;
+  const own = `${prefix}slide.${name}.html`;
   const has = await readFile(join(designDir, "samples", own)).then(
     () => true,
     () => false,
   );
-  return has ? ["slide.html", own] : ["slide.html"];
+  return has ? [`${prefix}slide.html`, own] : [`${prefix}slide.html`];
 };
+
+const samplesOf = async (surface: string, name: string): Promise<string[]> =>
+  (
+    await Promise.all(
+      ["", ...SAMPLE_LANGS].map((dir) => samplesIn(dir, surface, name)),
+    )
+  ).flat();
 
 const templateNamesOf = async (surface: string): Promise<string[]> => {
   const index = JSON.parse(

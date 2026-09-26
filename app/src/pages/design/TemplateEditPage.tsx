@@ -20,7 +20,7 @@ import type { DesignTemplatesDetail } from "../../api/types";
 import { ScaledSlide } from "../../components/ScaledSlide";
 import { editorSlides, sampleAssetBase } from "../../design/template-sample";
 import { mergeTokens, minTextScale } from "../../design/theme";
-import { useLanguage } from "../../i18n/language";
+import { type Language, useLanguage } from "../../i18n/language";
 import type { Slide } from "../../schema/deck";
 import {
   drawnSheetBase,
@@ -46,7 +46,7 @@ import {
 } from "./DesignChecks";
 import { partSlides } from "./parts";
 import {
-  DOCUMENT_PATH,
+  documentPath,
   FrameSample,
   SlideSample,
   sheetPath,
@@ -62,10 +62,10 @@ import { type TemplateDraft, useTemplateDraft } from "./useTemplateDraft";
 // 変えられるのはレイアウトと文字の大きさだけ。色・書体・余白・部品・名前と説明は AI に頼んでファイルを直す
 
 // そのテンプレートの見本の全ページと、部品一覧の2枚。見本が無ければ共通の見本に落ちる
-const sampleSlides = (sample: TemplateSample | null | undefined): Slide[] => [
-  ...editorSlides(sample),
-  ...partSlides,
-];
+const sampleSlides = (
+  sample: TemplateSample | null | undefined,
+  lang: Language,
+): Slide[] => [...editorSlides(sample, lang), ...partSlides(lang)];
 
 const Thumbnails = ({
   slides,
@@ -149,7 +149,7 @@ const TemplateEditor = ({
   sample: TemplateSample | null | undefined;
   fromDeckId?: string;
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const layout = surface === "slide" ? undefined : draft.template.layout;
   const [zoom, setZoom] = useState<Zoom>("fit");
   const [slideIndex, setSlideIndex] = useState(0);
@@ -158,7 +158,7 @@ const TemplateEditor = ({
   const [sideWidth, setSideWidth] = useState(readSideWidth);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const saveSelection = useSaveDesignSelection();
-  const slides = useMemo(() => sampleSlides(sample), [sample]);
+  const slides = useMemo(() => sampleSlides(sample, lang), [sample, lang]);
   const assetBaseUrl = sampleAssetBase(draft.name, sample);
   const variables = draft.variables;
   // 質問票の見本は、骨格の元(base)で出す。overview は1問ずつと同じに描く
@@ -327,7 +327,9 @@ const TemplateEditor = ({
             ) : (
               <FrameSample
                 path={
-                  surface === "sheet" ? sheetPath(sheetBase) : DOCUMENT_PATH
+                  surface === "sheet"
+                    ? sheetPath(sheetBase, lang)
+                    : documentPath(lang)
                 }
                 template={draft.name}
                 title={section}
@@ -413,6 +415,7 @@ const TemplateDraftEditor = ({
   initial: Template;
   fromDeckId?: string;
 }) => {
+  const { lang } = useLanguage();
   const draft = useTemplateDraft({
     surface,
     name,
@@ -421,7 +424,7 @@ const TemplateDraftEditor = ({
   });
   // 中身の見本はスライドだけが持つ。読めるまでと、持たないテンプレートは共通の見本で描く
   const sample = useQuery({
-    ...designTemplateSampleQuery(surface, name),
+    ...designTemplateSampleQuery(surface, name, lang),
     enabled: surface === "slide",
   });
   return (

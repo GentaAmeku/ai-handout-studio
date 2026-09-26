@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { useElementSize } from "../../components/useElementSize";
-import { useLanguage } from "../../i18n/language";
+import { type Language, useLanguage } from "../../i18n/language";
 import type { RenderContext } from "../../renderer/context";
 import { SlideView } from "../../renderer/SlideView";
 import { SLIDE_HEIGHT, SLIDE_WIDTH, type Slide } from "../../schema/deck";
@@ -21,11 +21,16 @@ export const FRAME_WIDTH = 1280;
 // 見本の HTML は design/samples/ にある。pnpm design:build が作る
 export const sampleUrl = (path: string): string => `/api/design/files/${path}`;
 
+// 英語の見本は samples/en/ に同じ名前で置いてある
+const samplesDir = (lang: Language): string =>
+  lang === "ja" ? "samples" : `samples/${lang}`;
+
 export const SHEET_LAYOUTS = ["focus", "overview", "all", "print"] as const;
 export type SheetLayout = (typeof SHEET_LAYOUTS)[number];
-export const sheetPath = (layout: SheetLayout): string =>
-  `samples/sheet.${layout}.html`;
-export const DOCUMENT_PATH = "samples/document.html";
+export const sheetPath = (layout: SheetLayout, lang: Language = "ja"): string =>
+  `${samplesDir(lang)}/sheet.${layout}.html`;
+export const documentPath = (lang: Language = "ja"): string =>
+  `${samplesDir(lang)}/document.html`;
 
 // iframe は同じオリジン。読み込み後と値の変更ごとに、文書の :root へ変数を書く。
 // 前に書いて今は無い変数は消す(倍率を 100% に戻すと --text-scale が無くなる。残すと図だけ大きいままになる)
