@@ -511,7 +511,7 @@
           "h": 120,
           "props": {
             "kicker": "What's next",
-            "text": "(What you'd like them to do next, in one sentence)",
+            "text": "(What they should do next)",
             "level": 1
           }
         },

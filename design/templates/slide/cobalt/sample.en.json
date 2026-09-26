@@ -19,7 +19,7 @@
           "h": 248,
           "props": {
             "kicker": "AI HANDOUT STUDIO",
-            "text": "Handouts ready\nto submit by tomorrow",
+            "text": "Handouts, ready\nby tomorrow",
             "level": 1
           }
         },
@@ -31,7 +31,7 @@
           "w": 720,
           "h": 48,
           "props": {
-            "text": "Finish your own handouts, quickly, by your own hand"
+            "text": "Finish your own handouts, fast"
           }
         },
         {
@@ -118,8 +118,8 @@
           "props": {
             "items": [
               {
-                "value": "30 min",
-                "label": "Outline",
+                "value": "30",
+                "label": "Minutes to outline",
                 "note": "From a template"
               },
               {

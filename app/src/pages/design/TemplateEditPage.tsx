@@ -65,7 +65,7 @@ import { type TemplateDraft, useTemplateDraft } from "./useTemplateDraft";
 const sampleSlides = (
   sample: TemplateSample | null | undefined,
   lang: Language,
-): Slide[] => [...editorSlides(sample, lang), ...partSlides];
+): Slide[] => [...editorSlides(sample, lang), ...partSlides(lang)];
 
 const Thumbnails = ({
   slides,

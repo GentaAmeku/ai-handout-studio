@@ -61,7 +61,7 @@
           "h": 120,
           "props": {
             "kicker": "About me",
-            "text": "(Your name, and the title relevant to today's talk)",
+            "text": "(Your name and relevant title)",
             "level": 1
           }
         },
@@ -144,7 +144,7 @@
           "w": 1152,
           "h": 120,
           "props": {
-            "text": "(The audience's inner voice. What is ... anyway?)",
+            "text": "(Their inner voice: what is ...?)",
             "level": 1
           }
         },
@@ -286,7 +286,7 @@
           "w": 1152,
           "h": 120,
           "props": {
-            "text": "(The answer to that question, in one sentence)",
+            "text": "(The answer, in one sentence)",
             "level": 1
           }
         },

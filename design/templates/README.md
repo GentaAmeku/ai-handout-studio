@@ -43,6 +43,7 @@
 - **選び方:** サーバーが設定の `locale` で読む(`readSlideSample`)。無ければ日本語に落ちる。複製すると `sample.en.json` も写る
 - **見本の HTML:** `pnpm design:build` が `design/samples/en/` に同じ名前で英語の見本を作る(スライド・文書・質問票)。同梱の絵は `samples/slide.<名前>/assets/` の1組を読む。文書と質問票の英語は `app/server/document-sample.en.ts`・`sheet-sample.en.ts` の表(日本語の文 → 英語)で置き換える。見た目の検査(`template-css.export.test.ts`)は英語の見本も測る
 - **共通の見本:** 見本を持たない `default` は、開発用のブロック一覧(`app/src/dev/block-catalog.json`)の英語 `block-catalog.en.json` に落ちる
+- **部品一覧:** 編集画面で見本の後ろに足す2枚(`app/src/pages/design/parts.ts`)も、画面の言語で文を選ぶ
 
 ## 専用の CSS(template.css)
 

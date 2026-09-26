@@ -31,7 +31,7 @@
           "w": 752,
           "h": 64,
           "props": {
-            "text": "Finish your own handouts, quickly, by your own hand"
+            "text": "Finish your own handouts, fast"
           }
         },
         {
@@ -118,8 +118,8 @@
           "props": {
             "items": [
               {
-                "value": "30 min",
-                "label": "Outline",
+                "value": "30",
+                "label": "Minutes to outline",
                 "note": "From a template"
               },
               {
