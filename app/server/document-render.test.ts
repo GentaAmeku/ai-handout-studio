@@ -365,6 +365,15 @@ describe("documentBody の骨格", () => {
       '<div class="ds-foot"><span>組織</span><span>1 / 1</span></div>',
     );
   });
+
+  it("題名が空なら h1 を出さず、リードも無ければ題名の塊ごと出さない", () => {
+    expect(documentBody({ ...doc([]), head: { title: "" } })).toBe(
+      '<div class="ds-page"><div class="ds-cols"><main class="ds-main"></main></div></div>',
+    );
+    expect(
+      documentBody({ ...doc([]), head: { title: "", lede: "要旨" } }),
+    ).toContain('<div class="ds-head"><p class="ds-lede">要旨</p></div>');
+  });
 });
 
 describe("documentBody の組織名", () => {

@@ -225,8 +225,11 @@ const asideHtml = (aside: NonNullable<DocumentFile["aside"]>): string =>
     "</aside>",
   ].join("");
 
+// 題名もリードも空なら、塊ごと出さない(空の h1 が余白だけを残さないように)
 const headHtml = (head: DocumentFile["head"]): string =>
-  `<div class="ds-head"><h1>${escapeHtml(head.title)}</h1>${head.lede ? `<p class="ds-lede">${inlineCode(head.lede)}</p>` : ""}</div>`;
+  head.title || head.lede
+    ? `<div class="ds-head">${head.title ? `<h1>${escapeHtml(head.title)}</h1>` : ""}${head.lede ? `<p class="ds-lede">${inlineCode(head.lede)}</p>` : ""}</div>`
+    : "";
 
 const summaryHtml = (
   summary: NonNullable<DocumentFile["summary"]>,
