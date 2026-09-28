@@ -20,7 +20,20 @@ export type DocumentHistoryCompare = {
   versionId: string;
   savedAt: string;
   view: "before" | "after";
+  changes?: VersionChanges;
 };
+
+// 開いたときに見せる、印の付いた最初のセクション。変更前は消えたものと変わったもの、
+// 変更後は足したものと変わったものに印が付く(app/server/document-diff.ts の diffMarks)
+const firstMarked = (
+  changes: VersionChanges | undefined,
+  view: "before" | "after",
+): string | undefined =>
+  changes?.sections.find(
+    (section) =>
+      section.change === "changed" ||
+      section.change === (view === "before" ? "removed" : "added"),
+  )?.id;
 
 const savedAtLabel = (
   savedAt: string,
@@ -43,6 +56,8 @@ export const DocumentHistoryComparison = ({
   onEnd: () => void;
 }) => {
   const { t } = useLanguage();
+  // 中身は iframe の中でスクロールするので、セクションの id へ飛ばせば変わった所から見える
+  const anchor = firstMarked(compare.changes, compare.view);
   return (
     <>
       <div className="document-preview__note document-preview__compare">
@@ -72,7 +87,7 @@ export const DocumentHistoryComparison = ({
       </div>
       <FrameView
         key={`${compare.versionId}-${compare.view}`}
-        src={documentVersionPreviewUrl(id, compare.versionId, compare.view)}
+        src={`${documentVersionPreviewUrl(id, compare.versionId, compare.view)}${anchor ? `#${encodeURIComponent(anchor)}` : ""}`}
         title={title}
       />
     </>
@@ -247,6 +262,7 @@ export const DocumentHistoryDialog = ({
             versionId: version.versionId,
             savedAt: version.savedAt,
             view: "after",
+            changes: version.changes,
           });
           onClose();
         },

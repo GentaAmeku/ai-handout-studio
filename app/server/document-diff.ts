@@ -107,7 +107,7 @@ export const diffMarks = (
 // 印の見え方。編集画面の見比べにだけ足し、書き出しには入れない。
 // 色はテンプレートの状態色の変数だけを使う(どのテンプレートの CSS にもある)
 export const DIFF_MARK_CSS = [
-  "[data-diff] { outline: 2px solid var(--diff-color); outline-offset: var(--space-sm); border-radius: var(--radius-sm); }",
+  "[data-diff] { outline: 2px solid var(--diff-color); outline-offset: var(--space-sm); border-radius: var(--radius-sm); scroll-margin-top: var(--space-gap); }",
   '[data-diff="added"] { --diff-color: var(--color-success); }',
   '[data-diff="changed"] { --diff-color: var(--color-warning); }',
   '[data-diff="removed"] { --diff-color: var(--color-danger); }',
