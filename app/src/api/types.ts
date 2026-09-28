@@ -80,7 +80,27 @@ export type VersionSummary = {
   slideCount?: number;
   // HTML 資料だけ
   sectionCount?: number;
+  // HTML 資料だけ。比べる相手(1つ新しい版か今の資料)が読めないときは無い
+  changes?: VersionChanges;
   error?: string;
+};
+
+// HTML 資料の版で変わった所。版はその保存で上書きされる前の姿なので、1つ新しい版
+// (最新の版なら今の資料)と比べる。見るのはセクションの単位までで、細かい差分は持たない
+export type SectionChange = "added" | "removed" | "changed" | "same";
+
+export type VersionChanges = {
+  // 題名・リード・要約・署名・脇の欄・足・目次・章の見せ方・テンプレート・言語のどれかが変わった
+  front: boolean;
+  // 両方にあるセクションの並びが変わった
+  reordered: boolean;
+  // 変更後のセクションの並びに、消えたセクションを元の位置で差し込んだもの
+  sections: {
+    id: string;
+    heading: string;
+    level: 2 | 3;
+    change: SectionChange;
+  }[];
 };
 
 export type VersionDetail = {

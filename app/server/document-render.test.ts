@@ -315,6 +315,22 @@ describe("documentBody の骨格", () => {
     );
   });
 
+  it("履歴の見比べの印は、章なら <section>、節なら h3 に付ける。渡さなければ付けない", () => {
+    const marks = new Map([
+      ["s1-a", "added"],
+      ["s2", "changed"],
+    ] as const);
+    expect(
+      documentBody(doc(sections), undefined, new Map(), "ja", false, marks),
+    ).toContain(
+      '<section id="s1"><h2>セクション1</h2><h3 id="s1-a" data-diff="added" data-diff-label="追加">小セクション</h3></section><section id="s2" data-diff="changed" data-diff-label="変更"><h2>セクション2</h2></section>',
+    );
+    expect(
+      documentBody(doc(sections), undefined, new Map(), "en", false, marks),
+    ).toContain('data-diff="changed" data-diff-label="Changed"');
+    expect(documentBody(doc(sections))).not.toContain("data-diff");
+  });
+
   it("先頭が level 3 のセクションは章として扱い、目次の入れ子にしない", () => {
     const html = documentBody({
       ...doc([

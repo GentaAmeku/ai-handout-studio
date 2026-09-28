@@ -17,6 +17,7 @@ import {
   createDocument,
   listDocumentVersions,
   readDocument,
+  renderDocumentVersionPreview,
   restoreDocumentVersion,
   saveDocument,
   updateDocument,
@@ -342,6 +343,74 @@ describe("保存と版", () => {
     expect(await listDocumentVersions(context.root, id)).toHaveLength(2);
     expect(
       await restoreDocumentVersion(context.root, id, "20200101T000000", at(9)),
+    ).toMatchObject({ success: false, status: 404 });
+  });
+
+  it("版には、その保存で変わったセクションを添え、見比べの見本では印を付ける", async () => {
+    await create();
+    const first = await readSaved();
+    const [target] = first.sections;
+    if (!target) throw new Error("見本にセクションが無い");
+    await saveDocument(
+      context.root,
+      id,
+      {
+        document: {
+          ...first,
+          sections: first.sections.map((section) =>
+            section.id === target.id
+              ? { ...section, heading: "直した見出し" }
+              : section,
+          ),
+        },
+        baseUpdatedAt: at(0).toISOString(),
+      },
+      at(5),
+    );
+    const [version] = await listDocumentVersions(context.root, id);
+    expect(version?.changes).toMatchObject({ front: false, reordered: false });
+    expect(
+      version?.changes?.sections.filter((entry) => entry.change !== "same"),
+    ).toEqual([
+      { id: target.id, heading: "直した見出し", level: 2, change: "changed" },
+    ]);
+
+    const versionId = version?.versionId ?? "";
+    const after = await renderDocumentVersionPreview(
+      context.root,
+      designDir,
+      id,
+      versionId,
+      "after",
+    );
+    expect(after.success && after.html).toContain(
+      `<section id="${target.id}" data-diff="changed" data-diff-label="変更"><h2>直した見出し</h2>`,
+    );
+    const before = await renderDocumentVersionPreview(
+      context.root,
+      designDir,
+      id,
+      versionId,
+      "before",
+    );
+    expect(before.success && before.html).toContain(
+      `data-diff="changed" data-diff-label="変更"><h2>${target.heading}</h2>`,
+    );
+    const exported = await renderHandout(
+      context.root,
+      designDir,
+      "document",
+      id,
+    );
+    expect(exported.success && exported.html).not.toContain("data-diff");
+    expect(
+      await renderDocumentVersionPreview(
+        context.root,
+        designDir,
+        id,
+        "20200101T000000",
+        "after",
+      ),
     ).toMatchObject({ success: false, status: 404 });
   });
 

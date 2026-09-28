@@ -6,6 +6,7 @@ import type { Locale } from "../src/schema/profile.ts";
 import type { SheetAnswers, SheetDocument } from "../src/schema/sheet.ts";
 import { readTemplate } from "./design.ts";
 import { documentScript } from "./document-client.ts";
+import { DIFF_MARK_CSS, type DiffMark } from "./document-diff.ts";
 import { documentImageSrcs } from "./document-images.ts";
 import { documentBody } from "./document-render.ts";
 import { loadImageDataUrls } from "./handout-assets.ts";
@@ -172,11 +173,16 @@ export const renderDocumentHtml = async (
     assetsDir?: string;
     // false なら章ごとに読む資料でも全章を流す(編集画面のプレビュー)
     paging?: boolean;
+    // 履歴の見比べで印を付けるセクション。渡したときだけ印の CSS を足す
+    marks?: ReadonlyMap<string, DiffMark>;
   } & DocumentSource,
 ): Promise<string> =>
   page({
     title: input.title,
-    css: await readCss(input.designDir, "document", input.template),
+    css: [
+      await readCss(input.designDir, "document", input.template),
+      ...(input.marks && input.marks.size > 0 ? [DIFF_MARK_CSS] : []),
+    ].join("\n"),
     body:
       "doc" in input
         ? documentBody(
@@ -191,6 +197,7 @@ export const renderDocumentHtml = async (
             // 画面の文言の言語。資料に無ければ ja で描く
             input.doc.lang ?? "ja",
             input.paging ?? true,
+            input.marks,
           )
         : input.body,
     // コードブロックの「コピー」を動かすだけのスクリプト

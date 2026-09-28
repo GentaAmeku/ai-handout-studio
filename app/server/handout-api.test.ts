@@ -274,6 +274,16 @@ describe("HTML 資料の document.json の API", () => {
     expect(await detail.json()).toMatchObject({
       document: { title: "保存の仕組み" },
     });
+    // 見比べの見本は、外への通信を止めた1枚の HTML
+    const preview = await send(
+      "GET",
+      `/api/documents/${summary.id}/versions/${version?.versionId}/preview?view=after`,
+    );
+    expect(preview.status).toBe(200);
+    expect(preview.headers.get("content-type")).toContain("text/html");
+    expect(preview.headers.get("content-security-policy")).toContain(
+      "default-src 'none'",
+    );
     const restored = await send(
       "POST",
       `/api/documents/${summary.id}/versions/${version?.versionId}/restore`,

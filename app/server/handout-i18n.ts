@@ -79,6 +79,8 @@ export type DocumentStrings = {
   readonly pagingShowOne: string;
   // 表の列の境目に置く、幅を変える取っ手の名前(document-client.ts が表の data 属性から読む)
   readonly resizeColumn: string;
+  // 編集画面の履歴の見比べで、変わったセクションに付ける印(書き出しには出ない)
+  readonly diffLabel: Readonly<Record<"added" | "changed" | "removed", string>>;
 };
 
 const ja: { sheet: SheetStrings; document: DocumentStrings } = {
@@ -143,6 +145,7 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     pagingShowAll: "すべての章を表示",
     pagingShowOne: "章ごとに表示",
     resizeColumn: "列の幅を変える",
+    diffLabel: { added: "追加", changed: "変更", removed: "削除" },
   },
 };
 
@@ -210,6 +213,7 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     pagingShowAll: "Show all chapters",
     pagingShowOne: "Show one chapter at a time",
     resizeColumn: "Resize column",
+    diffLabel: { added: "Added", changed: "Changed", removed: "Removed" },
   },
 };
 

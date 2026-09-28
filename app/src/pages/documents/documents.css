@@ -206,3 +206,65 @@
 .version-sections li[data-level="3"] {
   padding-left: var(--space-sm);
 }
+
+/* その保存で変わったセクション。変わっていないものは薄いまま、変わったものは本文の色と印で目立たせる */
+
+.version-sections li[data-change]:not([data-change="same"]),
+.version-sections__note {
+  color: var(--color-text);
+}
+
+.version-sections li[data-change="removed"] .version-sections__heading {
+  text-decoration: line-through;
+}
+
+.version-sections__note {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--fs-small);
+}
+
+.version-mark {
+  display: inline-block;
+  margin-right: var(--space-xs);
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--mark-color);
+  border-radius: var(--radius-sm);
+  background: var(--mark-tint);
+  color: var(--mark-color);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.version-mark[data-change="added"] {
+  --mark-color: var(--color-success);
+  --mark-tint: var(--color-success-tint);
+}
+
+.version-mark[data-change="changed"] {
+  --mark-color: var(--color-warning);
+  --mark-tint: var(--color-warning-tint);
+}
+
+.version-mark[data-change="removed"] {
+  --mark-color: var(--color-danger);
+  --mark-tint: var(--color-danger-tint);
+}
+
+/* 履歴の見比べの帯。どの保存を見ているか・変更前と変更後の切り替え・終える */
+
+.document-preview__compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.document-preview__compare .chip,
+.document-preview__compare .button {
+  min-height: 0;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.document-preview__compare .button {
+  margin-left: auto;
+}

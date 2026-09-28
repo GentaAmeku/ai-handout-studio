@@ -5,6 +5,7 @@ import type {
   DocumentSection,
 } from "../src/schema/document.ts";
 import type { Locale } from "../src/schema/profile.ts";
+import type { DiffMark } from "./document-diff.ts";
 import { HANDOUT_STRINGS } from "./handout-i18n.ts";
 import { escapeHtml } from "./sheet-render.ts";
 
@@ -169,16 +170,34 @@ const groupSections = (
 const blocksHtml = (section: DocumentSection, t: DocumentStrings): string =>
   section.blocks.map((block) => blockHtml(block, t)).join("");
 
-const sectionHtml = ({ lead, subs }: Group, t: DocumentStrings): string =>
+// 履歴の見比べで変わったセクションに付ける印。章は <section> ごと、節は h3 に付ける
+type Marks = ReadonlyMap<string, DiffMark>;
+
+const markAttributes = (
+  id: string,
+  marks: Marks,
+  t: DocumentStrings,
+): string => {
+  const mark = marks.get(id);
+  return mark
+    ? ` data-diff="${mark}" data-diff-label="${escapeHtml(t.diffLabel[mark])}"`
+    : "";
+};
+
+const sectionHtml = (
+  { lead, subs }: Group,
+  t: DocumentStrings,
+  marks: Marks,
+): string =>
   [
-    `<section id="${escapeHtml(lead.id)}">`,
+    `<section id="${escapeHtml(lead.id)}"${markAttributes(lead.id, marks, t)}>`,
     `<${lead.level === 3 ? "h3" : "h2"}>${escapeHtml(lead.heading)}</${lead.level === 3 ? "h3" : "h2"}>`,
     blocksHtml(lead, t),
     // 節の見出しにセクションの id を付け、目次の入れ子から飛べるようにする
     subs
       .map(
         (sub) =>
-          `<h3 id="${escapeHtml(sub.id)}">${escapeHtml(sub.heading)}</h3>${blocksHtml(sub, t)}`,
+          `<h3 id="${escapeHtml(sub.id)}"${markAttributes(sub.id, marks, t)}>${escapeHtml(sub.heading)}</h3>${blocksHtml(sub, t)}`,
       )
       .join(""),
     "</section>",
@@ -301,13 +320,15 @@ const pagingAttributes = (doc: DocumentFile, t: DocumentStrings): string =>
 // <div class="ds-page"> の丸ごと。目次・本文・脇の並びは見本のまま(置き場所はテンプレートの layout.areas が決める)。
 // images は画像の src から data: への対応(資料の assets/ から読んだもの)。
 // lang は画面の文言(目次・要約の見出しなど)の言語。資料に無ければ ja。
-// paging を false にすると、章ごとに読む資料でも全章を流す(編集中のプレビュー)
+// paging を false にすると、章ごとに読む資料でも全章を流す(編集中のプレビュー)。
+// marks は履歴の見比べで印を付けるセクション(編集画面だけで渡す)
 export const documentBody = (
   source: DocumentFile,
   orgName?: string,
   images: ReadonlyMap<string, string> = new Map(),
   lang: Locale = "ja",
   paging = true,
+  marks: Marks = new Map(),
 ): string => {
   const t = HANDOUT_STRINGS[lang].document;
   const doc = withImageData(source, images);
@@ -321,7 +342,7 @@ export const documentBody = (
     doc.summary ? summaryHtml(doc.summary, t) : "",
     '<div class="ds-cols">',
     doc.toc === "auto" ? tocHtml(groups, t) : "",
-    `<main class="ds-main">${groups.map((group) => sectionHtml(group, t)).join("")}</main>`,
+    `<main class="ds-main">${groups.map((group) => sectionHtml(group, t, marks)).join("")}</main>`,
     doc.aside ? asideHtml(doc.aside) : "",
     "</div>",
     doc.foot ? footHtml(doc.foot) : "",

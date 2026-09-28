@@ -412,6 +412,14 @@ export const documentVersionQuery = (id: string, versionId: string) =>
     staleTime: Number.POSITIVE_INFINITY,
   });
 
+// 履歴の見比べ。before は版そのもの、after はその保存のあとの姿で、変わったセクションに印が付く
+export const documentVersionPreviewUrl = (
+  id: string,
+  versionId: string,
+  view: "before" | "after",
+): string =>
+  `${documentPath(id)}/versions/${encodeURIComponent(versionId)}/preview?view=${view}`;
+
 // 復元も新しい版として残る。応答は復元した文書そのもの
 export const useRestoreDocumentVersion = (
   id: string,
