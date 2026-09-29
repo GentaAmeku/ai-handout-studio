@@ -20,6 +20,7 @@ import {
   listDocumentVersions,
   readDocument,
   readDocumentVersion,
+  renderDocumentVersionPreview,
   restoreDocumentVersion,
   saveDocument,
   updateDocument,
@@ -492,6 +493,26 @@ const registerDocumentRoutes = (
       document: result.document,
     };
     return c.json(detail);
+  });
+
+  // 履歴の見比べ。before は版そのもの、after はその保存のあとの姿。変わったセクションに印が付く
+  app.get(`${idPath(base)}/versions/:versionId/preview`, async (c) => {
+    const result = await renderDocumentVersionPreview(
+      workspaceRoot,
+      designDir,
+      paramId(c),
+      c.req.param("versionId"),
+      c.req.query("view") === "after" ? "after" : "before",
+    );
+    if (!result.success) {
+      return c.json(errorBody(result.message), result.status);
+    }
+    return c.body(result.html, 200, {
+      "content-type": "text/html; charset=utf-8",
+      "x-content-type-options": "nosniff",
+      "content-security-policy": PREVIEW_CSP,
+      "cache-control": "no-store",
+    });
   });
 
   app.post(`${idPath(base)}/versions/:versionId/restore`, async (c) => {

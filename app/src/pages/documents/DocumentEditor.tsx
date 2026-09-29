@@ -29,7 +29,11 @@ import {
 } from "../editor/side-width";
 import type { DocumentCompare } from "./DocumentAiPanel";
 import { DocumentBar } from "./DocumentBar";
-import { DocumentHistoryDialog } from "./DocumentHistoryDialog";
+import {
+  type DocumentHistoryCompare,
+  DocumentHistoryComparison,
+  DocumentHistoryDialog,
+} from "./DocumentHistoryDialog";
 import { DocumentOutline } from "./DocumentOutline";
 import { DocumentSidePanel } from "./DocumentSidePanel";
 
@@ -62,6 +66,8 @@ export const DocumentEditor = ({
   const [dismissedUpdatedAt, setDismissedUpdatedAt] = useState<string>();
   const [historyOpen, setHistoryOpen] = useState(false);
   const [compare, setCompare] = useState<DocumentCompare>();
+  const [historyCompare, setHistoryCompare] =
+    useState<DocumentHistoryCompare>();
   const [sideWidth, setSideWidth] = useState(readSideWidth);
   const [sideOpen, setSideOpen] = useState(readSideOpen);
   const saveDocument = useSaveDocument(id, (document, sent) =>
@@ -120,6 +126,17 @@ export const DocumentEditor = ({
 
   const edit = (action: DocumentEditorAction) => dispatch(action);
 
+  // 中央のプレビューの見比べは1つだけ。AI の編集案と履歴のどちらかを始めたら、もう片方は閉じる
+  const compareAi = (next: DocumentCompare | undefined) => {
+    setCompare(next);
+    if (next) setHistoryCompare(undefined);
+  };
+
+  const compareHistory = (next: DocumentHistoryCompare) => {
+    setCompare(undefined);
+    setHistoryCompare(next);
+  };
+
   return (
     <div className="viewer editor document-editor">
       <DocumentBar
@@ -176,6 +193,14 @@ export const DocumentEditor = ({
                 title={title}
               />
             </>
+          ) : historyCompare ? (
+            <DocumentHistoryComparison
+              id={id}
+              title={title}
+              compare={historyCompare}
+              onChange={setHistoryCompare}
+              onEnd={() => setHistoryCompare(undefined)}
+            />
           ) : (
             <>
               {dirty && (
@@ -197,7 +222,7 @@ export const DocumentEditor = ({
           document={document}
           id={id}
           compare={compare}
-          onCompare={setCompare}
+          onCompare={compareAi}
           selection={state.selection}
           sideWidth={sideWidth}
           open={sideOpen}
@@ -214,9 +239,11 @@ export const DocumentEditor = ({
         id={id}
         dirty={dirty}
         onClose={() => setHistoryOpen(false)}
-        onRestored={(restored) =>
-          dispatch({ type: "reload", document: restored })
-        }
+        onRestored={(restored) => {
+          setHistoryCompare(undefined);
+          dispatch({ type: "reload", document: restored });
+        }}
+        onCompare={compareHistory}
       />
     </div>
   );

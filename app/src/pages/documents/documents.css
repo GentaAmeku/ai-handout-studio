@@ -196,13 +196,87 @@
 
 /* 履歴の版に出すセクションの並び */
 
+/* 見出し・表紙まわりの知らせ・並びの間と、行どうしの間を空けて、印の付いた行が詰まって見えないようにする */
+.version-sections {
+  display: grid;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
+}
+
 .version-sections ol {
   margin: 0;
-  padding-left: var(--space-md);
+  padding-left: var(--space-gap);
   color: var(--color-muted);
   font-size: var(--fs-small);
+  line-height: 1.6;
+}
+
+.version-sections li + li {
+  margin-top: var(--space-xs);
 }
 
 .version-sections li[data-level="3"] {
-  padding-left: var(--space-sm);
+  padding-left: var(--space-md);
+}
+
+/* その保存で変わったセクション。変わっていないものは薄いまま、変わったものは本文の色と印で目立たせる */
+
+.version-sections li[data-change]:not([data-change="same"]),
+.version-sections__note {
+  color: var(--color-text);
+}
+
+.version-sections li[data-change="removed"] .version-sections__heading {
+  text-decoration: line-through;
+}
+
+.version-sections__note {
+  margin: 0;
+  font-size: var(--fs-small);
+}
+
+.version-mark {
+  display: inline-block;
+  margin-right: var(--space-sm);
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--mark-color);
+  border-radius: var(--radius-sm);
+  background: var(--mark-tint);
+  color: var(--mark-color);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.version-mark[data-change="added"] {
+  --mark-color: var(--color-success);
+  --mark-tint: var(--color-success-tint);
+}
+
+.version-mark[data-change="changed"] {
+  --mark-color: var(--color-warning);
+  --mark-tint: var(--color-warning-tint);
+}
+
+.version-mark[data-change="removed"] {
+  --mark-color: var(--color-danger);
+  --mark-tint: var(--color-danger-tint);
+}
+
+/* 履歴の見比べの帯。どの保存を見ているか・変更前と変更後の切り替え・終える */
+
+.document-preview__compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.document-preview__compare .chip,
+.document-preview__compare .button {
+  min-height: 0;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.document-preview__compare .button {
+  margin-left: auto;
 }

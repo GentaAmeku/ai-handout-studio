@@ -1,5 +1,5 @@
 import { type UseQueryResult, useQuery } from "@tanstack/react-query";
-import { RotateCcw } from "lucide-react";
+import { GitCompareArrows, RotateCcw } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { deckAssetBase } from "../../api/client";
 import {
@@ -21,11 +21,13 @@ export const formatSavedAt = (savedAt: string): string => {
 
 const VersionRow = ({
   version,
+  describe,
   amount,
   selected,
   onSelect,
 }: {
   version: VersionSummary;
+  describe: ReactNode;
   amount: string;
   selected: boolean;
   onSelect: () => void;
@@ -44,9 +46,7 @@ const VersionRow = ({
             ? t("history.unknownDate")
             : formatSavedAt(version.savedAt)}
         </span>
-        <span className="version-row__title">
-          {version.error ?? version.title}
-        </span>
+        <span className="version-row__title">{version.error ?? describe}</span>
         <span className="version-row__meta">
           {version.source === "generated"
             ? t("history.sourceGenerated")
@@ -59,21 +59,29 @@ const VersionRow = ({
 };
 
 // 版の一覧・見本・復元の枠。資料の区分ごとに、版の数え方と見本の描き方だけを渡す。
-// 復元はファイルに対して行い、現行を versions/ へ残す
+// 復元はファイルに対して行い、現行を versions/ へ残す。
+// describe は一覧の行の中身(既定は題名)、compare は見比べを始めるボタン(HTML 資料だけ)
 export const HistoryDialogShell = ({
   open,
   dirty,
   versions,
+  describe = (version) => version.title,
   amount,
   preview,
+  compare,
   restore,
   onClose,
 }: {
   open: boolean;
   dirty: boolean;
   versions: UseQueryResult<VersionSummary[]>;
+  describe?: (version: VersionSummary) => ReactNode;
   amount: (version: VersionSummary) => string;
-  preview: (versionId: string) => ReactNode;
+  preview: (version: VersionSummary) => ReactNode;
+  compare?: {
+    label: string;
+    onCompare: (version: VersionSummary) => void;
+  };
   restore: {
     mutate: (versionId: string) => void;
     isPending: boolean;
@@ -115,13 +123,14 @@ export const HistoryDialogShell = ({
             <VersionRow
               key={version.versionId}
               version={version}
+              describe={describe(version)}
               amount={amount(version)}
               selected={version.versionId === selectedId}
               onSelect={() => setSelectedId(version.versionId)}
             />
           ))}
         </ol>
-        {selected && !selected.error && preview(selected.versionId)}
+        {selected && !selected.error && preview(selected)}
         {restore.error && (
           <p className="form-error" role="alert">
             {restore.error.message}
@@ -135,6 +144,17 @@ export const HistoryDialogShell = ({
           >
             {t("common.close")}
           </button>
+          {compare && (
+            <button
+              type="button"
+              className="button button--secondary"
+              disabled={!selected || selected.error !== undefined}
+              onClick={() => selected && compare.onCompare(selected)}
+            >
+              <GitCompareArrows size={18} aria-hidden />
+              {compare.label}
+            </button>
+          )}
           <button
             type="button"
             className="button button--primary"
@@ -221,8 +241,8 @@ export const HistoryDialog = ({
           ? ""
           : t("unit.slidesSlash", { n: version.slideCount })
       }
-      preview={(versionId) => (
-        <VersionPreview deckId={deckId} versionId={versionId} />
+      preview={(version) => (
+        <VersionPreview deckId={deckId} versionId={version.versionId} />
       )}
       restore={restore}
       onClose={onClose}

@@ -6,6 +6,7 @@ import {
   type DocumentFile,
 } from "../src/schema/document.ts";
 import type { HandoutMeta } from "../src/schema/handout.ts";
+import { diffDocuments, diffMarks } from "./document-diff.ts";
 import { documentImageSrcs, withImageSrcs } from "./document-images.ts";
 import {
   documentFromBody,
@@ -20,9 +21,11 @@ import {
   prepareImages,
   storeImages,
 } from "./handout-assets.ts";
+import { renderDocumentHtml } from "./handout-html.ts";
 import {
   fail,
   readMeta,
+  readOrgName,
   resolveTemplateId,
   type StoreResult,
   summarizeDocument,
@@ -309,34 +312,47 @@ const readVersion = async (
     : file;
 };
 
-// 読めない版も一覧から消さず、理由を添える
+// 読めない版も一覧から消さず、理由を添える。
+// 版はその保存で上書きされる前の姿なので、変わった所は1つ新しい版(最新の版なら今の資料)と比べて出す
 export const listDocumentVersions = async (
   root: string,
   id: string,
-): Promise<VersionSummary[]> =>
-  Promise.all(
+): Promise<VersionSummary[]> => {
+  const files = await Promise.all(
     (await listVersionIdsIn(documentVersionsDir(root, id))).map(
-      async (versionId) => {
-        const file = await readVersion(root, id, versionId);
-        const base = {
-          versionId,
-          savedAt: versionSavedAt(versionId),
-          source: versionSource(versionId),
-        };
-        return file.state === "ready"
-          ? {
-              ...base,
-              title: file.document.title,
-              sectionCount: file.document.sections.length,
-            }
-          : {
-              ...base,
-              error:
-                file.state === "invalid" ? file.message : "版が見つからない",
-            };
-      },
+      async (versionId) => ({
+        versionId,
+        file: await readVersion(root, id, versionId),
+      }),
     ),
   );
+  const current = await readDocument(root, id);
+  const newerOf = (index: number): DocumentFile | undefined => {
+    if (index === 0) return current.success ? current.document : undefined;
+    const newer = files[index - 1]?.file;
+    return newer?.state === "ready" ? newer.document : undefined;
+  };
+  return files.map(({ versionId, file }, index) => {
+    const base = {
+      versionId,
+      savedAt: versionSavedAt(versionId),
+      source: versionSource(versionId),
+    };
+    if (file.state !== "ready") {
+      return {
+        ...base,
+        error: file.state === "invalid" ? file.message : "版が見つからない",
+      };
+    }
+    const newer = newerOf(index);
+    return {
+      ...base,
+      title: file.document.title,
+      sectionCount: file.document.sections.length,
+      ...(newer ? { changes: diffDocuments(file.document, newer) } : {}),
+    };
+  });
+};
 
 export const readDocumentVersion = async (
   root: string,
@@ -347,6 +363,57 @@ export const readDocumentVersion = async (
   if (file.state === "missing") return fail(404, "版が見つからない");
   if (file.state === "invalid") return fail(422, file.message);
   return { success: true, document: file.document };
+};
+
+// 版と、その保存のあとの姿(1つ新しい版。最新の版なら今の資料)
+const readVersionChange = async (
+  root: string,
+  id: string,
+  versionId: string,
+): Promise<StoreResult<{ before: DocumentFile; after: DocumentFile }>> => {
+  const version = await readDocumentVersion(root, id, versionId);
+  if (!version.success) return version;
+  const versionIds = await listVersionIdsIn(documentVersionsDir(root, id));
+  const newerId = versionIds[versionIds.indexOf(versionId) - 1];
+  const after =
+    newerId === undefined
+      ? await readDocument(root, id)
+      : await readDocumentVersion(root, id, newerId);
+  if (!after.success) return after;
+  return { success: true, before: version.document, after: after.document };
+};
+
+// 履歴の見比べ。before は版そのもの、after はその保存のあとの姿で、変わったセクションに印を付ける。
+// 編集画面のプレビューと同じく、章ごとに読む資料でも全章を流す
+export const renderDocumentVersionPreview = async (
+  root: string,
+  designDir: string,
+  id: string,
+  versionId: string,
+  view: "before" | "after",
+): Promise<StoreResult<{ html: string }>> => {
+  const meta = await readMeta(root, "document", id);
+  if (meta.state !== "ready") return fail(404, "HTML 資料が見つからない");
+  const change = await readVersionChange(root, id, versionId);
+  if (!change.success) return change;
+  const doc = view === "before" ? change.before : change.after;
+  try {
+    return {
+      success: true,
+      html: await renderDocumentHtml({
+        designDir,
+        template: meta.value.template,
+        title: meta.value.title,
+        doc,
+        orgName: await readOrgName(root),
+        assetsDir: assetsDirOf(root, "document", id),
+        paging: false,
+        marks: diffMarks(diffDocuments(change.before, change.after), view),
+      }),
+    };
+  } catch {
+    return fail(422, "テンプレートを読めない");
+  }
 };
 
 // 復元も新しい版として残す(現行を versions/ へ写してから書く)
