@@ -45,6 +45,10 @@ export const isDeckId = (value: string): boolean => DECK_ID_PATTERN.test(value);
 
 export const decksDir = (root: string): string => join(root, "decks");
 
+// 読み手のメモ(readers/<読み手>.md)。知っていること・怪しいところ・省くものを、資料をまたいで使い直す。
+// 他人についてのメモなので、資料と同じく git に入れない。作るのはエージェントで、アプリは場所を教えるだけ
+export const readersDir = (root: string): string => join(root, "readers");
+
 export const deckDir = (root: string, deckId: string): string =>
   join(decksDir(root), deckId);
 

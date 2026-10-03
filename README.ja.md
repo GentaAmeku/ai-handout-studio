@@ -43,7 +43,7 @@ clone したフォルダで、Claude Code なら `/studio-uninstall` と打ち�
 
 ```
 ai-handout-studio new --title <題名> [--outline <構成>] [--template <名前>]
-ai-handout-studio check <ファイル> [--minutes <分>]
+ai-handout-studio check <ファイル> [--minutes <分>] [--run]
 ai-handout-studio open [<id>] [--lan|--no-lan]
 ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]

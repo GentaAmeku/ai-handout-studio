@@ -11,6 +11,7 @@ import {
   sheetDocumentSchema,
 } from "../src/schema/sheet.ts";
 import { readDocumentSource } from "./document-source.ts";
+import { documentText } from "./document-text.ts";
 import {
   assetsDirOf,
   loadImageDataUrls,
@@ -486,5 +487,28 @@ export const exportHandout = async (
     out ?? join(exportDirOf(root, kind, id, now), exportFileName(id, now));
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, rendered.html, "utf8");
+  return { success: true, path };
+};
+
+// HTML 資料を、読む順の文字だけで書き出す(--text)。読者テストで読み手に渡す。置き場所の決め方は exportHandout と同じ
+export const exportDocumentText = async (
+  root: string,
+  id: string,
+  now: Date,
+  out?: string,
+): Promise<StoreResult<{ path: string }>> => {
+  const meta = await readMeta(root, "document", id);
+  if (meta.state !== "ready") return fail(404, "資料が見つからない");
+  const source = await readDocumentSource(root, meta.value);
+  if (source.state === "missing") return fail(422, "document.json が無い");
+  if (source.state === "invalid") return fail(422, source.message);
+  const path =
+    out ??
+    join(
+      exportDirOf(root, "document", id, now),
+      exportFileName(id, now).replace(/\.html$/, ".txt"),
+    );
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, documentText(source.doc), "utf8");
   return { success: true, path };
 };

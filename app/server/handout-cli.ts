@@ -21,7 +21,7 @@ export const HANDOUT_USAGE = [
   "  ai-handout-studio document update <id> --json <document.json> [--title <題名>]",
   "  ai-handout-studio document new --title <題名> --html <本文HTML> [--template <テンプレート>]  (移行期)",
   "  ai-handout-studio document update <id> --html <本文HTML> [--title <題名>]  (移行期)",
-  "  ai-handout-studio document export <id> [--out <書き出し先>]",
+  "  ai-handout-studio document export <id> [--out <書き出し先>] [--text]",
 ];
 
 export type DocumentFormat = "json" | "html";
@@ -49,7 +49,14 @@ export type HandoutCommand =
       layout?: SheetBase;
     }
   | { name: "sheet-answers"; id: string; file: string }
-  | { name: "handout-export"; kind: HandoutKind; id: string; out?: string };
+  // text は HTML 資料を読む順の文字だけで書き出す(読者テストで読み手に渡す)
+  | {
+      name: "handout-export";
+      kind: HandoutKind;
+      id: string;
+      out?: string;
+      text?: true;
+    };
 
 export type ParsedHandout =
   | { success: true; command: HandoutCommand }
@@ -66,6 +73,7 @@ const options = {
   json: { type: "string" },
   out: { type: "string" },
   layout: { type: "string" },
+  text: { type: "boolean" },
 } as const;
 
 const read = (args: readonly string[]) => {
@@ -193,6 +201,9 @@ export const parseHandoutCli = (
 
   if (action === "export") {
     if (!found.ok) return fail(found.message);
+    if (values.text && kind !== "document") {
+      return fail("--text は HTML 資料(document)だけで使う");
+    }
     return {
       success: true,
       command: {
@@ -200,6 +211,7 @@ export const parseHandoutCli = (
         kind,
         id: found.id,
         ...(values.out ? { out: values.out } : {}),
+        ...(values.text ? { text: true as const } : {}),
       },
     };
   }

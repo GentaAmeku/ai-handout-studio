@@ -41,6 +41,7 @@ import {
   decksDir,
   isDeckId,
   listOutlines,
+  readersDir,
   resolveDesign,
 } from "./workspace.ts";
 
@@ -52,7 +53,7 @@ export const DEV_ORIGIN = `http://127.0.0.1:${DEV_PORT}`;
 export const USAGE = [
   "使い方:",
   "  ai-handout-studio new --title <題名> [--outline <構成>] [--template <テンプレート>]",
-  "  ai-handout-studio check <ファイル> [--minutes <分>]",
+  "  ai-handout-studio check <ファイル> [--minutes <分>] [--run]",
   "  ai-handout-studio open [<id>] [--lan|--no-lan]",
   "  ai-handout-studio restart [<id>] [--lan|--no-lan]",
   "  ai-handout-studio templates [--kind slide|sheet|document]",
@@ -71,7 +72,8 @@ export const USAGE = [
 
 export type CliCommand =
   | { name: "new"; title: string; outlineId?: string; templateId?: string }
-  | { name: "check"; path: string; minutes?: number }
+  // run は document.json の code ブロックを出どころ(verify)と照合する。コマンドを走らせるので明示したときだけ
+  | { name: "check"; path: string; minutes?: number; run?: true }
   // 開く資料。スライド・質問票・HTML 資料のどの id でもよい
   // lan が無ければ設定(features.lan)に従う。--lan / --no-lan で1回だけ上書きする
   | { name: "open"; id?: string; lan?: boolean }
@@ -157,7 +159,7 @@ const parseCheckOptions = (args: readonly string[]) => {
   try {
     return parseArgs({
       args: [...args],
-      options: { minutes: { type: "string" } },
+      options: { minutes: { type: "string" }, run: { type: "boolean" } },
       allowPositionals: true,
     });
   } catch (error) {
@@ -171,16 +173,17 @@ const parseCheck = (args: readonly string[]): ParsedCli => {
   const { values, positionals } = parsed;
   const [path, ...extra] = positionals;
   if (!path || extra.length > 0) {
-    return fail("check <ファイル> [--minutes <分>] の形で渡す");
+    return fail("check <ファイル> [--minutes <分>] [--run] の形で渡す");
   }
+  const run = values.run ? { run: true as const } : {};
   if (values.minutes === undefined) {
-    return { success: true, command: { name: "check", path } };
+    return { success: true, command: { name: "check", path, ...run } };
   }
   const minutes = Number(values.minutes);
   if (!Number.isFinite(minutes) || minutes <= 0) {
     return fail("--minutes は正の数で渡す");
   }
-  return { success: true, command: { name: "check", path, minutes } };
+  return { success: true, command: { name: "check", path, minutes, ...run } };
 };
 
 const parseTemplatesOptions = (args: readonly string[]) => {
@@ -606,7 +609,8 @@ const openPathOf = (workspaceRoot: string, id: string): string => {
 };
 
 // 1行目は開く URL。修正の手順で読むファイルの場所も添える。
-// 質問票と HTML 資料は原寸で読む URL も添える。LAN の origin があれば lanUrl・lanReadUrl も並べる
+// 質問票と HTML 資料は原寸で読む URL も添える。LAN の origin があれば lanUrl・lanReadUrl も並べる。
+// 最後の行は読み手のメモの置き場所(readers/<読み手>.md)。資料を作る前に読む
 export const formatOpen = (
   workspaceRoot: string,
   origin: string,
@@ -618,6 +622,7 @@ export const formatOpen = (
     id
       ? `path: ${openPathOf(workspaceRoot, id)}`
       : `decks: ${decksDir(workspaceRoot)}`,
+    `readers: ${readersDir(workspaceRoot)}`,
   ].join("\n");
 
 // 区分ごとのテンプレートの一覧の画面
