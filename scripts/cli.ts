@@ -37,6 +37,7 @@ import {
 } from "../app/server/handout-cli.ts";
 import {
   createSheet,
+  exportDocumentText,
   exportHandout,
   saveSheetAnswers,
   updateSheetLayout,
@@ -481,6 +482,12 @@ const runHandout = async (command: HandoutCommand): Promise<number> => {
       ),
     );
   }
+  const out = command.out ? resolve(process.cwd(), command.out) : undefined;
+  if (command.text) {
+    return report(
+      await exportDocumentText(workspaceRoot, command.id, now, out),
+    );
+  }
   return report(
     await exportHandout(
       workspaceRoot,
@@ -488,7 +495,7 @@ const runHandout = async (command: HandoutCommand): Promise<number> => {
       command.kind,
       command.id,
       now,
-      command.out ? resolve(process.cwd(), command.out) : undefined,
+      out,
     ),
   );
 };
@@ -619,7 +626,11 @@ const run = async (argv: readonly string[]): Promise<number> => {
   if (command.name === "new")
     return runNew(command.title, command.outlineId, command.templateId);
   if (command.name === "check") {
-    return checkFile(resolve(process.cwd(), command.path), command.minutes);
+    return checkFile(
+      resolve(process.cwd(), command.path),
+      command.minutes,
+      command.run ?? false,
+    );
   }
   if (command.name === "open") {
     return runOpen(command.id, await lanOf(command.lan));

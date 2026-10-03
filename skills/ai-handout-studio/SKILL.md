@@ -23,7 +23,8 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | `ai-handout-studio new --title <題名> [--outline <構成>] [--template <テンプレート>]` | 資料の場所を確保し、`id` / `path` / `createdAt` を返す。構成は中身の骨組み(`proposal`・`self-intro`・`study-session`・`kickoff`・`talk`)、テンプレートは見た目。2つは別で、`--outline` を付けると deck.json の骨組みも置く。`--template` を付けなければ既定のテンプレートになる |
 | `ai-handout-studio check <ファイル>` | deck.json・patch.json を検証する。合格なら exit 0 |
 | `ai-handout-studio check <deck.json> --minutes <分>` | 上に加えて、登壇向けの検査(尺の見積りと1枚の量の警告)をする。登壇スライド([talk.md](references/talk.md))で使う |
-| `ai-handout-studio open [<id>] [--lan\|--no-lan]` | アプリを起こして開く URL を返す。id を渡すと `path` に deck.json の場所、渡さないと `decks` に資料フォルダの場所が出る。質問票と HTML 資料の id なら原寸で読む `readUrl` も出る。設定(`features.lan`)が true なら LAN にも開き、同じ Wi-Fi から開く `lanUrl`・`lanReadUrl` が出る |
+| `ai-handout-studio check <document.json> --run` | 上に加えて、HTML 資料の `code` ブロックを出どころ(`verify`)と照合する。コマンドを走らせるので、自分で書いた `verify` にだけ使う([references/document.md](references/document.md) の「コードの出どころ」) |
+| `ai-handout-studio open [<id>] [--lan\|--no-lan]` | アプリを起こして開く URL を返す。id を渡すと `path` に deck.json の場所、渡さないと `decks` に資料フォルダの場所が出る。どちらも `readers` に読み手のメモの場所が出る([references/reader.md](references/reader.md))。質問票と HTML 資料の id なら原寸で読む `readUrl` も出る。設定(`features.lan`)が true なら LAN にも開き、同じ Wi-Fi から開く `lanUrl`・`lanReadUrl` が出る |
 | `ai-handout-studio restart [<id>] [--lan\|--no-lan]` | 動いているアプリを止めて起こし直す。LAN に開くかは `open` と同じ決め方 |
 | `ai-handout-studio settings` | 今の設定(言語 `locale`・任意の機能 `features.*`)を出す |
 | `ai-handout-studio templates [--kind slide\|sheet\|document]` | いまあるテンプレートの識別子・表示名・説明・既定を一覧で返す。テンプレートは利用者に聞かないが、利用者が名前(表示名でもよい)を挙げたときに識別子へ直して `--template` に渡すために使う |
@@ -57,7 +58,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 「資料を作って」と頼まれたら、作り始める前に、会話から分からないことを1回にまとめて質問票(question-sheet スキル)で聞く。テンプレートは聞かない。作る前も作ったあとも確かめず、「ほかのテンプレートも選べる」とも添えない。利用者が名前(表示名でもよい)を挙げたときだけ `ai-handout-studio templates --kind slide` で識別子に直し、`--template` に渡す。挙げなければ `--template` を付けず、既定のテンプレートで作る。ただし登壇スライドは、挙げなくても登壇用の `podium` を付ける([references/talk.md](references/talk.md))。
 
-聞くのは会話から分からない項目だけ。分かっている項目は聞かず、質問票の頭に「こう受け取った」と短く書く。
+聞くのは会話から分からない項目だけ。分かっている項目は聞かず、質問票の頭に「こう受け取った」と短く書く。読み手が決まっていて、その人の読み手のメモ([references/reader.md](references/reader.md))があれば先に読み、メモに書いてあることも聞かない。
 
 | 項目 | 聞くとき | 聞き方 |
 | --- | --- | --- |
@@ -70,7 +71,15 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 - 登壇スライドは、この聞き取りに [references/talk.md](references/talk.md) の項目を足して、同じ質問票で聞く
 - スクリーンショットと画像は、こちらで撮る・作る。やり方は下の「画像を用意する」
-- 利用者が「聞かずに作って」「おまかせ」と言ったとき、会話だけで全部決まるときは、質問票を出さずに作る。決めたこと(読み手・枚数など)は最後に伝える
+- 利用者が「聞かずに作って」「おまかせ」と言ったとき、会話だけで全部決まるときは、質問票を出さずに作る。渡すときの返答は、冒頭をこの形にする(決めたことを返答に書かないと、利用者は何を仮定されたか分からない):
+
+  ```
+  <題名> を作りました(<開く URL>)。
+  決めたこと: 読み手=<…> / 枚数=<…> / <ほかに決めたこと>。会話に無かったものには「推測」と付ける
+  確かめたいこと: 1. <答えで中身が変わる点> / 2. …(無ければこの行を省く)
+  ```
+
+  会話の言い換えを、利用者の言葉のように書かない(「〇〇さんの問い『…』」ではなく、「依頼から、問いを『…』と置いた」と書く)
 
 ### 画像を用意する
 
@@ -218,6 +227,7 @@ ai-handout-studio check <document.json>
 ai-handout-studio document new --json <document.json> --title <題名>
 ai-handout-studio document update <id> --json <document.json>
 ai-handout-studio document export <id> --out <保存先.html>
+ai-handout-studio document export <id> --text --out <保存先.txt>
 ```
 
-手順(読者を1人決める・型を選ぶ・見本を読む・画像を用意する・組む・保存する・渡す)と部品・図の決まりは [references/document.md](references/document.md)。設計書・要求要件・調査結果・PR 説明・ADR のセクションの型は [references/document-templates.md](references/document-templates.md)。
+手順(読者を1人決める・型を選ぶ・見本を読む・画像を用意する・組む・保存する・読者テスト・渡す)と部品・図・コードの照合の決まりは [references/document.md](references/document.md)。設計書・要求要件・調査結果・PR 説明・ADR のセクションの型は [references/document-templates.md](references/document-templates.md)。

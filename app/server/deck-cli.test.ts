@@ -123,6 +123,11 @@ describe("parseCli", () => {
       success: true,
       command: { name: "check", path: "deck.json", minutes: 15 },
     });
+    // --run を付けたときだけ code ブロックを出どころと照合する(コマンドを走らせる)
+    expect(parseCli(["check", "document.json", "--run"])).toEqual({
+      success: true,
+      command: { name: "check", path: "document.json", run: true },
+    });
     expect(parseCli(["open", "deck_20260918_001"])).toEqual({
       success: true,
       command: { name: "open", id: "deck_20260918_001" },
@@ -494,14 +499,14 @@ describe("deckUrl", () => {
     expect(deckUrl("http://127.0.0.1:5190")).toBe("http://127.0.0.1:5190/");
   });
 
-  it("open の出力は URL と、資料か資料フォルダの場所", () => {
+  it("open の出力は URL と、資料か資料フォルダの場所と、読み手のメモの場所", () => {
     expect(
       formatOpen("/ws", "http://127.0.0.1:5190", "deck_20260918_001"),
     ).toBe(
-      "url: http://127.0.0.1:5190/decks/deck_20260918_001\npath: /ws/decks/deck_20260918_001/deck.json",
+      "url: http://127.0.0.1:5190/decks/deck_20260918_001\npath: /ws/decks/deck_20260918_001/deck.json\nreaders: /ws/readers",
     );
     expect(formatOpen("/ws", "http://127.0.0.1:5190")).toBe(
-      "url: http://127.0.0.1:5190/\ndecks: /ws/decks",
+      "url: http://127.0.0.1:5190/\ndecks: /ws/decks\nreaders: /ws/readers",
     );
   });
 });

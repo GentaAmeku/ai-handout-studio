@@ -70,7 +70,7 @@ and the clone — see [UNINSTALL.md](UNINSTALL.md).
 
 ```
 ai-handout-studio new --title <title> [--outline <outline>] [--template <name>]
-ai-handout-studio check <file> [--minutes <n>]
+ai-handout-studio check <file> [--minutes <n>] [--run]
 ai-handout-studio open [<id>] [--lan|--no-lan]
 ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]

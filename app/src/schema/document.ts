@@ -110,6 +110,13 @@ export const imageSrc = z
     "画像は assets/ からの相対パスか、手元の画像ファイルのパスで指定する(URL と data: は書けない)",
   );
 
+// code ブロックの本文の出どころ。run はコマンドの出力、file は手元のファイルの抜粋。
+// どちらも check --run を呼んだフォルダから見る(app/server/document-verify.ts)
+const codeVerify = z.union([
+  z.strictObject({ run: z.string().min(1, "run が空") }),
+  z.strictObject({ file: z.string().min(1, "file が空") }),
+]);
+
 // ブロックと props は余分なキーを通さない。色やフォント名を JSON に書かせないため
 const defineBlock = <T extends string, P extends z.ZodType>(
   type: T,
@@ -162,9 +169,14 @@ export const documentBlockSchema = z.discriminatedUnion("type", [
     "quote",
     z.strictObject({ text: z.string(), source: z.string().optional() }),
   ),
+  // verify は本文の出どころ。check --run のときだけ実物と照合し、描画には出さない
   defineBlock(
     "code",
-    z.strictObject({ text: z.string(), caption: z.string().optional() }),
+    z.strictObject({
+      text: z.string(),
+      caption: z.string().optional(),
+      verify: codeVerify.optional(),
+    }),
   ),
   // 図の生成器が出した .ds-figure-frame の中身(svg)
   defineBlock(

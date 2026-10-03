@@ -97,3 +97,80 @@ describe("checkFile の質問 JSON", () => {
     ]);
   });
 });
+
+describe("checkFile の --run(code ブロックの照合)", () => {
+  const dirs: string[] = [];
+  afterEach(async () => {
+    await Promise.all(
+      dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+    );
+  });
+
+  const AT = "2026-10-04T00:00:00.000Z";
+
+  // file は絶対パスにしておく(照合は check を呼んだフォルダから見るので、試験の cwd に依らない)
+  const writeDocument = async (codeText: string) => {
+    const dir = await mkdtemp(join(tmpdir(), "check-file-"));
+    dirs.push(dir);
+    const source = join(dir, "source.txt");
+    await writeFile(source, "first\nsecond\n");
+    const path = join(dir, "document.json");
+    await writeFile(
+      path,
+      JSON.stringify({
+        id: "doc_20261004_001",
+        title: "題",
+        status: "draft",
+        meta: { createdAt: AT, updatedAt: AT },
+        head: { title: "題" },
+        toc: "auto",
+        sections: [
+          {
+            id: "s01",
+            heading: "見出し",
+            blocks: [
+              {
+                id: "b01",
+                type: "code",
+                props: { text: codeText, verify: { file: source } },
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    return path;
+  };
+
+  it("付けないときは照合せず、verify があることを警告で知らせる", async () => {
+    const path = await writeDocument("合わない行");
+    const { code, lines } = await captureOutput(() => checkFile(path));
+    expect(code).toBe(0);
+    expect(lines).toEqual([
+      `合格: ${path}(1節の資料)`,
+      "警告: verify を持つ code ブロックが 1 個ある。実物と照合するには check --run を付ける",
+    ]);
+  });
+
+  it("付けると照合し、合えば照合の行を出して合格にする", async () => {
+    const path = await writeDocument("first\nsecond");
+    const { code, lines } = await captureOutput(() =>
+      checkFile(path, undefined, true),
+    );
+    expect(code).toBe(0);
+    expect(lines).toEqual([
+      "照合: 1 個の code ブロックが出どころと一致",
+      `合格: ${path}(1節の資料)`,
+    ]);
+  });
+
+  it("合わなければ、どのブロックが合わないかを出して不合格にする", async () => {
+    const path = await writeDocument("合わない行");
+    const { code, lines } = await captureOutput(() =>
+      checkFile(path, undefined, true),
+    );
+    expect(code).toBe(1);
+    expect(lines[0]).toContain("不合格: 本文が出どころと合わない");
+    expect(lines[0]).toContain("ブロック b01");
+  });
+});

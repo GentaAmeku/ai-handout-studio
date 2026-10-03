@@ -13,7 +13,9 @@
 | `ai-handout-studio document new --json <document.json> [--title <題名>] [--template <テンプレート>]` | 資料として保存する。`id` と開く `url`、原寸で読む `readUrl` を返す |
 | `ai-handout-studio document update <id> --json <document.json> [--title <題名>]` | 同じ資料へ重ねる。保存のたびに版が残る |
 | `ai-handout-studio document export <id> [--out <保存先.html>]` | 配れる1枚の HTML を書き出す |
+| `ai-handout-studio document export <id> --text [--out <保存先.txt>]` | 読む順の文字だけで書き出す(図と画像は説明の文だけになる)。読者テストで読み手に渡す |
 | `ai-handout-studio check <document.json>` | 形を検査する。合格なら exit 0 |
+| `ai-handout-studio check <document.json> --run` | 上に加えて、`verify` を持つ `code` ブロックを出どころと照合する(「コードの出どころ」)。コマンドを走らせる |
 
 `id` と `url`・`readUrl` を利用者へ伝える。`url` は編集の画面、`readUrl` は書き出しと同じ1枚を原寸で読むページ(スマホの幅でも読める)。資料を伝えるときは `ai-handout-studio open <id>` を実行し、出力に `lanReadUrl`(同じ Wi-Fi のスマホで開く URL)があれば並べて伝える。LAN に開くかは設定(`features.lan`)で決まる。`open` が `restart` を促したら、それを実行する。利用者が共有の Wi-Fi にいると言ったときは `--no-lan` を付ける。書き出したものは CSS が `<style>` に埋まった1枚で、外から読むのは Google Fonts(Noto Sans JP)だけ。テンプレートは資料一覧(`HTML 資料`)から後で替えられる。PDF を頼まれたら、書き出した HTML をブラウザーの印刷から PDF にしてもらう。資料は画面から直せる(セクション・ブロックの追加・並べ替え・属性)ので、直しの指示が画面で済むときは JSON を書き直さない。
 
@@ -49,7 +51,7 @@
 | 画像生成 | 見た目・画面の変更を扱うとき、挿絵が合う資料のとき。`features.imageGeneration` が false なら聞かない | 要る/要らない。要るなら何の絵か(見た目の変更なら、どの案のイメージか) |
 | 題名 | 会話から決まらないとき | 自由入力(推奨の案を初期値にする) |
 
-スクリーンショットと画像は、こちらで撮る・作る。やり方は [SKILL.md](../SKILL.md) の「画像を用意する」。利用者が「聞かずに作って」「おまかせ」と言ったとき、会話だけで全部決まるときは、質問票を出さずに作る。
+スクリーンショットと画像は、こちらで撮る・作る。やり方は [SKILL.md](../SKILL.md) の「画像を用意する」。利用者が「聞かずに作って」「おまかせ」と言ったとき、会話だけで全部決まるときは、質問票を出さずに作り、渡すときの返答を [SKILL.md](../SKILL.md) の「作る前の聞き取り」の型にする。
 
 ## 文書の形
 
@@ -103,7 +105,7 @@
 | `alert` | 元に戻せない操作 | `text` |
 | `open` | 未決 | `text` |
 | `quote` | 引用 | `text`・`source?` |
-| `code` | コマンド・コード | `text`・`caption?` |
+| `code` | コマンド・コード | `text`・`caption?`・`verify?`(出どころ。「コードの出どころ」) |
 | `figure` | 図。中身は生成器が作る | `html`(`.ds-figure-frame` の中身)・`caption?` |
 | `image` | スクリーンショット・生成した絵 | `src`(手元の画像ファイルのパス。保存で `assets/` に取り込まれる)・`alt`・`caption?` |
 | `html` | 他の型で書けない例外と移行の受け皿。**まず他の型を使う** | `html`(`.ds-*` の断片) |
@@ -120,10 +122,27 @@
 
 対にならない `` ` `` はそのまま字で出る(`check` が警告する)。見出し・題名・カードの題・引用の出典・図や画像の説明では効かない。長いコードや複数行になるものは、この書き方ではなく `code` ブロックを使う。
 
+### コードの出どころ(verify)
+
+`code` ブロックに、コマンドの出力やファイルの抜粋を貼るときは、`verify` に出どころを書く。`check --run` が実物と照合し、合わなければ落とす。出力を打ち直したり、記憶で書いたりした行を、渡す前に見つけるため。
+
+```json
+{ "id": "b07", "type": "code", "props": { "text": "$ pnpm test\n✓ 128 passed", "caption": "試験の結果", "verify": { "run": "pnpm test" } } }
+{ "id": "b08", "type": "code", "props": { "text": "export const RUN_TIMEOUT_MS = 60_000;", "verify": { "file": "app/server/document-verify.ts" } } }
+```
+
+- `run`: そのコマンドを走らせ、ブロックの行が出力に**同じ順で**出るかを見る。長い出力は途中の行を省いてよい。`$ ` で始まる行(打ったコマンド)と、`…`・`...` だけの行(省略の印)は照合しない
+- `file`: ブロックの行が、そのファイルの**連続した行**と一致するかを見る。抜粋は手で直さず、ファイルから写す
+- 行は前後の空白を落として比べる。色の制御文字も落とす
+- コマンドとファイルは、`check --run` を呼んだフォルダから見る。調べたリポジトリの中で呼ぶ
+- 毎回変わる値(時刻・所要時間・ハッシュ)の行は貼らないか、省く
+- `--run` は JSON に書かれたコマンドを走らせる。自分で書いた `verify` だけを走らせ、受け取った `document.json` には付けない
+- 照合できない出どころ(手元に無いサーバーの出力など)には `verify` を書かず、本文に「未検証」と書く
+
 ## 手順
 
-1. **読者を1人決める** — 役割ではなく、実在する1人。この人が決まると、どの語を用語表へ起こすか、どの数字を1つの表へ集めるか、どこまで前提を書くかが全部決まる。決めずに組むと、そこが毎回その場の裁量になる。
-   *完了条件*: 読者を1人挙げ、その人が説明できない語を全部拾った。
+1. **読者を1人決める** — 役割ではなく、実在する1人。この人が決まると、どの語を用語表へ起こすか、どの数字を1つの表へ集めるか、どこまで前提を書くかが全部決まる。決めずに組むと、そこが毎回その場の裁量になる。決めたら、その人の読み手のメモ(`ai-handout-studio open` の出力の `readers` の場所の `<読み手>.md`)を読む。無ければ [reader.md](reader.md) の形で作る。メモの「知っていること」は書かず、「怪しいところ」を本文の芯にする。
+   *完了条件*: 読者を1人挙げ、その人が説明できない語を全部拾い、読み手のメモを読んだか作った。
 
 2. **型を選ぶ** — 実装前の合意なら設計書、解きたいことが中心なら要求・要件、調べた事実を渡すなら調査結果。[document-templates.md](document-templates.md) の該当する型を読み、セクションをそのまま使う。
    *完了条件*: 型のすべてのセクションに中身があるか、空のセクションに「未決」と1行ある。
@@ -137,17 +156,28 @@
 5. **組む** — `document.json` を書く。数字を並べるなら `table`、並列の要点なら `cards`、読み落とすと困る条件なら `notice`、手順なら `ordered`、画面や完成イメージと archify の図は `image`(`src` に手元の画像のパス)。他の型で書けるものを `html` に逃がさない。
    *完了条件*: 型のセクションを `sections` に写し、色・寸法・class を1つも書いておらず、`html` ブロックが無い(あるなら他の型で書けない理由を言える)。
 
-6. **検査して保存する** — `ai-handout-studio check <document.json>` が exit 0 になるまで直す。次に `ai-handout-studio document new --json <document.json> --title <題名>` を実行する。
-   *完了条件*: `check` と `document new` の終了コードがどちらも 0 で、`id` と `url` が出ている。
+6. **検査して保存する** — `ai-handout-studio check <document.json>` が exit 0 になるまで直す。`verify` を持つ `code` ブロックがあれば、`check <document.json> --run` で出どころと照合する。次に `ai-handout-studio document new --json <document.json> --title <題名>` を実行する。
+   *完了条件*: `check`(`verify` があれば `--run` 付き)と `document new` の終了コードがどちらも 0 で、`id` と `url` が出ている。
 
-7. **渡す** — `ai-handout-studio open <id>` を実行し、`id` と開く `url`・原寸で読む `readUrl`(出ていればスマホで読む `lanReadUrl` も)を伝える。配れるファイルが要るなら `export` して場所も伝える。
+7. **読者テスト** — 型に「読者テストの対象」とある文書は、渡す前に、文脈を持たない読み手に読ませる。書いた本人は読み手が持たない文脈を持っているので、説明の穴に気づけない。
+   1. `ai-handout-studio document export <id> --text --out <一時フォルダ>/reader.txt` で、読む順の文字だけを書き出す
+   2. サブエージェントを1つ起こし、そのファイルだけを読ませる。会話の履歴・リポジトリ・`document.json` は渡さず、「このファイル以外は読まない」と書く
+   3. 型の「問い」([document-templates.md](document-templates.md))に、本文だけから答えさせる。分からなかった語と、読むのをやめたくなった箇所も挙げさせる
+   4. 答えを書き手の意図と突き合わせる。外れた答えと欠けた答えの箇所が、直す場所。直すのは書き手で、読み手に書き直させない
+   5. 直したら `document update` し、新しいサブエージェントにもう一度読ませる。2回で揃わなければ、残ったずれを利用者に伝える
+   6. 読み手が分からなかった語が、読み手のメモの「知っていること」と食い違っていたら、メモを直す
+
+   図と画像は説明の文だけになるので、図でしか伝えていないことはこのテストで拾えない。サブエージェントを使えない環境では省き、省いたことを渡すときに伝える。
+   *完了条件*: 読み手の答えが型の問いに揃った。または、揃わなかった点を利用者に伝えた。
+
+8. **渡す** — `ai-handout-studio open <id>` を実行し、`id` と開く `url`・原寸で読む `readUrl`(出ていればスマホで読む `lanReadUrl` も)を伝える。配れるファイルが要るなら `export` して場所も伝える。
    *完了条件*: 利用者が url を開いて中身を読め、画面でセクションやブロックを直せる。
 
 ## 既存の資料を直す
 
 1. `ai-handout-studio open <id>` で `path` を確かめ、`document.json` を読む。`document.json` が無い旧い資料(`document.html` だけ)は、`document update <id> --json` を実行すると初めて `document.json` ができる。
 2. 直すのは指示のセクション・ブロックだけ。残すブロックの id は変えず、新しいブロックは文書全体の最大番号の次から振る。`meta.updatedAt` をいまの日時にする。
-3. `ai-handout-studio check <document.json>` が exit 0 になるまで直し、`document update <id> --json <document.json>` を実行する。
+3. `ai-handout-studio check <document.json>`(`verify` を持つ `code` ブロックがあれば `--run` 付き)が exit 0 になるまで直し、`document update <id> --json <document.json>` を実行する。
    *完了条件*: `check` と `document update` の終了コードがどちらも 0。
 
 旧い `--html <本文.html>` は移行期の受け口で、本文を `html` ブロック1つの文書として保存する。新しく組むときには使わない。

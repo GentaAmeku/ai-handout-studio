@@ -181,6 +181,18 @@ describe("parseCli(sheet / document)", () => {
         out: "/tmp/a.html",
       },
     });
+    // --text は読む順の文字だけで書き出す(読者テスト用)
+    expect(
+      parseCli(["document", "export", "doc_20260920_001", "--text"]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "handout-export",
+        kind: "document",
+        id: "doc_20260920_001",
+        text: true,
+      },
+    });
   });
 
   it("中身のファイル・題名・id が足りないときは失敗にする", () => {
@@ -197,6 +209,10 @@ describe("parseCli(sheet / document)", () => {
       false,
     );
     expect(parseCli(["sheet", "publish"]).success).toBe(false);
+    // --text は HTML 資料だけ
+    expect(
+      parseCli(["sheet", "export", "sheet_20260920_001", "--text"]).success,
+    ).toBe(false);
   });
 });
 
@@ -205,10 +221,10 @@ describe("open の出力", () => {
     expect(
       formatOpen("/ws", "http://127.0.0.1:5190", "sheet_20260920_001"),
     ).toBe(
-      "url: http://127.0.0.1:5190/sheets/sheet_20260920_001\nreadUrl: http://127.0.0.1:5190/api/sheets/sheet_20260920_001/preview\npath: /ws/sheets/sheet_20260920_001/questions.json",
+      "url: http://127.0.0.1:5190/sheets/sheet_20260920_001\nreadUrl: http://127.0.0.1:5190/api/sheets/sheet_20260920_001/preview\npath: /ws/sheets/sheet_20260920_001/questions.json\nreaders: /ws/readers",
     );
     expect(formatOpen("/ws", "http://127.0.0.1:5190", "doc_20260920_001")).toBe(
-      "url: http://127.0.0.1:5190/documents/doc_20260920_001\nreadUrl: http://127.0.0.1:5190/api/documents/doc_20260920_001/preview\npath: /ws/documents/doc_20260920_001/document.json",
+      "url: http://127.0.0.1:5190/documents/doc_20260920_001\nreadUrl: http://127.0.0.1:5190/api/documents/doc_20260920_001/preview\npath: /ws/documents/doc_20260920_001/document.json\nreaders: /ws/readers",
     );
   });
 
@@ -227,6 +243,7 @@ describe("open の出力", () => {
         "lanUrl: http://10.0.0.5:5190/sheets/sheet_20260920_001",
         "lanReadUrl: http://10.0.0.5:5190/api/sheets/sheet_20260920_001/preview",
         "path: /ws/sheets/sheet_20260920_001/questions.json",
+        "readers: /ws/readers",
       ].join("\n"),
     );
     expect(
@@ -238,6 +255,7 @@ describe("open の出力", () => {
         "url: http://127.0.0.1:5190/decks/deck_20260918_001",
         "lanUrl: http://192.168.1.20:5190/decks/deck_20260918_001",
         "path: /ws/decks/deck_20260918_001/deck.json",
+        "readers: /ws/readers",
       ].join("\n"),
     );
   });

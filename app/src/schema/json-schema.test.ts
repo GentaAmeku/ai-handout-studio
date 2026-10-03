@@ -112,6 +112,42 @@ describe("エージェントに渡すもの", () => {
     }
   });
 
+  it("読者テストの対象とした型は問いを持ち、document.md が読者テストの手順を持つ", async () => {
+    const templates = await readFile(
+      join(
+        repoRoot,
+        "skills/ai-handout-studio/references/document-templates.md",
+      ),
+      "utf8",
+    );
+    const marked = templates.split("読者テストの対象。").length - 1;
+    expect(marked).toBeGreaterThan(0);
+    // 手順を指すだけで問いが無い型を作らない(以前、手順の定義ごと消えて宙に浮いた)
+    expect(templates.split("読者テストの対象。問い:").length - 1).toBe(marked);
+    const guide = await readFile(
+      join(repoRoot, "skills/ai-handout-studio/references/document.md"),
+      "utf8",
+    );
+    expect(guide).toContain("**読者テスト**");
+    expect(guide).toContain("document export <id> --text");
+    expect(guide).toContain("check <document.json> --run");
+  });
+
+  it("読み手のメモの形を SKILL.md と document.md から辿れる", async () => {
+    const reader = await readFile(
+      join(repoRoot, "skills/ai-handout-studio/references/reader.md"),
+      "utf8",
+    );
+    expect(reader).toContain("## 怪しいところ");
+    for (const file of ["SKILL.md", "references/document.md"]) {
+      const text = await readFile(
+        join(repoRoot, "skills/ai-handout-studio", file),
+        "utf8",
+      );
+      expect(text).toContain("reader.md");
+    }
+  });
+
   it("テンプレートの中身の見本は AI 出力用の検証も通る", () => {
     const names = sampleTemplateNames();
     expect(names.length).toBeGreaterThan(0);

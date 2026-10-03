@@ -18,6 +18,8 @@ CLAUDE.local.md
 workspace/decks/
 workspace/sheets/
 workspace/documents/
+# 読み手のメモ。他人について書くので、資料と同じく git に入れない
+workspace/readers/
 # お気に入り。資料の id の並びで、資料と同じく git に入れない
 workspace/favorites.json
 # 見本を入れた印。開発サーバーが空のワークスペースに見本を入れたときに作る
