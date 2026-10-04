@@ -1,15 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Check, Copy } from "lucide-react";
 import { useState } from "react";
+import { agentsQuery } from "../../api/queries";
 import type { AgentCommands, AgentId } from "../../api/types";
 import { useLanguage } from "../../i18n/language";
 
 type Agent = AgentId;
-
-const agents: readonly { id: Agent; label: string }[] = [
-  { id: "claude", label: "Claude Code" },
-  { id: "codex", label: "Codex" },
-  { id: "grok", label: "Grok" },
-];
 
 const COPIED_FEEDBACK_MS = 2000;
 
@@ -23,18 +19,22 @@ export const CommandBox = ({
   agent?: Agent;
   onSelect?: (agent: Agent) => void;
 }) => {
-  const [innerAgent, setInnerAgent] = useState<Agent>("claude");
+  const [innerAgent, setInnerAgent] = useState<Agent>();
   const { t } = useLanguage();
-  const agent = controlledAgent ?? innerAgent;
+  const installed = useQuery(agentsQuery).data;
+  const agents = installed ?? [];
+  const wanted = controlledAgent ?? innerAgent;
+  const agent = agents.find(({ id }) => id === wanted)?.id ?? agents[0]?.id;
   const select = (next: Agent) => {
     setInnerAgent(next);
     onSelect?.(next);
   };
   const [copied, setCopied] = useState(false);
-  const command = commands[agent];
+  const command = agent === undefined ? undefined : commands[agent];
 
   const copy = async () => {
     try {
+      if (command === undefined) return;
       await navigator.clipboard.writeText(command);
       setCopied(true);
       setTimeout(() => setCopied(false), COPIED_FEEDBACK_MS);
@@ -42,6 +42,11 @@ export const CommandBox = ({
       setCopied(false);
     }
   };
+
+  if (installed === undefined) return null;
+  if (agent === undefined || command === undefined) {
+    return <p className="prop-panel__hint">{t("agents.none")}</p>;
+  }
 
   return (
     <div className="command-box">

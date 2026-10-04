@@ -311,6 +311,7 @@ const WRITE_ROUTES = [
 
 // 読むだけの GET。どれもファイルを書かず、プロセスも起こさないことをコードで確かめた
 const READ_ROUTES = [
+  "GET /api/agents",
   "GET /api/decks",
   "GET /api/decks/:deckId",
   "GET /api/decks/:deckId/ai-requests/:requestId",

@@ -69,7 +69,7 @@ export type ExportResult = {
 };
 
 // 依頼を渡すコマンド。リポジトリの直下で実行する形になっている
-export type AgentCommands = { claude: string; codex: string; grok: string };
+export type AgentCommands = Record<AgentId, string>;
 
 // 履歴(versions/)。読めない版も一覧に残し、error に理由を入れる
 export type VersionSummary = {
@@ -134,7 +134,17 @@ export type DocumentAiPatchStatus =
   | { state: "ready"; patch: DocumentPatch };
 
 // AI パネルからのエージェント起動(試作)。run は ai/{日時}/ の依頼にぶら下がる
-export type AgentId = "claude" | "codex" | "grok";
+// 表(scripts/harnesses.mjs)の id と同じ。agent-table.test.ts が揃っているか確かめる
+export type AgentId =
+  | "claude"
+  | "codex"
+  | "opencode"
+  | "gemini"
+  | "cursor"
+  | "grok";
+
+// GET /api/agents の 1 件。手元の PATH にあるものだけ返る
+export type AgentInfo = { id: AgentId; label: string };
 
 export type AgentRunStatus = {
   runId: string;

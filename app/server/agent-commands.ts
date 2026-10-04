@@ -1,5 +1,6 @@
 import { isAbsolute, relative } from "node:path";
 import type { AgentCommands } from "../src/api/types.ts";
+import { agentHarnesses } from "./agent-table.ts";
 
 // エージェントへ渡すコマンドの組み立て。スライドと HTML 資料の編集案(パッチ)が共有する
 
@@ -18,9 +19,10 @@ export const agentCommandsFor = (
 ): AgentCommands => {
   const prompt = shellQuote(instruction);
   const cd = `cd ${shellQuote(repoRoot)}`;
-  return {
-    claude: `${cd} && claude ${prompt}`,
-    codex: `${cd} && codex ${prompt}`,
-    grok: `${cd} && grok ${prompt}`,
-  };
+  return Object.fromEntries(
+    agentHarnesses().map((harness) => [
+      harness.id,
+      `${cd} && ${harness.interactive(prompt)}`,
+    ]),
+  ) as AgentCommands;
 };

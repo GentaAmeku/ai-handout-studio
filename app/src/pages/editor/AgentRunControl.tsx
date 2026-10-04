@@ -3,17 +3,12 @@ import { Play, RotateCcw, Square, TriangleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   agentRunQuery,
+  agentsQuery,
   useCancelAgentRun,
   useStartAgentRun,
 } from "../../api/queries";
 import type { AgentId, AgentRunStatus, AiRequestDetail } from "../../api/types";
 import { useLanguage } from "../../i18n/language";
-
-const agents: readonly { id: AgentId; label: string }[] = [
-  { id: "claude", label: "Claude Code" },
-  { id: "codex", label: "Codex" },
-  { id: "grok", label: "Grok" },
-];
 
 const POLL_INTERVAL_MS = 3000;
 
@@ -40,7 +35,7 @@ export const AgentRunControl = ({
   request: AiRequestDetail;
   targetLabel: string;
 }) => {
-  const [agent, setAgent] = useState<AgentId>("claude");
+  const [chosen, setChosen] = useState<AgentId>();
   const [runId, setRunId] = useState<string>();
   const [tick, setTick] = useState(() => Date.now());
   const { t } = useLanguage();
@@ -57,6 +52,10 @@ export const AgentRunControl = ({
     refetchIntervalInBackground: true,
   });
 
+  const installed = useQuery(agentsQuery).data;
+  const agents = installed ?? [];
+  const agent = agents.find(({ id }) => id === chosen)?.id ?? agents[0]?.id;
+
   const status = run.data;
   const active = status !== undefined && !isTerminal(status.state);
 
@@ -67,11 +66,16 @@ export const AgentRunControl = ({
   }, [active]);
 
   const start = (next: AgentId) => {
-    setAgent(next);
+    setChosen(next);
     startRun.mutate(next, {
       onSuccess: (result) => setRunId(result.runId),
     });
   };
+
+  if (installed === undefined) return null;
+  if (agent === undefined) {
+    return <p className="prop-panel__hint">{t("agents.none")}</p>;
+  }
 
   return (
     <div className="ai-run">
@@ -84,7 +88,7 @@ export const AgentRunControl = ({
             className="chip"
             aria-pressed={agent === id}
             disabled={active || startRun.isPending}
-            onClick={() => setAgent(id)}
+            onClick={() => setChosen(id)}
           >
             {label}
           </button>

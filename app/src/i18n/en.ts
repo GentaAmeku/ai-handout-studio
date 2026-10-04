@@ -696,6 +696,7 @@ export const en: Record<MessageKey, string> = {
   "ai.cancelRequest": "Drop this request",
 
   "commandBox.agentLegend": "Agent to use",
+  "agents.none": "No agent CLI found on this machine",
 
   "run.agentLegend": "Agent to launch",
   "run.confirmBefore": "Target: {target}. Output: ",

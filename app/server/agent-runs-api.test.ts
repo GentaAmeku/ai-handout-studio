@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { DeckDetail } from "../src/api/types";
+import type { AgentInfo, DeckDetail } from "../src/api/types";
 import type { AgentRunner } from "./agent-runs.ts";
 import { createApi } from "./api.ts";
 
@@ -110,7 +110,7 @@ describe("POST /api/decks/:deckId/ai-requests/:requestId/runs", () => {
       503,
     );
     expect(
-      (await post(apiWith(runnerWith({})), { agent: "gemini" })).status,
+      (await post(apiWith(runnerWith({})), { agent: "aider" })).status,
     ).toBe(400);
     const busy = runnerWith({
       startRun: vi.fn(async () => ({
@@ -149,5 +149,32 @@ describe("GET / POST cancel runs/:runId", () => {
     expect(
       (await api.request(`${base}/nope/cancel`, { method: "POST" })).status,
     ).toBe(404);
+  });
+});
+
+describe("GET /api/agents", () => {
+  const apiWithAgents = (installedAgents: () => AgentInfo[]) =>
+    createApi({
+      repoRoot,
+      workspaceRoot: context.workspaceRoot,
+      now: () => fixedNow,
+      installedAgents,
+    });
+
+  it("手元に入っているエージェントだけを id と表示名で返す", async () => {
+    const response = await apiWithAgents(() => [
+      { id: "claude", label: "Claude Code" },
+      { id: "opencode", label: "OpenCode" },
+    ]).request("/api/agents");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([
+      { id: "claude", label: "Claude Code" },
+      { id: "opencode", label: "OpenCode" },
+    ]);
+  });
+
+  it("1つも無ければ空の配列を返す", async () => {
+    const response = await apiWithAgents(() => []).request("/api/agents");
+    expect(await response.json()).toEqual([]);
   });
 });
