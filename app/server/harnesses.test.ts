@@ -101,6 +101,7 @@ describe("ハーネスの表", () => {
       "x",
       "--approval-mode",
       "auto_edit",
+      "--skip-trust",
     ]);
     expect(byId("cursor")?.headless("x")).toEqual(["cursor-agent", "-p", "x"]);
     expect(byId("grok")?.headless("x")).toEqual(["grok", "-p", "x"]);
