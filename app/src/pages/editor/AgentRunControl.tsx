@@ -72,10 +72,8 @@ export const AgentRunControl = ({
     });
   };
 
-  if (installed === undefined) return null;
-  if (agent === undefined) {
-    return <p className="prop-panel__hint">{t("agents.none")}</p>;
-  }
+  // 1つも無いときの案内は、同じ画面にある CommandBox が出す。ここで出すと2行になる
+  if (installed === undefined || agent === undefined) return null;
 
   return (
     <div className="ai-run">
