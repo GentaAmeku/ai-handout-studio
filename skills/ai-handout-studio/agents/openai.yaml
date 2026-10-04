@@ -1,0 +1,4 @@
+interface:
+  display_name: "スライド・HTML資料"
+  short_description: "テーマと構成から見栄えよく完成させる"
+  default_prompt: "$ai-handout-studio でスライドまたはHTML資料を作成してください。"

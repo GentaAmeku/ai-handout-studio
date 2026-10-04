@@ -46,11 +46,12 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 質問票・HTML 資料を「共有して」「URL で渡したい」と頼まれたら、次の手順で進める。スライドはまだ作っていない。先に `ai-handout-studio settings` を読み、`features.share` が false なら共有せず、「使うには ai-handout-studio の SETUP.md の節9で共有をオンにする」と伝える。
 
 1. `ai-handout-studio share <id>` を実行する。束(`share/`)を作り直し、束の場所・`files`(画像の一覧)・依頼文を返す。`warning` が出たら中身を確かめる([[要確認]] の残りなど。止めなくてよい)
-2. 出力の依頼文のとおりに、Artifact ツールでこの束を公開する。中身とデザインは直さない。画像があれば `files` に相対パスのまま渡す。公開の範囲は変えない(エージェントからは変えられない。既定の非公開のままにする)
-3. 公開できたら `ai-handout-studio share <id> --url <公開した URL>` を実行して URL を残す
+2. Artifact ツールを持つエージェント(Claude Code など)なら、出力の依頼文のとおりに Artifact ツールでこの束を公開する。中身とデザインは直さない。画像があれば `files` に相対パスのまま渡す。公開の範囲は変えない(エージェントからは変えられない。既定の非公開のままにする)
+   Artifact ツールが無いエージェントなら、束の場所(出力の `share/` フォルダの中身)を伝え、「Claude Code の会話で『この資料を共有して』と頼んでください」と案内する
+3. 公開できたら `ai-handout-studio share <id> --url <公開した URL>` を実行して URL を残す(Artifact ツールを持つエージェントだけ)
 4. 利用者に URL を伝え、「公開リンクにするには Artifact の画面の Share から選ぶ」ことも添える。資料に入っている名前(署名など)は公開リンクにすると誰でも読めることも伝える
 
-もう一度「共有して」と頼まれたら、同じ手順を繰り返す。前に残した URL があれば、`share <id>` の依頼文が「この URL の Artifact を更新してください」に変わるので、同じ Artifact を更新する。
+もう一度「共有して」と頼まれたら、同じ手順を繰り返す。前に残した URL があれば、`share <id>` の依頼文が「この URL の Artifact を更新してください」に変わるので、同じ Artifact を更新する(Artifact ツールを持つエージェントだけ)。
 
 ## 新しく作る
 
@@ -87,7 +88,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 - **スクリーンショット**: Web の画面は `ai-handout-studio shot <URL> --out <PNG>` で撮る(既定は 1440x900。縦に長いページは `--full`)。Web でない画面は、環境にある画面を撮る道具を使う。撮れなければ置き場所を `[[要確認]]` にして利用者に伝える
 - **見た目の変更案(完成イメージ)**: 次の順で作る
-  1. 自分で作る。Claude はふつうの画像を直接は出せないので、HTML でモックを描いて `ai-handout-studio shot <モック.html> --out <PNG>` で撮る(作れる画面に近い)。画像生成を持つエージェント(Codex など)は、その機能で作ってもよい
+  1. 自分で作る。画像を直接出せないエージェントは、HTML でモックを描いて `ai-handout-studio shot <モック.html> --out <PNG>` で撮る(作れる画面に近い)。自分で画像を出せるエージェント(Codex など)は、その機能で作る
   2. 写真調の絵・挿絵・雰囲気の案のように HTML で描けないものは、画像生成の CLI に頼む。先に `ai-handout-studio settings` を読み、`features.imageGeneration` が false なら使わず、「使うには ai-handout-studio の SETUP.md の節9で画像生成をオンにする」と伝える。どちらも1枚およそ1分で、保存先を指示すればそこに PNG を置く
      - Codex CLI: `codex exec --skip-git-repo-check -s workspace-write -C <保存先のフォルダ> "画像生成の機能で、<題材・画風・色・文字を入れない・縦横比>の画像を1枚作り、このフォルダに <名前>.png で保存して、絶対パスだけを答えて"`(「モデルがこのアカウントでは使えない」で失敗したら、CLI を更新するか、`-m` で使えるモデルを指定する)
      - Antigravity CLI: `agy --dangerously-skip-permissions --add-dir <保存先のフォルダ> --print-timeout 480s -p "<同じ依頼。保存先は絶対パスで書く>"`
