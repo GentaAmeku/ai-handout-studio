@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     host,
     // 画面が読むのは app/ と design/(app/ の外にある)と依存だけ。/@fs/ で読める範囲をこれに絞り、
-    // --lan の起動で LAN の端末が workspace/ の生のファイルや .claude/ を読めないようにする。
+    // --lan の起動で LAN の端末が workspace/ の生のファイルや .claude/・.agents/ を読めないようにする。
     // 資料は API(/api/)を通して読む
     fs: {
       allow: ["app", "design", "node_modules"].map((dir) =>

@@ -33,8 +33,10 @@ list you can search, favorite, and open from your phone on the same Wi-Fi.
 - macOS or Linux. On Windows, run everything inside WSL.
 - Node 24 or later, pnpm 11 (see [SETUP.md](SETUP.md) for how to install
   them).
-- Claude Code or Codex CLI, so your agent can write handouts for you and
-  follow the setup steps below.
+- One of Claude Code, Codex CLI, OpenCode, Gemini CLI, Cursor CLI or Grok CLI,
+  so your agent can write handouts for you and follow the setup steps below.
+  Publishing question sheets and handouts as Artifacts (`share`) needs Claude
+  Code.
 
 ## Install
 
@@ -42,11 +44,11 @@ Start in one of three ways:
 
 1. **Claude Code:** clone the repository, start Claude Code in that folder,
    and type `/studio-setup`.
-2. **Codex CLI:** clone the repository, open it, and ask: "Set this up by
-   following SETUP.md."
-3. **Before cloning:** ask your agent: "Clone
+2. **Codex CLI:** clone the repository, open it, and type `$studio-setup`.
+3. **Any other agent** (OpenCode, Gemini CLI, Cursor CLI, Grok CLI), or before
+   cloning: ask "Clone
    https://github.com/GentaAmeku/ai-handout-studio and set it up by following
-   SETUP.md."
+   SETUP.md." (or, in the cloned folder, "Set this up by following SETUP.md.")
 
 The setup is a game book: your agent runs `doctor`, reads the section it
 points to, and repeats until everything checks out. It asks you only about
@@ -58,8 +60,9 @@ Once it's done, ask your agent in any folder: "make a handout about ...".
 
 ## Uninstall
 
-In the cloned folder, type `/studio-uninstall` in Claude Code, or ask Codex
-CLI: "Uninstall this by following UNINSTALL.md." It is a game book like the
+In the cloned folder, type `/studio-uninstall` in Claude Code or
+`$studio-uninstall` in Codex CLI, or ask any other agent: "Uninstall this by
+following UNINSTALL.md." It is a game book like the
 setup: your agent runs `doctor --uninstall` and removes what is left in order
 (the server, the `ai-handout-studio` block in your agent instructions, the
 skill and command links, and Playwright's Chromium). It asks you once, before

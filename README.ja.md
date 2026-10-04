@@ -21,15 +21,15 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 - macOS か Linux。Windows は WSL の中で動かす
 - Node 24 以上、pnpm 11(入れ方は [SETUP.ja.md](SETUP.ja.md))
-- Claude Code か Codex CLI。エージェントに資料作りと下の入れ方を頼む
+- Claude Code・Codex CLI・OpenCode・Gemini CLI・Cursor CLI・Grok CLI のどれか。エージェントに資料作りと下の入れ方を頼む。質問票や資料を Artifact として共有する(`share`)には Claude Code が要る
 
 ## 入れ方
 
 次の3つのどれかで始める。
 
 1. **Claude Code:** リポジトリを clone し、そのフォルダで Claude Code を起動して `/studio-setup` と打つ
-2. **Codex CLI:** clone したリポジトリを開き、「SETUP.md のとおりに入れて」と頼む
-3. **clone の前なら:** エージェントに「https://github.com/GentaAmeku/ai-handout-studio を clone して、SETUP.md のとおりに入れて」と頼む
+2. **Codex CLI:** clone したリポジトリを開き、`$studio-setup` と打つ
+3. **そのほかのエージェント**(OpenCode・Gemini CLI・Cursor CLI・Grok CLI)や clone の前なら: 「https://github.com/GentaAmeku/ai-handout-studio を clone して、SETUP.md のとおりに入れて」と頼む(clone 済みなら「SETUP.md のとおりに入れて」)
 
 セットアップはゲームブックの形で進む。エージェントが `doctor` を実行し、指された節を読み、済むまで繰り返す。聞かれるのは言語・組織名・いくつかの任意の機能だけ([SETUP.ja.md](SETUP.ja.md)。英語の手順は [SETUP.md](SETUP.md))。手で入れたい人も、同じファイルにコマンドが全部ある。
 
@@ -37,7 +37,7 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 ## 外し方
 
-clone したフォルダで、Claude Code なら `/studio-uninstall` と打ち、Codex CLI なら「UNINSTALL.md のとおりに外して」と頼む。入れるときと同じゲームブックの形で、エージェントが `doctor --uninstall` を実行し、残っているもの(サーバー、共通指示の `ai-handout-studio` の段落、スキルとコマンドのリンク、Playwright の Chromium)を順に外す。聞かれるのは始める前の1回だけで、資料(`workspace/`)と clone を消すか残すかもそこで決める([UNINSTALL.ja.md](UNINSTALL.ja.md))。
+clone したフォルダで、Claude Code なら `/studio-uninstall`、Codex CLI なら `$studio-uninstall` と打ち、そのほかは「UNINSTALL.md のとおりに外して」と頼む。入れるときと同じゲームブックの形で、エージェントが `doctor --uninstall` を実行し、残っているもの(サーバー、共通指示の `ai-handout-studio` の段落、スキルとコマンドのリンク、Playwright の Chromium)を順に外す。聞かれるのは始める前の1回だけで、資料(`workspace/`)と clone を消すか残すかもそこで決める([UNINSTALL.ja.md](UNINSTALL.ja.md))。
 
 ## コマンド
 

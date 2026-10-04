@@ -12,10 +12,10 @@ pnpm typecheck && pnpm test && pnpm test:skills && pnpm lint && pnpm build && pn
 
 Run `pnpm exec playwright install chromium` once before the export tests.
 
-In a Claude cloud session, the SessionStart hook (`scripts/cloud-session.sh`) puts Node 24 from `/opt/node24` on `PATH`, installs dependencies and Chromium; it does nothing locally. The cloud environment's setup script must install Node 24.15.0 to `/opt/node24` and pnpm 11.9.0, and its network access must also allow `cdn.playwright.dev` and `playwright.download.prss.microsoft.com`.
-
 ## Where to make a change
 
+- Repository skills (`studio-setup`, `studio-uninstall`, `pull-request`) live in `.agents/skills/`; `.claude/skills/` holds relative symlinks to them for Claude Code, which doesn't read `.agents/skills`.
+- Per-harness differences (config folder, shared-instructions file, CLI form) are written only in `scripts/harnesses.mjs`; doctor and the AI panel read it.
 - The API under `app/server/` is loaded when Vite reads its config; restart the dev server after editing it.
 - Question-sheet markup is built in `app/server/sheet-render.ts` (it draws both the built-in sample and a saved sheet). Sample content lives in `sheet-sample.ts`, its English text in `sheet-sample.en.ts`. Only a saved sheet also ships a client script, `sheet-client.ts`, that moves between questions — editing it changes the CSP hash automatically.
 - Handout (document) markup is built in `app/server/document-render.ts` (sample, on-screen preview and export all go through it). Sample content lives in `document-sample.ts`, its English text in `document-sample.en.ts`. A slide template's English sample is `sample.en.json` next to its `sample.json`; `design/templates/README.md` has the rules.
@@ -27,7 +27,7 @@ In a Claude cloud session, the SessionStart hook (`scripts/cloud-session.sh`) pu
 
 ## Pull requests
 
-Open a pull request by following `.claude/skills/pull-request/SKILL.md`: run the checks above, take before/after screenshots when the screen changes, and write the body in the three sections of `.github/pull_request_template.md`.
+Open a pull request by following `.agents/skills/pull-request/SKILL.md`: run the checks above, take before/after screenshots when the screen changes, and write the body in the three sections of `.github/pull_request_template.md`.
 
 ## Style
 

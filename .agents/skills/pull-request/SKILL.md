@@ -26,7 +26,7 @@ LANG=ja_JP.UTF-8 pnpm dev --port 5199 --strictPort   # run_in_background で起�
 手元でポートが埋まっていたら(利用者が自分の dev サーバーを動かしているなど)、利用者のサーバーは止めない。別のポートで起動し、撮影に `--origin` を渡す。
 Chromium が無ければ、先に `pnpm exec playwright install chromium` を実行する。
 
-撮影には `node .claude/skills/pull-request/screenshot.mjs` を使う。使い方はファイルの先頭に書いてある。
+撮影には `node .agents/skills/pull-request/screenshot.mjs` を使う。使い方はファイルの先頭に書いてある。
 - 帯だけなら `--selector "header.viewer__bar"` を付ける。
 - 書き出しのお知らせのように、操作したあとの画面は `--click` と `--wait-for` で撮る。
 - 資料の ID は `curl -s 127.0.0.1:5199/api/decks`(`/api/documents`・`/api/sheets`)で調べる。
