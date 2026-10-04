@@ -1,10 +1,11 @@
 # 外し方
 
-この手順はコーディングエージェント(Claude Code か Codex CLI)に向けて書いてある。外すときは、clone したリポジトリのフォルダで、次のどれかで始める。エージェントは利用者の言語で進める。
+この手順はコーディングエージェント(Claude Code・Codex CLI・OpenCode・Gemini CLI・Cursor CLI・Grok CLI)に向けて書いてある。外すときは、clone したリポジトリのフォルダで、次のどれかで始める。エージェントは利用者の言語で進める。
 
 - **Claude Code:** そのフォルダで起動して `/studio-uninstall` と打つ
-- **Codex CLI:** そのフォルダを開いて **「UNINSTALL.md のとおりに外して」**(この日本語の手順を読ませるなら「UNINSTALL.ja.md のとおりに外して」)と頼む
-- **clone をもう消していたら:** もう一度 clone してから、上のどちらかで始める
+- **Codex CLI:** そのフォルダを開いて `$studio-uninstall` と打つ
+- **そのほか(OpenCode・Gemini CLI・Cursor CLI・Grok CLI):** そのフォルダを開いて **「UNINSTALL.md のとおりに外して」**(この日本語の手順を読ませるなら「UNINSTALL.ja.md のとおりに外して」)と頼む
+- **clone をもう消していたら:** もう一度 clone してから、上のどれかで始める
 
 進み方は [SETUP.ja.md](SETUP.ja.md) と同じゲームブックの形で、`doctor --uninstall` が残っているものを調べて次に読む節を返す。節の番号は英語の [UNINSTALL.md](UNINSTALL.md) と同じ。
 
@@ -55,7 +56,7 @@ rm -f "$(node -p "require('os').tmpdir()")/ai-handout-studio-dev.log"
 
 ## 3. 共通指示
 
-doctor は、エージェントごとの共通指示のファイル(`~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md`。symlink なら実体)に ai-handout-studio の段落が無いことを確かめる。段落は、セットアップの節8で足した `<!-- ai-handout-studio:start … -->` から `<!-- ai-handout-studio:end -->` まで。detail に行の番号がある。
+doctor は、すべてのエージェントの共通指示のファイル(symlink なら実体)に ai-handout-studio の段落が無いことを確かめる。エージェントをもう外していても調べる。対象は `~/.claude/CLAUDE.md`(Claude Code)・`$CODEX_HOME/AGENTS.md` か `~/.codex/AGENTS.md`(Codex CLI)・`$XDG_CONFIG_HOME/opencode/AGENTS.md` か `~/.config/opencode/AGENTS.md`(OpenCode)・`~/.gemini/GEMINI.md`(Gemini CLI)・`~/.grok/AGENTS.md`(Grok CLI)。実体が先に調べたものと同じなら同じ結果にし、detail に「<エージェント> と同じファイル」と書く。段落は1回消せばよい。段落は、セットアップの節8で足した `<!-- ai-handout-studio:start … -->` から `<!-- ai-handout-studio:end -->` まで。detail に行の番号がある。
 
 1. ファイルを読み、detail の行に段落があることを確かめる。
 2. 目印の2行を含めて段落を消す。段落の前後に続く空行は1つにまとめる。ほかの行は変えない。symlink なら実体を書き換え、リンクは残す。
@@ -63,9 +64,11 @@ doctor は、エージェントごとの共通指示のファイル(`~/.claude/C
 
 detail に「start と end がそろっていない」とあるときは、目印のまわりを利用者に見せ、どこまで消すかを確かめてから消す。
 
+Cursor CLI の共通指示はファイルではなく、設定画面の User Rules にある。`~/.cursor` があれば `instructions-cursor` を `warn` にするので、段落を貼っていたらそこから消すよう利用者に伝える。
+
 ## 4. スキル
 
-doctor は、スキルの置き場(Claude Code は `~/.claude/skills/`、Codex CLI は `~/.agents/skills/`)に、このリポジトリを指す `ai-handout-studio`・`question-sheet` のリンクが無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
+doctor は、2つのスキルの置き場(`skills-agents` は `~/.agents/skills/` で Codex CLI・OpenCode・Gemini CLI・Cursor CLI が読む。`skills-claude` は `~/.claude/skills/` で Claude Code・Grok CLI が読む)に、このリポジトリを指す `ai-handout-studio`・`question-sheet` のリンクが無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
 
 ```bash
 # detail に挙がったリンクだけを消す

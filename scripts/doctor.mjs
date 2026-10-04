@@ -21,6 +21,7 @@ import {
   archifyUninstall,
   findArchify,
 } from "../skills/question-sheet/scripts/archify.mjs";
+import { harnessesOf, skillPlacesOf } from "./harnesses.mjs";
 
 const SKILLS = ["ai-handout-studio", "question-sheet"];
 const FEATURES = [
@@ -344,24 +345,37 @@ const commandCheck = (ctx, t) => {
       );
 };
 
-// 選んだエージェント。設定のフォルダがあるものだけを調べる
-const agentsOf = (ctx) => [
-  {
-    id: "claude",
-    name: "Claude Code",
-    present: existsSync(join(ctx.home, ".claude")),
-    skillsDir: join(ctx.home, ".claude", "skills"),
-    instructions: join(ctx.home, ".claude", "CLAUDE.md"),
-  },
-  {
-    id: "codex",
-    name: "Codex CLI",
-    present: existsSync(join(ctx.home, ".codex")),
-    // Codex CLI は利用者のスキルを ~/.agents/skills から読む(symlink も辿る)
-    skillsDir: join(ctx.home, ".agents", "skills"),
-    instructions: join(ctx.home, ".codex", "AGENTS.md"),
-  },
-];
+const entriesOf = (path) => {
+  try {
+    return readdirSync(path);
+  } catch {
+    return [];
+  }
+};
+
+// 設定のフォルダがあれば入っているとみなす。セットアップ自身が置いたもの(~/.claude/skills)しか無いフォルダは数えない
+const isPresent = (harness) =>
+  existsSync(harness.configDir) &&
+  (harness.setupEntries.length === 0 ||
+    entriesOf(harness.configDir).some(
+      (name) => !harness.setupEntries.includes(name),
+    ));
+
+// ハーネスの表(scripts/harnesses.mjs)に、入っているかを添える
+const harnessesIn = (ctx) =>
+  harnessesOf({ home: ctx.home, env: ctx.env }).map((harness) => ({
+    ...harness,
+    present: isPresent(harness),
+  }));
+
+// 人が読む文のパス。ホームの下なら ~ で書く
+const shortPath = (home, path) =>
+  path === home || path.startsWith(`${home}/`)
+    ? `~${path.slice(home.length)}`
+    : path;
+
+const namesOf = (harnesses, t) =>
+  harnesses.map((harness) => harness.name).join(t("・", ", "));
 
 const skillProblem = (ctx, t, skillsDir, skill) => {
   const link = join(skillsDir, skill);
@@ -397,36 +411,46 @@ const skillProblem = (ctx, t, skillsDir, skill) => {
   };
 };
 
-// 節6: スキル
-const skillChecks = (ctx, t, agents) => {
-  if (!agents.some((agent) => agent.present)) {
+// 節6: スキル。入っているハーネスが読む置き場の和を、置き場ごとに調べる
+const skillChecks = (ctx, t, harnesses) => {
+  if (!harnesses.some((harness) => harness.present)) {
+    const dirs = harnesses.map((harness) =>
+      shortPath(ctx.home, harness.configDir),
+    );
     return [
       check(
         "agent",
         6,
         "missing",
         t(
-          "~/.claude も ~/.codex も無い。Claude Code か Codex CLI を入れて一度起動する",
-          "Neither ~/.claude nor ~/.codex exists. Install Claude Code or Codex CLI and start it once",
+          `${dirs.join("・")} のどれも無い。${namesOf(harnesses, t)} のどれかを入れて一度起動する`,
+          `None of ${dirs.join(", ")} exists. Install one of ${namesOf(harnesses, t)} and start it once`,
         ),
       ),
     ];
   }
-  return agents.map((agent) => {
-    const id = `skills-${agent.id}`;
-    if (!agent.present) {
+  return skillPlacesOf(ctx.home).map((place) => {
+    const id = `skills-${place.id}`;
+    const readers = harnesses.filter(
+      (harness) => harness.skillPlace === place.id,
+    );
+    const users = readers.filter((harness) => harness.present);
+    if (users.length === 0) {
       return check(
         id,
         6,
         "skipped",
-        t(`${agent.name} は入っていない`, `${agent.name} is not set up`),
+        t(
+          `${place.dir} を読むハーネス(${namesOf(readers, t)})は入っていない`,
+          `No harness that reads ${place.dir} (${namesOf(readers, t)}) is set up`,
+        ),
       );
     }
     const problems = SKILLS.map((skill) =>
-      skillProblem(ctx, t, agent.skillsDir, skill),
+      skillProblem(ctx, t, place.dir, skill),
     ).filter((problem) => problem !== undefined);
     if (problems.length === 0) {
-      return check(id, 6, "ok", agent.skillsDir);
+      return check(id, 6, "ok", `${place.dir} (${namesOf(users, t)})`);
     }
     const status = problems.some((problem) => problem.status === "missing")
       ? "missing"
@@ -480,56 +504,127 @@ const currentInstructionsVersion = (repoRoot) => {
   return version === undefined ? 1 : Number(version);
 };
 
-// 節8: 共通指示
-const instructionChecks = (ctx, t, agents, profile) => {
+// 同じファイルかを実体(realpath)で比べる鍵。無いファイルはパスで比べる
+const fileKey = (path) => realpathOf(path) ?? resolve(path);
+
+// 共通指示を1ファイルずつ調べ、実体が先に調べたものと同じなら同じ結果にする。
+// 1枚を symlink で配っている人は、1回だけ書けばよい
+const dedupeByFile = (items, evaluate, sameText) => {
+  const keys = items.map((item) =>
+    item.file === null ? null : fileKey(item.file),
+  );
+  const firstOf = (index) => keys.indexOf(keys[index]);
+  const results = items.map((item, index) =>
+    item.file !== null && firstOf(index) === index
+      ? evaluate(item.file)
+      : undefined,
+  );
+  return items.map((item, index) => {
+    if (item.file === null) return item.fixed;
+    const first = firstOf(index);
+    return item.toCheck(
+      first === index
+        ? results[index]
+        : {
+            status: results[first].status,
+            detail: sameText(items[first].name),
+          },
+    );
+  });
+};
+
+// 共通指示として調べるファイル。OpenCode は自分の AGENTS.md が無く ~/.claude/CLAUDE.md があれば、そちらを読む。
+// その場合に AGENTS.md を作らせない(作ると ~/.claude/CLAUDE.md が読まれなくなる)
+const instructionsFileOf = (harness) =>
+  harness.fallbackInstructions !== null &&
+  !existsSync(harness.instructions) &&
+  existsSync(harness.fallbackInstructions)
+    ? harness.fallbackInstructions
+    : harness.instructions;
+
+// 節8: 共通指示。入っているハーネスごとに調べる
+const instructionChecks = (ctx, t, locale, harnesses, profile) => {
   const declined =
     profile.state === "ready" && profile.value.agentInstructions === "declined";
   const current = currentInstructionsVersion(ctx.repoRoot);
-  return agents
-    .filter((agent) => agent.present)
-    .map((agent) => {
-      const id = `instructions-${agent.id}`;
+  const evaluate = (file) => {
+    const text = readText(file) ?? "";
+    const found = text.match(START_MARKER);
+    if (found === null || !text.includes(END_MARKER)) {
+      return {
+        status: "missing",
+        detail: t(
+          `${file} に ai-handout-studio の段落が無い`,
+          `${file} has no ai-handout-studio block`,
+        ),
+      };
+    }
+    const version = Number(found[1]);
+    return version >= current
+      ? { status: "ok", detail: `v${version}` }
+      : {
+          status: "outdated",
+          detail: t(
+            `${file} の段落が v${version}。v${current} に入れ替える`,
+            `${file} has v${version}; replace it with v${current}`,
+          ),
+        };
+  };
+  const items = harnesses
+    .filter((harness) => harness.present)
+    .map((harness) => {
+      const id = `instructions-${harness.id}`;
       if (declined) {
-        return check(
-          id,
-          8,
-          "skipped",
-          t(
-            "共通指示への追記は断られている(agentInstructions: declined)",
-            "Adding the instructions was declined (agentInstructions: declined)",
-          ),
-        );
-      }
-      const text = readText(agent.instructions) ?? "";
-      const found = text.match(START_MARKER);
-      if (found === null || !text.includes(END_MARKER)) {
-        return check(
-          id,
-          8,
-          "missing",
-          t(
-            `${agent.instructions} に ai-handout-studio の段落が無い`,
-            `${agent.instructions} has no ai-handout-studio block`,
-          ),
-        );
-      }
-      const version = Number(found[1]);
-      return version >= current
-        ? check(id, 8, "ok", `v${version}`)
-        : check(
+        return {
+          file: null,
+          fixed: check(
             id,
             8,
-            "outdated",
+            "skipped",
             t(
-              `${agent.instructions} の段落が v${version}。v${current} に入れ替える`,
-              `${agent.instructions} has v${version}; replace it with v${current}`,
+              "共通指示への追記は断られている(agentInstructions: declined)",
+              "Adding the instructions was declined (agentInstructions: declined)",
             ),
-          );
+          ),
+        };
+      }
+      if (harness.instructions === null) {
+        const block = `setup/agent-instructions.${locale}.md`;
+        return {
+          file: null,
+          fixed: check(
+            id,
+            8,
+            "skipped",
+            t(
+              `${harness.name} の共通指示はファイルに置けない。設定画面の User Rules に ${block} の段落を貼る`,
+              `${harness.name} has no instructions file; paste the block from ${block} into User Rules in its settings`,
+            ),
+          ),
+        };
+      }
+      const file = instructionsFileOf(harness);
+      const note =
+        file === harness.instructions
+          ? ""
+          : t(
+              `(${harness.instructions} が無いので ${file} を読む。${harness.instructions} は作らない)`,
+              ` (${harness.instructions} does not exist, so ${harness.name} reads ${file}; do not create it)`,
+            );
+      return {
+        file,
+        name: harness.name,
+        toCheck: (result) =>
+          check(id, 8, result.status, `${result.detail}${note}`),
+      };
     });
+  return dedupeByFile(items, evaluate, (name) =>
+    t(`${name} と同じファイル`, `same file as ${name}`),
+  );
 };
 
 // 節9: 任意の機能
-const featureChecks = (ctx, t, agents, profile) => {
+const featureChecks = (ctx, t, harnesses, profile) => {
   const features =
     profile.state === "ready" &&
     profile.value.features !== null &&
@@ -565,7 +660,7 @@ const featureChecks = (ctx, t, agents, profile) => {
     if (
       key === "share" &&
       value &&
-      !agents.some((agent) => agent.id === "claude" && agent.present)
+      !harnesses.some((harness) => harness.id === "claude" && harness.present)
     ) {
       return check(
         id,
@@ -686,16 +781,16 @@ export const runDoctor = async (context = defaultContext()) => {
   const profile = readProfile(context.workspaceRoot);
   const locale = localeOf(profile, context.env);
   const t = (ja, en) => (locale === "ja" ? ja : en);
-  const agents = agentsOf(context);
+  const harnesses = harnessesIn(context);
   const checks = [
     ...prerequisiteChecks(context, t),
     ...dependencyChecks(context, t),
     ...browserChecks(context, t),
     commandCheck(context, t),
-    ...skillChecks(context, t, agents),
+    ...skillChecks(context, t, harnesses),
     ...profileChecks(profile, t),
-    ...instructionChecks(context, t, agents, profile),
-    ...featureChecks(context, t, agents, profile),
+    ...instructionChecks(context, t, locale, harnesses, profile),
+    ...featureChecks(context, t, harnesses, profile),
     archifyCheck(context, t),
   ];
   const server = await serverCheck(context, t);
@@ -814,43 +909,63 @@ const blockPlace = (text, t) => {
   );
 };
 
-// 節3: 共通指示。symlink なら実体を読む
-const uninstallInstructionChecks = (t, agents) =>
-  agents.map((agent) => {
-    const id = `instructions-${agent.id}`;
-    const text = readText(agent.instructions);
+// 節3: 共通指示。全ハーネスのファイルを調べる(入っていないハーネスにも段落だけ残っていることがある)。
+// symlink なら実体を読み、実体が先に調べたものと同じなら同じ結果にする
+const uninstallInstructionChecks = (t, locale, harnesses) => {
+  const evaluate = (file) => {
+    const text = readText(file);
     if (text === undefined) {
-      return check(
-        id,
-        3,
-        "ok",
-        t(
-          `${agent.instructions} は無い`,
-          `${agent.instructions} does not exist`,
-        ),
-      );
+      return {
+        status: "ok",
+        detail: t(`${file} は無い`, `${file} does not exist`),
+      };
     }
     if (!text.includes(START_TEXT) && !text.includes(END_MARKER)) {
-      return check(
-        id,
-        3,
-        "ok",
-        t(
-          `${agent.instructions} に ai-handout-studio の段落は無い`,
-          `${agent.instructions} has no ai-handout-studio block`,
+      return {
+        status: "ok",
+        detail: t(
+          `${file} に ai-handout-studio の段落は無い`,
+          `${file} has no ai-handout-studio block`,
         ),
-      );
+      };
     }
-    return check(
-      id,
-      3,
-      "remaining",
-      t(
-        `${agent.instructions} に ai-handout-studio の段落がある(${blockPlace(text, t)})`,
-        `${agent.instructions} has an ai-handout-studio block (${blockPlace(text, t)})`,
+    return {
+      status: "remaining",
+      detail: t(
+        `${file} に ai-handout-studio の段落がある(${blockPlace(text, t)})`,
+        `${file} has an ai-handout-studio block (${blockPlace(text, t)})`,
       ),
-    );
-  });
+    };
+  };
+  const items = harnesses
+    .filter((harness) => harness.instructions !== null || harness.present)
+    .map((harness) => {
+      const id = `instructions-${harness.id}`;
+      if (harness.instructions === null) {
+        // ファイルで置けないハーネス(Cursor CLI)。貼ったかは調べられないので伝えるだけ
+        return {
+          file: null,
+          fixed: check(
+            id,
+            3,
+            "warn",
+            t(
+              `${harness.name} の共通指示はファイルに無い。設定画面の User Rules に setup/agent-instructions.${locale}.md の段落を貼っていたら消す`,
+              `${harness.name} keeps its instructions in its settings; if the block from setup/agent-instructions.${locale}.md was pasted into User Rules, remove it`,
+            ),
+          ),
+        };
+      }
+      return {
+        file: harness.instructions,
+        name: harness.name,
+        toCheck: (result) => check(id, 3, result.status, result.detail),
+      };
+    });
+  return dedupeByFile(items, evaluate, (name) =>
+    t(`${name} と同じファイル`, `same file as ${name}`),
+  );
+};
 
 // 見つけたものの status を1つにまとめる。1つでも残っていれば remaining
 const worstOf = (items) =>
@@ -901,12 +1016,12 @@ const skillLeftover = (ctx, t, skillsDir, skill) => {
       };
 };
 
-// 節4: スキル。設定のフォルダが無いエージェントも、リンクだけ残っていることがあるので調べる
-const uninstallSkillChecks = (ctx, t, agents) =>
-  agents.map((agent) => {
-    const id = `skills-${agent.id}`;
+// 節4: スキル。両方の置き場を調べる(ハーネスが無くても、リンクだけ残っていることがある)
+const uninstallSkillChecks = (ctx, t) =>
+  skillPlacesOf(ctx.home).map((place) => {
+    const id = `skills-${place.id}`;
     const found = SKILLS.map((skill) =>
-      skillLeftover(ctx, t, agent.skillsDir, skill),
+      skillLeftover(ctx, t, place.dir, skill),
     ).filter((item) => item !== undefined);
     return found.length === 0
       ? check(
@@ -914,8 +1029,8 @@ const uninstallSkillChecks = (ctx, t, agents) =>
           4,
           "ok",
           t(
-            `${agent.skillsDir} にスキルのリンクは無い`,
-            `No skill links in ${agent.skillsDir}`,
+            `${place.dir} にスキルのリンクは無い`,
+            `No skill links in ${place.dir}`,
           ),
         )
       : check(
@@ -1042,7 +1157,7 @@ export const runUninstallDoctor = async (context = defaultContext()) => {
   const profile = readProfile(context.workspaceRoot);
   const locale = localeOf(profile, context.env);
   const t = (ja, en) => (locale === "ja" ? ja : en);
-  const agents = agentsOf(context);
+  const harnesses = harnessesIn(context);
   const state = await context.probeServer();
   const server = uninstallServerCheck(
     context,
@@ -1053,8 +1168,8 @@ export const runUninstallDoctor = async (context = defaultContext()) => {
   const checks = [
     server,
     uninstallServerLogCheck(context, t, state, server),
-    ...uninstallInstructionChecks(t, agents),
-    ...uninstallSkillChecks(context, t, agents),
+    ...uninstallInstructionChecks(t, locale, harnesses),
+    ...uninstallSkillChecks(context, t),
     uninstallCommandCheck(context, t),
     uninstallArchifyCheck(context, t),
     uninstallWorkspaceCheck(context, t),
