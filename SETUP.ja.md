@@ -1,9 +1,10 @@
 # セットアップ
 
-この手順はコーディングエージェント(Claude Code か Codex CLI)に向けて書いてある。入れるときは、次のどれかで始める。エージェントは利用者の言語で進める。
+この手順はコーディングエージェント(Claude Code・Codex CLI・OpenCode・Gemini CLI・Cursor CLI・Grok CLI)に向けて書いてある。入れるときは、次のどれかで始める。エージェントは利用者の言語で進める。
 
 - **Claude Code:** リポジトリを clone し、そのフォルダで起動して `/studio-setup` と打つ
-- **Codex CLI:** clone したリポジトリを開いて **「SETUP.md のとおりに入れて」**(この日本語の手順を読ませるなら「SETUP.ja.md のとおりに入れて」)と頼む
+- **Codex CLI:** clone したリポジトリを開いて `$studio-setup` と打つ
+- **そのほか(OpenCode・Gemini CLI・Cursor CLI・Grok CLI):** clone したリポジトリを開いて **「SETUP.md のとおりに入れて」**(この日本語の手順を読ませるなら「SETUP.ja.md のとおりに入れて」)と頼む
 - **clone の前なら:** エージェントに「https://github.com/GentaAmeku/ai-handout-studio を clone して、SETUP.md のとおりに入れて」と頼む
 
 進み方はゲームブックの形で、`doctor` が状態を調べて次に読む節を返す。節の番号は英語の [SETUP.md](SETUP.md) と同じ。
@@ -16,12 +17,12 @@
 2. `next.section` の節を読む。`next.reason` に足りないことが書いてある。済むまでは終了コードが 1 になる。
 3. その節のとおりにしてから、もう一度 doctor を実行する。
 
-`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い)・`outdated`(古い・別の場所を指す)・`skipped`(入っていないエージェント、断った共通指示)・`warn`(伝えておくが止めない)。
+`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い)・`outdated`(古い・別の場所を指す)・`skipped`(入っているエージェントが読まないスキルの置き場、共通指示をファイルに置けないエージェント、断った共通指示)・`warn`(伝えておくが止めない)。
 
 利用者への約束:
 
 - 利用者の言語で話す。聞くのは選ぶところ(言語・組織名・共通指示への追記・任意の機能)だけ。ほかはこちらで決めて進める。
-- 利用者の共通指示(`~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md`)とシェルの設定(`~/.zshrc`・`~/.bashrc` など)は、同意を取ってから書き換える。
+- 利用者の共通指示(`~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md`・`~/.config/opencode/AGENTS.md`・`~/.gemini/GEMINI.md`・`~/.grok/AGENTS.md`。節8)とシェルの設定(`~/.zshrc`・`~/.bashrc` など)は、同意を取ってから書き換える。
 - `sudo` は使わない。要るときはコマンドを示し、利用者に実行してもらう。
 - 節に書いていないことは変えない。ここに書いた以外のところから道具を入れない。
 - 節6でスキルを入れるまでは会話で聞く。節9からは質問票で聞く。
@@ -75,24 +76,26 @@ ln -sfn "$PWD/scripts/cli.mjs" ~/.local/bin/ai-handout-studio
 
 ## 6. スキル
 
-doctor は、設定のフォルダがあるエージェント(Claude Code は `~/.claude`、Codex CLI は `~/.codex`)ごとに、2つのスキルのリンクがあり、このリポジトリを指すことを確かめる。
+doctor は、入っているエージェント(設定のフォルダがあるもの。Claude Code は `~/.claude`、Codex CLI は `$CODEX_HOME` か `~/.codex`、OpenCode は `$XDG_CONFIG_HOME/opencode` か `~/.config/opencode`、Gemini CLI は `~/.gemini`、Cursor CLI は `~/.cursor`、Grok CLI は `~/.grok`)を調べる。どのエージェントも、2つあるスキルの置き場のどちらかを読む。入っているエージェントが読む置き場ごとに、2つのスキルのリンクがあり、このリポジトリを指すことを確かめる。どのエージェントも読まない置き場は `skipped`。設定のフォルダが1つも無ければ、どれかのエージェントを入れて一度起動してもらう。
 
-| エージェント | スキルの置き場 |
+| スキルの置き場(検査) | 読むエージェント |
 | --- | --- |
-| Claude Code | `~/.claude/skills/` |
-| Codex CLI | `~/.agents/skills/` |
+| `~/.agents/skills/`(`skills-agents`) | Codex CLI・OpenCode・Gemini CLI・Cursor CLI |
+| `~/.claude/skills/`(`skills-claude`) | Claude Code・Grok CLI |
 
 ```bash
-# Claude Code
-mkdir -p ~/.claude/skills
-ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
-ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
-
-# Codex CLI
+# ~/.agents/skills(Codex CLI・OpenCode・Gemini CLI・Cursor CLI)
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
+
+# ~/.claude/skills(Claude Code・Grok CLI)
+mkdir -p ~/.claude/skills
+ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
+ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
 ```
+
+- `skills` しか無い `~/.claude`(Grok CLI のために上のリンクを張るとできる)は、Claude Code とみなさない。
 
 - コピーではなく symlink にする。質問票のスクリプトはリンクの実体からリポジトリの `design/dist` を辿る。
 - `outdated` はリンクが別の場所(別の clone や、古い `<リポジトリ>/skills`)を指している。`ln -sfn` で張り直す。リンクではなく中身のあるフォルダなら消さずに利用者に聞く。
@@ -110,12 +113,25 @@ ai-handout-studio settings --set locale=ja --set orgName="○○株式会社"
 
 ## 8. 共通指示
 
-doctor は、エージェントごとの共通指示のファイル(`~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md`。symlink なら実体)に ai-handout-studio の段落があり、版が新しいことを確かめる。
+doctor は、入っているエージェントごとに(`instructions-<id>`)、共通指示のファイル(symlink なら実体)に ai-handout-studio の段落があり、版が新しいことを確かめる。
+
+| エージェント | 共通指示のファイル |
+| --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex CLI | `$CODEX_HOME/AGENTS.md` か `~/.codex/AGENTS.md` |
+| OpenCode | `$XDG_CONFIG_HOME/opencode/AGENTS.md` か `~/.config/opencode/AGENTS.md`。無ければ `~/.claude/CLAUDE.md` |
+| Gemini CLI | `~/.gemini/GEMINI.md` |
+| Cursor CLI | 無し(設定画面の User Rules) |
+| Grok CLI | `~/.grok/AGENTS.md` |
+
+- **1枚を配っているとき:** 共通指示のファイルの実体が先に調べたものと同じなら(1枚を symlink で配っているとき)、doctor は同じ結果にし、detail に「<エージェント> と同じファイル」と書く。段落は1回だけ書けばよい。
+- **OpenCode:** 自分の `AGENTS.md` が無く `~/.claude/CLAUDE.md` があれば、OpenCode は `~/.claude/CLAUDE.md` を読み、doctor もそのファイルを調べる。このとき OpenCode の `AGENTS.md` は作らない(作ると `~/.claude/CLAUDE.md` が読まれなくなる)。どちらも無ければ、OpenCode の `AGENTS.md` に段落を書く。
+- **Cursor CLI:** 共通指示のファイルが無いので `skipped` にし、止めない。利用者が望めば、`setup/agent-instructions.<locale>.md` の段落を Cursor の設定画面の User Rules に貼ってもらう。
 
 段落は「スライドと HTML 資料は ai-handout-studio スキルで作る」「質問は質問票で聞く」をエージェントに伝え、どのフォルダの会話でも同じ動きにする。無ければ、利用者がスキルの名前を挙げたときだけ使われる。
 
 1. `setup/agent-instructions.<locale>.md` の段落を利用者に見せ、足すか聞く。
-2. **足す:** ファイルの中身を目印ごと、それぞれの共通指示の末尾に足す(ファイルが無ければ作る。symlink なら実体を書き換え、リンクは残す)。doctor が `outdated` と言うときは、`<!-- ai-handout-studio:start … -->` から `<!-- ai-handout-studio:end -->` までを新しい段落に入れ替える。
+2. **足す:** ファイルの中身を目印ごと、doctor が `missing` と言う共通指示の末尾に足す(ファイルが無ければ作る。symlink なら実体を書き換え、リンクは残す)。doctor が `outdated` と言うときは、`<!-- ai-handout-studio:start … -->` から `<!-- ai-handout-studio:end -->` までを新しい段落に入れ替える。
 3. **断る:** 答えを残す。以後 doctor はこの節を飛ばす。
 
 ```bash
@@ -172,7 +188,7 @@ node scripts/doctor.mjs --json
 
 ## 付録 B. 外す
 
-外すときも、同じゲームブックの形で進める。Claude Code なら `/studio-uninstall` と打ち、Codex CLI なら「UNINSTALL.md のとおりに外して」と頼む。`node scripts/doctor.mjs --uninstall --json` が残っているものを調べ、次に読む節を返す。手順は [UNINSTALL.ja.md](UNINSTALL.ja.md)(英語は [UNINSTALL.md](UNINSTALL.md))。
+外すときも、同じゲームブックの形で進める。Claude Code なら `/studio-uninstall`、Codex CLI なら `$studio-uninstall` と打ち、そのほかのエージェントでは「UNINSTALL.md のとおりに外して」と頼む。`node scripts/doctor.mjs --uninstall --json` が残っているものを調べ、次に読む節を返す。手順は [UNINSTALL.ja.md](UNINSTALL.ja.md)(英語は [UNINSTALL.md](UNINSTALL.md))。
 
 ## 付録 C. 困ったとき
 

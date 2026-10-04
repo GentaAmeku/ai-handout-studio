@@ -1,9 +1,10 @@
 # Uninstall
 
-This file is written for a coding agent (Claude Code or Codex CLI). To uninstall, start in the folder of the cloned repository, in one of these ways:
+This file is written for a coding agent (Claude Code, Codex CLI, OpenCode, Gemini CLI, Cursor CLI or Grok CLI). To uninstall, start in the folder of the cloned repository, in one of these ways:
 
 - **Claude Code:** start Claude Code in that folder and type `/studio-uninstall`.
-- **Codex CLI:** open that folder and ask: **"Uninstall this by following UNINSTALL.md."**
+- **Codex CLI:** open that folder and type `$studio-uninstall`.
+- **Other agents (OpenCode, Gemini CLI, Cursor CLI, Grok CLI):** open that folder and ask: **"Uninstall this by following UNINSTALL.md."**
 - **If the clone is already gone:** clone it again, then start in one of the ways above.
 
 Like [SETUP.md](SETUP.md), it is a game book. `doctor --uninstall` checks what is left and tells you which section to read next. The section numbers are the same in [UNINSTALL.ja.md](UNINSTALL.ja.md) (Japanese).
@@ -37,7 +38,7 @@ Promises to the user:
 
 - Speak the user's language. Ask only once before you start, plus the final check right before deleting the clone. Decide everything else yourself.
 - Remove only what doctor reports as `remaining` and what section 6 lists. Leave anything `skipped` alone.
-- Delete only the ai-handout-studio block from the agent instructions (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`).
+- Delete only the ai-handout-studio block from the agent instructions (the files in section 3).
 - Never use `sudo`. When a step needs it, show the command and ask the user to run it.
 - Do not remove the shared tools used during setup (git, Node, pnpm, mise, lsof, system libraries on Linux) or the `PATH` line added to the shell configuration: other tools use them too. If the user wants them gone, tell them where they are.
 
@@ -55,7 +56,7 @@ rm -f "$(node -p "require('os').tmpdir()")/ai-handout-studio-dev.log"
 
 ## 3. Agent instructions
 
-doctor checks that the agent instructions file of each agent (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`; the target when it is a symlink) has no ai-handout-studio block. The block is what setup section 8 added, from `<!-- ai-handout-studio:start … -->` to `<!-- ai-handout-studio:end -->`. The detail gives its line numbers.
+doctor checks that the agent instructions file of every agent (the target when it is a symlink) has no ai-handout-studio block, whether or not that agent is still installed: `~/.claude/CLAUDE.md` (Claude Code), `$CODEX_HOME/AGENTS.md` or `~/.codex/AGENTS.md` (Codex CLI), `$XDG_CONFIG_HOME/opencode/AGENTS.md` or `~/.config/opencode/AGENTS.md` (OpenCode), `~/.gemini/GEMINI.md` (Gemini CLI) and `~/.grok/AGENTS.md` (Grok CLI). When a file is the same real file as one checked before, it gets the same result ("same file as <agent>"); delete the block once. The block is what setup section 8 added, from `<!-- ai-handout-studio:start … -->` to `<!-- ai-handout-studio:end -->`. The detail gives its line numbers.
 
 1. Read the file and confirm the block is on the lines in the detail.
 2. Delete the block, both marker lines included. Collapse the blank lines around it into one. Change no other line. If the file is a symlink, edit its target and keep the link.
@@ -63,9 +64,11 @@ doctor checks that the agent instructions file of each agent (`~/.claude/CLAUDE.
 
 If the detail says start and end do not pair up, show the user the lines around the markers and confirm what to delete before deleting it.
 
+Cursor CLI keeps its instructions in User Rules in its settings, not in a file. When `~/.cursor` exists, `instructions-cursor` is `warn`: tell the user to remove the block there if they pasted it.
+
 ## 4. Skills
 
-doctor checks that the skill folders (`~/.claude/skills/` for Claude Code, `~/.agents/skills/` for Codex CLI) have no `ai-handout-studio` or `question-sheet` link pointing to this repository. Broken links (left behind by a deleted clone) are removed too.
+doctor checks that both skill folders (`skills-agents`: `~/.agents/skills/`, read by Codex CLI, OpenCode, Gemini CLI and Cursor CLI; `skills-claude`: `~/.claude/skills/`, read by Claude Code and Grok CLI) have no `ai-handout-studio` or `question-sheet` link pointing to this repository. Broken links (left behind by a deleted clone) are removed too.
 
 ```bash
 # remove only the links named in the detail

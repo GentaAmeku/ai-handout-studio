@@ -79,16 +79,21 @@ const DECIDED = {
   features: { lan: false, imageGeneration: false, share: false },
 };
 
-// そろった環境。各テストはここから1つ崩す
-const makeReady = (): void => {
+// ハーネスのほかはそろった環境
+const makeBase = (): void => {
   makeClone();
   install();
   linkCommand();
+  writeProfile(DECIDED);
+  touch(join(workspace, "examples.json"), "{}");
+};
+
+// そろった環境。各テストはここから1つ崩す
+const makeReady = (): void => {
+  makeBase();
   mkdirSync(join(home, ".claude"), { recursive: true });
   linkSkills(join(home, ".claude", "skills"));
   touch(join(home, ".claude", "CLAUDE.md"), `# mine\n\n${instructionsBlock()}`);
-  writeProfile(DECIDED);
-  touch(join(workspace, "examples.json"), "{}");
 };
 
 const context = (overrides: Partial<DoctorContext> = {}): DoctorContext => ({
@@ -176,8 +181,8 @@ describe("doctor の next", () => {
     const result = await runDoctor(context());
     expect(result.ok).toBe(true);
     expect(result.next).toBeNull();
-    // Codex を入れていなければ、Codex の項目は調べない
-    expect(statusOf(result, "skills-codex")).toBe("skipped");
+    // ~/.agents/skills を読むハーネスが無ければ、その置き場は調べない
+    expect(statusOf(result, "skills-agents")).toBe("skipped");
     expect(result.checks.some((item) => item.id === "instructions-codex")).toBe(
       false,
     );
@@ -280,7 +285,7 @@ describe("doctor の各項目", () => {
     mkdirSync(join(home, ".codex"), { recursive: true });
     const result = await runDoctor(context());
     expect(statusOf(result, "skills-claude")).toBe("ok");
-    expect(statusOf(result, "skills-codex")).toBe("missing");
+    expect(statusOf(result, "skills-agents")).toBe("missing");
     expect(result.next?.section).toBe(6);
   });
 
@@ -295,7 +300,7 @@ describe("doctor の各項目", () => {
       join(skillsDir, "question-sheet"),
     );
     const result = await runDoctor(context());
-    const codex = result.checks.find((item) => item.id === "skills-codex");
+    const codex = result.checks.find((item) => item.id === "skills-agents");
     expect(codex?.status).toBe("outdated");
     expect(codex?.detail).toContain(join(repo, "skills", "ai-handout-studio"));
   });
@@ -430,6 +435,201 @@ describe("doctor の各項目", () => {
   });
 });
 
+describe("doctor のハーネス", () => {
+  const withBlock = (path: string): void =>
+    touch(path, `# mine\n\n${instructionsBlock()}`);
+  const idsOf = (result: DoctorResult, prefix: string) =>
+    result.checks
+      .filter((item) => item.id.startsWith(prefix))
+      .map((item) => item.id);
+  const detailOf = (result: DoctorResult, id: string) =>
+    result.checks.find((item) => item.id === id)?.detail;
+
+  it("どのハーネスも無ければ、表のフォルダと名前を挙げて節6", async () => {
+    makeBase();
+    const result = await runDoctor(context());
+    expect(result.next?.section).toBe(6);
+    const detail = detailOf(result, "agent") ?? "";
+    [
+      "~/.claude",
+      "~/.codex",
+      "~/.config/opencode",
+      "~/.gemini",
+      "~/.cursor",
+      "~/.grok",
+      "Claude Code",
+      "Codex CLI",
+      "OpenCode",
+      "Gemini CLI",
+      "Cursor CLI",
+      "Grok CLI",
+    ].forEach((word) => {
+      expect(detail).toContain(word);
+    });
+  });
+
+  it("Codex だけなら ~/.agents/skills と ~/.codex/AGENTS.md を調べる。$CODEX_HOME も読む", async () => {
+    makeBase();
+    mkdirSync(join(home, ".codex"), { recursive: true });
+    linkSkills(join(home, ".agents", "skills"));
+    expect((await runDoctor(context())).next?.section).toBe(8);
+    withBlock(join(home, ".codex", "AGENTS.md"));
+    const result = await runDoctor(context());
+    expect(result.ok).toBe(true);
+    expect(statusOf(result, "skills-agents")).toBe("ok");
+    expect(statusOf(result, "skills-claude")).toBe("skipped");
+    expect(idsOf(result, "instructions-")).toEqual(["instructions-codex"]);
+
+    const codexHome = join(root, "codex-home");
+    mkdirSync(codexHome, { recursive: true });
+    rmSync(join(home, ".codex"), { recursive: true });
+    const moved = await runDoctor(
+      context({ env: { LANG: "en_US.UTF-8", CODEX_HOME: codexHome } }),
+    );
+    expect(statusOf(moved, "instructions-codex")).toBe("missing");
+    expect(detailOf(moved, "instructions-codex")).toContain(
+      join(codexHome, "AGENTS.md"),
+    );
+  });
+
+  it("OpenCode だけで自分の AGENTS.md も ~/.claude/CLAUDE.md も無ければ、自分の AGENTS.md に段落を求める($XDG_CONFIG_HOME も読む)", async () => {
+    makeBase();
+    const config = join(root, "xdg");
+    mkdirSync(join(config, "opencode"), { recursive: true });
+    linkSkills(join(home, ".agents", "skills"));
+    const env = { LANG: "en_US.UTF-8", XDG_CONFIG_HOME: config };
+    const result = await runDoctor(context({ env }));
+    expect(statusOf(result, "skills-agents")).toBe("ok");
+    expect(statusOf(result, "instructions-opencode")).toBe("missing");
+    expect(detailOf(result, "instructions-opencode")).toContain(
+      join(config, "opencode", "AGENTS.md"),
+    );
+    withBlock(join(config, "opencode", "AGENTS.md"));
+    expect((await runDoctor(context({ env }))).ok).toBe(true);
+  });
+
+  it("OpenCode は自分の AGENTS.md が無ければ ~/.claude/CLAUDE.md の結果に従い、AGENTS.md を作らせない", async () => {
+    makeBase();
+    mkdirSync(join(home, ".config", "opencode"), { recursive: true });
+    linkSkills(join(home, ".agents", "skills"));
+    linkSkills(join(home, ".claude", "skills"));
+    touch(join(home, ".claude", "CLAUDE.md"), "# mine\n");
+    const without = await runDoctor(context());
+    expect(statusOf(without, "instructions-claude")).toBe("missing");
+    expect(statusOf(without, "instructions-opencode")).toBe("missing");
+    expect(detailOf(without, "instructions-opencode")).toContain(
+      "same file as Claude Code",
+    );
+    expect(detailOf(without, "instructions-opencode")).toContain(
+      "do not create it",
+    );
+    withBlock(join(home, ".claude", "CLAUDE.md"));
+    const withIt = await runDoctor(context());
+    expect(statusOf(withIt, "instructions-claude")).toBe("ok");
+    expect(statusOf(withIt, "instructions-opencode")).toBe("ok");
+    expect(withIt.ok).toBe(true);
+  });
+
+  it("Cursor だけなら共通指示は skipped で User Rules へ案内し、止めない", async () => {
+    makeBase();
+    mkdirSync(join(home, ".cursor"), { recursive: true });
+    linkSkills(join(home, ".agents", "skills"));
+    const result = await runDoctor(context());
+    expect(result.ok).toBe(true);
+    expect(statusOf(result, "instructions-cursor")).toBe("skipped");
+    expect(detailOf(result, "instructions-cursor")).toContain("User Rules");
+    expect(detailOf(result, "instructions-cursor")).toContain(
+      "setup/agent-instructions.en.md",
+    );
+  });
+
+  it("Grok だけなら ~/.claude/skills と ~/.grok/AGENTS.md を調べる。スキルのリンクだけの ~/.claude は Claude Code とみなさない", async () => {
+    makeBase();
+    mkdirSync(join(home, ".grok"), { recursive: true });
+    const before = await runDoctor(context());
+    expect(statusOf(before, "skills-claude")).toBe("missing");
+    expect(statusOf(before, "skills-agents")).toBe("skipped");
+    linkSkills(join(home, ".claude", "skills"));
+    withBlock(join(home, ".grok", "AGENTS.md"));
+    const result = await runDoctor(context());
+    expect(result.ok).toBe(true);
+    expect(idsOf(result, "instructions-")).toEqual(["instructions-grok"]);
+  });
+
+  it("全部入っていれば両方の置き場と、全ハーネスの共通指示を調べる", async () => {
+    makeReady();
+    [".codex", ".config/opencode", ".gemini", ".cursor", ".grok"].forEach(
+      (dir) => {
+        mkdirSync(join(home, dir), { recursive: true });
+      },
+    );
+    linkSkills(join(home, ".agents", "skills"));
+    const result = await runDoctor(context());
+    expect(statusOf(result, "skills-agents")).toBe("ok");
+    expect(statusOf(result, "skills-claude")).toBe("ok");
+    expect(idsOf(result, "instructions-")).toEqual([
+      "instructions-claude",
+      "instructions-codex",
+      "instructions-opencode",
+      "instructions-gemini",
+      "instructions-cursor",
+      "instructions-grok",
+    ]);
+    expect(statusOf(result, "instructions-codex")).toBe("missing");
+    expect(statusOf(result, "instructions-opencode")).toBe("ok");
+    [".codex/AGENTS.md", ".gemini/GEMINI.md", ".grok/AGENTS.md"].forEach(
+      (file) => {
+        withBlock(join(home, file));
+      },
+    );
+    expect((await runDoctor(context())).ok).toBe(true);
+  });
+
+  it("1枚を symlink で配っていれば、先に調べたハーネスと同じ結果にする", async () => {
+    makeReady();
+    [".codex", ".gemini", ".grok"].forEach((dir) => {
+      mkdirSync(join(home, dir), { recursive: true });
+    });
+    linkSkills(join(home, ".agents", "skills"));
+    const shared = join(home, ".agents", "AGENTS.md");
+    touch(shared, "# mine\n");
+    rmSync(join(home, ".claude", "CLAUDE.md"));
+    [
+      ".claude/CLAUDE.md",
+      ".codex/AGENTS.md",
+      ".gemini/GEMINI.md",
+      ".grok/AGENTS.md",
+    ].forEach((file) => {
+      symlinkSync(shared, join(home, file));
+    });
+    const result = await runDoctor(context());
+    expect(statusOf(result, "instructions-claude")).toBe("missing");
+    expect(detailOf(result, "instructions-claude")).toContain(
+      join(home, ".claude", "CLAUDE.md"),
+    );
+    ["codex", "gemini", "grok"].forEach((id) => {
+      expect(statusOf(result, `instructions-${id}`)).toBe("missing");
+      expect(detailOf(result, `instructions-${id}`)).toBe(
+        "same file as Claude Code",
+      );
+    });
+    withBlock(shared);
+    expect((await runDoctor(context())).ok).toBe(true);
+  });
+
+  it("共有の確かめは表の claude で判定する", async () => {
+    makeBase();
+    mkdirSync(join(home, ".codex"), { recursive: true });
+    linkSkills(join(home, ".agents", "skills"));
+    withBlock(join(home, ".codex", "AGENTS.md"));
+    writeProfile({
+      ...DECIDED,
+      features: { ...DECIDED.features, share: true },
+    });
+    expect(statusOf(await runDoctor(context()), "feature-share")).toBe("warn");
+  });
+});
+
 describe("doctor --uninstall", () => {
   const detailOf = (result: DoctorResult, id: string) =>
     result.checks.find((item) => item.id === id)?.detail;
@@ -522,12 +722,51 @@ describe("doctor --uninstall", () => {
     expect(cleaned.ok).toBe(true);
   });
 
+  it("共通指示は全ハーネスのファイルを調べ、同じ実体は同じ結果にする。Cursor は入っていれば User Rules を伝える", async () => {
+    makeUninstalled();
+    const shared = join(home, ".agents", "AGENTS.md");
+    touch(shared, `# mine\n${instructionsBlock()}`);
+    mkdirSync(join(home, ".codex"), { recursive: true });
+    symlinkSync(shared, join(home, ".codex", "AGENTS.md"));
+    touch(join(home, ".config", "opencode", "AGENTS.md"), instructionsBlock());
+    touch(join(home, ".gemini", "GEMINI.md"), instructionsBlock());
+    touch(join(home, ".grok", "AGENTS.md"), instructionsBlock());
+    const result = await runUninstallDoctor(down());
+    expect(
+      result.checks
+        .filter((item) => item.id.startsWith("instructions-"))
+        .map((item) => item.id),
+    ).toEqual([
+      "instructions-claude",
+      "instructions-codex",
+      "instructions-opencode",
+      "instructions-gemini",
+      "instructions-grok",
+    ]);
+    expect(statusOf(result, "instructions-claude")).toBe("ok");
+    ["codex", "opencode", "gemini", "grok"].forEach((id) => {
+      expect(statusOf(result, `instructions-${id}`)).toBe("remaining");
+    });
+
+    mkdirSync(join(home, ".claude"), { recursive: true });
+    symlinkSync(shared, join(home, ".claude", "CLAUDE.md"));
+    mkdirSync(join(home, ".cursor"), { recursive: true });
+    const linked = await runUninstallDoctor(down());
+    expect(statusOf(linked, "instructions-claude")).toBe("remaining");
+    expect(statusOf(linked, "instructions-codex")).toBe("remaining");
+    expect(detailOf(linked, "instructions-codex")).toBe(
+      "same file as Claude Code",
+    );
+    expect(statusOf(linked, "instructions-cursor")).toBe("warn");
+    expect(detailOf(linked, "instructions-cursor")).toContain("User Rules");
+  });
+
   it("スキルは、このリポジトリを指すリンクと指す先の無いリンクを外し、別の clone のリンクとフォルダは残す", async () => {
     makeUninstalled();
     linkSkills(join(home, ".agents", "skills"));
     const result = await runUninstallDoctor(down());
     expect(statusOf(result, "skills-claude")).toBe("ok");
-    expect(statusOf(result, "skills-codex")).toBe("remaining");
+    expect(statusOf(result, "skills-agents")).toBe("remaining");
     expect(result.next?.section).toBe(4);
 
     const skillsDir = join(home, ".claude", "skills");
@@ -544,8 +783,8 @@ describe("doctor --uninstall", () => {
     rmSync(join(home, ".agents", "skills", "ai-handout-studio"));
     const mixed = await runUninstallDoctor(down());
     expect(statusOf(mixed, "skills-claude")).toBe("skipped");
-    expect(statusOf(mixed, "skills-codex")).toBe("remaining");
-    expect(detailOf(mixed, "skills-codex")).toContain("a broken link");
+    expect(statusOf(mixed, "skills-agents")).toBe("remaining");
+    expect(detailOf(mixed, "skills-agents")).toContain("a broken link");
   });
 
   it("コマンドは PATH に無くても ~/.local/bin のリンクを見つけ、pnpm の入口も外す。別の clone のものは残す", async () => {

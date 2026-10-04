@@ -1,9 +1,10 @@
 # Setup
 
-This file is written for a coding agent (Claude Code or Codex CLI). To install, start in one of these ways:
+This file is written for a coding agent (Claude Code, Codex CLI, OpenCode, Gemini CLI, Cursor CLI or Grok CLI). To install, start in one of these ways:
 
 - **Claude Code:** clone the repository, start Claude Code in it, and type `/studio-setup`.
-- **Codex CLI:** clone the repository, open it, and ask: **"Set this up by following SETUP.md."**
+- **Codex CLI:** clone the repository, open it, and type `$studio-setup`.
+- **Other agents (OpenCode, Gemini CLI, Cursor CLI, Grok CLI):** clone the repository, open it, and ask: **"Set this up by following SETUP.md."**
 - **Before cloning:** ask your agent: "Clone https://github.com/GentaAmeku/ai-handout-studio and set it up by following SETUP.md."
 
 The setup is a game book. `doctor` checks the state and tells you which section to read next. The section numbers are the same in [SETUP.ja.md](SETUP.ja.md) (Japanese).
@@ -16,12 +17,12 @@ Repeat this loop until `ok` is `true`:
 2. Read the section named by `next.section`. `next.reason` says what is missing. The exit code is 1 until the setup is complete.
 3. Do what that section says, then run doctor again.
 
-`checks` lists every item with `status`: `ok`, `missing`, `outdated`, `skipped` (an agent that is not set up, or instructions the user declined) or `warn` (worth mentioning, but it does not block).
+`checks` lists every item with `status`: `ok`, `missing`, `outdated`, `skipped` (a skills folder no installed agent reads, an agent whose instructions cannot live in a file, or instructions the user declined) or `warn` (worth mentioning, but it does not block).
 
 Promises to the user:
 
 - Speak the user's language. Ask only about the choices: language, organization name, adding a block to the agent instructions, and the optional features. Decide everything else yourself.
-- Ask for consent before you edit the user's agent instructions (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`) or shell configuration (`~/.zshrc`, `~/.bashrc`, …).
+- Ask for consent before you edit the user's agent instructions (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/GEMINI.md`, `~/.grok/AGENTS.md`; see section 8) or shell configuration (`~/.zshrc`, `~/.bashrc`, …).
 - Never use `sudo`. When a step needs it, show the command and ask the user to run it.
 - Do not change anything a section does not mention. Do not install tools from other sources than the ones named here.
 - Until section 6 installs the skills, ask in the conversation. From section 9 on, ask with a question sheet.
@@ -75,24 +76,26 @@ If doctor says `outdated`, the command points to another clone. Replace the link
 
 ## 6. Skills
 
-doctor checks, for each agent whose configuration folder exists (`~/.claude` for Claude Code, `~/.codex` for Codex CLI), that both skills are linked and point to this repository.
+doctor finds the agents that are set up (their configuration folder exists: `~/.claude` for Claude Code, `$CODEX_HOME` or `~/.codex` for Codex CLI, `$XDG_CONFIG_HOME/opencode` or `~/.config/opencode` for OpenCode, `~/.gemini` for Gemini CLI, `~/.cursor` for Cursor CLI, `~/.grok` for Grok CLI). Every agent reads one of two skills folders. For each folder an installed agent reads, doctor checks that both skills are linked there and point to this repository. A folder no installed agent reads is `skipped`. If none of the folders exists, ask the user to install one of the agents and start it once.
 
-| Agent | Skills folder |
+| Skills folder (check) | Read by |
 | --- | --- |
-| Claude Code | `~/.claude/skills/` |
-| Codex CLI | `~/.agents/skills/` |
+| `~/.agents/skills/` (`skills-agents`) | Codex CLI, OpenCode, Gemini CLI, Cursor CLI |
+| `~/.claude/skills/` (`skills-claude`) | Claude Code, Grok CLI |
 
 ```bash
-# Claude Code
-mkdir -p ~/.claude/skills
-ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
-ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
-
-# Codex CLI
+# ~/.agents/skills (Codex CLI, OpenCode, Gemini CLI, Cursor CLI)
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
+
+# ~/.claude/skills (Claude Code, Grok CLI)
+mkdir -p ~/.claude/skills
+ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
+ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
 ```
+
+- A `~/.claude` that holds nothing but `skills` (made by the links above for Grok CLI) does not count as Claude Code.
 
 - Use symlinks, not copies. The question-sheet scripts find the repository's `design/dist` through the link.
 - `outdated` means the link points elsewhere (another clone, or the old `<repository>/skills`). Replace it with `ln -sfn`. If the path is a real folder rather than a link, do not delete it; ask the user.
@@ -110,12 +113,25 @@ ai-handout-studio settings --set locale=en --set orgName="Example Inc."
 
 ## 8. Agent instructions
 
-doctor checks that the instruction file of each agent (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`; for a symlink, the real file) contains the ai-handout-studio block and that its version is current.
+doctor checks, for each agent that is set up (`instructions-<id>`), that its instruction file (for a symlink, the real file) contains the ai-handout-studio block and that its version is current.
+
+| Agent | Instruction file |
+| --- | --- |
+| Claude Code | `~/.claude/CLAUDE.md` |
+| Codex CLI | `$CODEX_HOME/AGENTS.md` or `~/.codex/AGENTS.md` |
+| OpenCode | `$XDG_CONFIG_HOME/opencode/AGENTS.md` or `~/.config/opencode/AGENTS.md`; without it, `~/.claude/CLAUDE.md` |
+| Gemini CLI | `~/.gemini/GEMINI.md` |
+| Cursor CLI | none (User Rules in its settings) |
+| Grok CLI | `~/.grok/AGENTS.md` |
+
+- **One file for several agents:** when an instruction file is the same real file as one checked before (one file shared through symlinks), doctor gives it the same result and says "same file as <agent>". Write the block once.
+- **OpenCode:** if its own `AGENTS.md` does not exist and `~/.claude/CLAUDE.md` does, OpenCode reads `~/.claude/CLAUDE.md`, and doctor checks that file. Do not create OpenCode's `AGENTS.md` then: once it exists, OpenCode stops reading `~/.claude/CLAUDE.md`. If neither file exists, put the block in OpenCode's own `AGENTS.md`.
+- **Cursor CLI:** it has no instruction file, so its check is `skipped` and does not block. If the user wants the block, ask them to paste the block from `setup/agent-instructions.<locale>.md` into User Rules in Cursor's settings.
 
 The block tells the agent to make slides and HTML handouts with the ai-handout-studio skill and to ask questions with question sheets, so the user gets the same behavior in any folder. Without it, the user has to name the skill.
 
 1. Show the user the block in `setup/agent-instructions.<locale>.md` and ask whether to add it.
-2. **Yes:** append the whole file, markers included, to the end of each instruction file (create the file if it does not exist; if it is a symlink, edit the real file and keep the link). If doctor says `outdated`, replace everything from `<!-- ai-handout-studio:start … -->` to `<!-- ai-handout-studio:end -->` with the new block.
+2. **Yes:** append the whole file, markers included, to the end of each instruction file doctor reports as `missing` (create the file if it does not exist; if it is a symlink, edit the real file and keep the link). If doctor says `outdated`, replace everything from `<!-- ai-handout-studio:start … -->` to `<!-- ai-handout-studio:end -->` with the new block.
 3. **No:** record the answer, and doctor will skip this section from then on.
 
 ```bash
@@ -172,7 +188,7 @@ Then follow doctor as in section 1. If the agent-instructions block is `outdated
 
 ## Appendix B. Uninstall
 
-Uninstalling is a game book too. In Claude Code, type `/studio-uninstall`; in Codex CLI, ask: "Uninstall this by following UNINSTALL.md." `node scripts/doctor.mjs --uninstall --json` checks what is left and names the next section to read. The steps are in [UNINSTALL.md](UNINSTALL.md) ([UNINSTALL.ja.md](UNINSTALL.ja.md) in Japanese).
+Uninstalling is a game book too. In Claude Code, type `/studio-uninstall`; in Codex CLI, type `$studio-uninstall`; in other agents, ask: "Uninstall this by following UNINSTALL.md." `node scripts/doctor.mjs --uninstall --json` checks what is left and names the next section to read. The steps are in [UNINSTALL.md](UNINSTALL.md) ([UNINSTALL.ja.md](UNINSTALL.ja.md) in Japanese).
 
 ## Appendix C. Troubleshooting
 
