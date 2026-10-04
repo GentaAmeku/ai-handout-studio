@@ -1,4 +1,5 @@
 ---
+name: studio-setup
 description: AI Handout Studio をこの環境に入れる(SETUP のゲームブックを doctor に沿って進める)
 ---
 

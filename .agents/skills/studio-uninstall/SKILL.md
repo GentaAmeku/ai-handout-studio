@@ -1,4 +1,5 @@
 ---
+name: studio-uninstall
 description: AI Handout Studio をこの環境から外す(UNINSTALL のゲームブックを doctor --uninstall に沿って進める)
 ---
 

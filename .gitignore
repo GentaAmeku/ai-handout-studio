@@ -8,7 +8,7 @@ CLAUDE.local.md
 .dev
 
 # 手元の設定。mise の絶対パスなど、環境ごとに違う値を持つので git に入れない。
-# .claude/commands/(clone したあとの /studio-setup)は git に入れる
+# .agents/skills/(clone したあとの studio-setup)と .claude/skills/ の symlink は git に入れる
 .claude/launch.json
 .claude/settings.local.json
 .claude/worktrees/
