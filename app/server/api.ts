@@ -3,6 +3,7 @@ import { platform } from "node:process";
 import { type Context, Hono } from "hono";
 import { z } from "zod";
 import type {
+  AgentInfo,
   ApiErrorBody,
   DeckDetail,
   ExportResult,
@@ -10,7 +11,8 @@ import type {
   VersionDetail,
 } from "../src/api/types.ts";
 import { isTemplateName } from "../src/schema/design.ts";
-import { type AgentRunner, isAgentId } from "./agent-runs.ts";
+import type { AgentRunner } from "./agent-runs.ts";
+import { installedAgents, isAgentId } from "./agent-table.ts";
 import { createAiRequest, readAiPatch } from "./ai-requests.ts";
 import { type DesignBuilder, registerDesignRoutes } from "./design-api.ts";
 import type { Exporter } from "./exporter.ts";
@@ -50,6 +52,8 @@ export type ApiOptions = {
   exporter?: Exporter;
   // 無ければエージェントの起動は 503 を返す(API 単体のテスト用)
   agentRunner?: AgentRunner;
+  // 手元に入っているエージェント。既定は PATH を調べる(テストは差し替える)
+  installedAgents?: () => AgentInfo[];
 };
 
 const createDeckBody = z.strictObject({
@@ -84,9 +88,7 @@ const aiRequestBody = z.strictObject({
   target: z.unknown(),
 });
 
-const agentRunBody = z.strictObject({
-  agent: z.enum(["claude", "codex", "grok"]),
-});
+const agentRunBody = z.strictObject({ agent: z.string().min(1) });
 
 const errorBody = (error: string): ApiErrorBody => ({ error });
 
@@ -106,6 +108,7 @@ export const createApi = ({
   now = () => new Date(),
   exporter,
   agentRunner,
+  installedAgents: listInstalledAgents = () => installedAgents(),
 }: ApiOptions) => {
   const app = new Hono().basePath("/api");
 
@@ -309,6 +312,9 @@ export const createApi = ({
       ),
     ),
   );
+
+  // 手元に入っているエージェントだけ。画面の選択肢とコピー用のコマンドの元
+  app.get("/agents", (c) => c.json(listInstalledAgents()));
 
   // エージェントの起動(試作)。同時実行はサーバー全体で 1 件だけ
   app.post("/decks/:deckId/ai-requests/:requestId/runs", async (c) => {

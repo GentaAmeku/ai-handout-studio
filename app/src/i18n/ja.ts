@@ -696,6 +696,7 @@ export const ja = {
   "ai.cancelRequest": "この依頼をやめる",
 
   "commandBox.agentLegend": "使うエージェント",
+  "agents.none": "手元にエージェントの CLI が見つからない",
 
   "run.agentLegend": "起動するエージェント",
   "run.confirmBefore": "対象は{target}。書き出し先は ",

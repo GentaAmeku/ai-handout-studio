@@ -94,6 +94,9 @@ export const harnessesOf = ({ home, env = {} }) => {
         prompt,
         "--approval-mode",
         "auto_edit",
+        // 信頼していないフォルダでは承認モードが default に戻され、書き込めない。
+        // 非対話では対話の信頼確認に答えられないので、この起動だけ信頼する
+        "--skip-trust",
       ],
     }),
     row({

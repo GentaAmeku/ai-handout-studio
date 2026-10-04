@@ -11,6 +11,7 @@ import type { Locale, Profile } from "../schema/profile";
 import { deckApiPath, requestJson } from "./client";
 import type {
   AgentId,
+  AgentInfo,
   AgentRunStatus,
   AiPatchStatus,
   AiRequestDetail,
@@ -35,6 +36,13 @@ import type {
   VersionSummary,
   WithFavorite,
 } from "./types";
+
+// 手元の PATH にあるエージェントだけ。画面の選択肢とコピー用のコマンドの元
+export const agentsQuery = queryOptions({
+  queryKey: ["agents"],
+  queryFn: () => requestJson<AgentInfo[]>("/api/agents"),
+  staleTime: 60_000,
+});
 
 export const decksQuery = queryOptions({
   queryKey: ["decks"],

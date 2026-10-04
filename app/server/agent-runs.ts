@@ -3,16 +3,12 @@ import { createHash, randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { AgentId, AgentRunStatus } from "../src/api/types.ts";
+import { harnessFor } from "./agent-table.ts";
 import { aiDir } from "./ai-requests.ts";
 import { deckDir, fileStamp, hasCode, readTextIfExists } from "./workspace.ts";
 
 // AI パネルからのエージェント起動(試作)。ファイル受け渡しは変えず、
 // 「コマンドを写して端末で実行」の代わりにサーバーが CLI を起動する
-
-export const AGENTS = ["claude", "codex", "grok"] as const;
-
-export const isAgentId = (value: unknown): value is AgentId =>
-  typeof value === "string" && (AGENTS as readonly string[]).includes(value);
 
 const LOG_LIMIT = 64 * 1024;
 const DEFAULT_TIMEOUT_MS = 10 * 60 * 1000;
@@ -68,19 +64,9 @@ const keepTail = (current: string, chunk: string): string =>
 const quoteArg = (arg: string): string =>
   /[\s'"]/.test(arg) ? `'${arg.replaceAll("'", `'\\''`)}'` : arg;
 
-// 非対話の固定形だけを許す。正確なフラグは実機で確定する(試作)
-const argvFor = (agent: AgentId, prompt: string): string[] =>
-  agent === "claude"
-    ? [
-        "claude",
-        "-p",
-        prompt,
-        "--allowedTools",
-        "Read Write Edit Bash(pnpm deck:check *)",
-      ]
-    : agent === "codex"
-      ? ["codex", "exec", prompt]
-      : ["grok", prompt];
+// 非対話の形は、ハーネスの表(scripts/harnesses.mjs)にだけ書く
+const argvFor = (agent: AgentId, prompt: string): string[] | undefined =>
+  harnessFor(agent)?.headless(prompt);
 
 const deckJsonPath = (root: string, deckId: string): string =>
   join(deckDir(root, deckId), "deck.json");
@@ -191,6 +177,13 @@ export const createAgentRunner = ({
     const runId = `${fileStamp(started)}-${randomUUID().slice(0, 8)}`;
     const prompt = `skills/ai-handout-studio/SKILL.md の編集案の手順に従い、${requestPath} の指示から patch.json を作ってください。`;
     const argv = argvFor(agent, prompt);
+    if (argv === undefined) {
+      return {
+        success: false,
+        status: 404,
+        message: "エージェントの指定が正しくない",
+      };
+    }
     const record: RunRecord = {
       runId,
       deckId,
