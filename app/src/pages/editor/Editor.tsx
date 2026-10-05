@@ -46,9 +46,12 @@ const issueCount = (reports: readonly OverflowReport[]): number =>
 export const Editor = ({
   deckId,
   serverDeck,
+  favorite,
 }: {
   deckId: string;
   serverDeck: Deck;
+  // お気に入りかどうか(workspace/favorites.json)。帯の ☆ に出す
+  favorite: boolean;
 }) => {
   const { slide: initialSlideId } = route.useSearch();
   const navigate = route.useNavigate();
@@ -231,6 +234,7 @@ export const Editor = ({
       <EditorBar
         deckId={deckId}
         deck={deck}
+        favorite={favorite}
         canUndo={state.past.length > 0}
         canRedo={state.future.length > 0}
         dirty={dirty}

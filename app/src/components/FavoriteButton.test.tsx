@@ -11,8 +11,8 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { handoutQuery } from "../api/queries";
-import type { HandoutDetail } from "../api/types";
+import { deckQuery, handoutQuery } from "../api/queries";
+import type { DeckDetail, HandoutDetail, WithFavorite } from "../api/types";
 import { FavoriteButton } from "./FavoriteButton";
 
 // 質問票の1件のページと HTML 資料の編集画面の帯の ☆。
@@ -115,5 +115,50 @@ describe("FavoriteButton", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "お知らせを閉じる" }));
     await waitFor(() => expect(screen.queryByRole("alert")).toBe(null));
+  });
+
+  it("スライドの編集画面でも、押すとお気に入りの API に送り、押された印に替わる", async () => {
+    const deckId = "deck_20261005_001";
+    const fetchMock = vi.fn(async (_path: string, init?: RequestInit) =>
+      init?.method === "PUT"
+        ? json({ id: deckId, favorite: true })
+        : json({ state: "invalid", deckId, message: "", favorite: true }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    // 中身は ☆ に関係しないので、読めない資料の形で控えを置く
+    const seeded: WithFavorite<DeckDetail> = {
+      state: "invalid",
+      deckId,
+      message: "",
+      favorite: false,
+    };
+    client.setQueryData(deckQuery(deckId).queryKey, seeded);
+    const DeckBar = () => {
+      const deck = useQuery(deckQuery(deckId));
+      return deck.data ? (
+        <FavoriteButton kind="deck" id={deckId} favorite={deck.data.favorite} />
+      ) : null;
+    };
+    render(
+      <QueryClientProvider client={client}>
+        <DeckBar />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(star());
+
+    await waitFor(() =>
+      expect(star().getAttribute("aria-pressed")).toBe("true"),
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/favorites/${deckId}`,
+      expect.objectContaining({
+        method: "PUT",
+        body: JSON.stringify({ favorite: true }),
+      }),
+    );
   });
 });

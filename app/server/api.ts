@@ -9,6 +9,7 @@ import type {
   ExportResult,
   FavoriteResult,
   VersionDetail,
+  WithFavorite,
 } from "../src/api/types.ts";
 import { isTemplateName } from "../src/schema/design.ts";
 import type { AgentRunner } from "./agent-runs.ts";
@@ -16,7 +17,12 @@ import { installedAgents, isAgentId } from "./agent-table.ts";
 import { createAiRequest, readAiPatch } from "./ai-requests.ts";
 import { type DesignBuilder, registerDesignRoutes } from "./design-api.ts";
 import type { Exporter } from "./exporter.ts";
-import { setFavorite, setFavoriteOf, withFavorites } from "./favorites.ts";
+import {
+  readFavorites,
+  setFavorite,
+  setFavoriteOf,
+  withFavorites,
+} from "./favorites.ts";
 import { registerHandoutRoutes } from "./handout-api.ts";
 import { openFolderCommand } from "./open-folder.ts";
 import { readSettings, resolveSettings, saveProfile } from "./profile.ts";
@@ -183,10 +189,12 @@ export const createApi = ({
     if (file.state === "missing") {
       return c.json(errorBody("資料が見つからない"), 404);
     }
-    const detail: DeckDetail =
+    // お気に入りかどうかは1件の取得にだけ足す(編集画面の帯の ☆)
+    const favorite = (await readFavorites(workspaceRoot)).has(deckId);
+    const detail: WithFavorite<DeckDetail> =
       file.state === "ready"
-        ? { state: "ready", deckId, deck: file.value }
-        : { state: "invalid", deckId, message: file.message };
+        ? { state: "ready", deckId, deck: file.value, favorite }
+        : { state: "invalid", deckId, message: file.message, favorite };
     return c.json(detail);
   });
 

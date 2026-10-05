@@ -9,6 +9,7 @@ import {
   TriangleAlert,
   Undo2,
 } from "lucide-react";
+import { FavoriteButton } from "../../components/FavoriteButton";
 import { InfoPopover, type InfoRow } from "../../components/InfoPopover";
 import { resolveTemplateName, templateLabel } from "../../design/registry";
 import { formatDateTime } from "../../format/date";
@@ -17,7 +18,7 @@ import { useLanguage, type Vars } from "../../i18n/language";
 import { type Deck, deckTemplate } from "../../schema/deck";
 import { ExportControls } from "./ExportControls";
 
-// 上の帯。HTML 資料と質問票の帯(DocumentBar.tsx)と同じく1行に収める。戻る・はみ出し検査・履歴・保存は
+// 上の帯。HTML 資料と質問票の帯(DocumentBar.tsx)と同じく1行に収め、題名の右にお気に入りの ☆ を置く。戻る・はみ出し検査・履歴・保存は
 // アイコンだけにして(名前は読み上げと吹き出し data-tooltip に持たせる)、書き出しの PNG・HTML・PPTX・PDF は
 // アイコンだけでは見分けられないので形式名を残す
 
@@ -67,6 +68,7 @@ const SaveStatus = ({ dirty, saving }: { dirty: boolean; saving: boolean }) => {
 export const EditorBar = ({
   deckId,
   deck,
+  favorite,
   canUndo,
   canRedo,
   dirty,
@@ -86,6 +88,8 @@ export const EditorBar = ({
 }: {
   deckId: string;
   deck: Deck;
+  // お気に入りかどうか(workspace/favorites.json)
+  favorite: boolean;
   canUndo: boolean;
   canRedo: boolean;
   dirty: boolean;
@@ -119,6 +123,7 @@ export const EditorBar = ({
       <h1 className="viewer__title" title={deck.title}>
         {deck.title}
       </h1>
+      <FavoriteButton kind="deck" id={deckId} favorite={favorite} />
 
       <div className="editor__tools">
         <InfoPopover label={t("handouts.info")} rows={deckInfoRows(deck, t)} />

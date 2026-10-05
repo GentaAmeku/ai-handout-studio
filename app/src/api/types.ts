@@ -40,6 +40,8 @@ export type DeckSummary =
       updatedAt: string;
     };
 
+// スライドの1件。保存・版の戻しの応答はこの形で、1件の取得(GET)だけ
+// お気に入りかどうか(favorite)を足して返す(編集画面の帯の ☆)
 export type DeckDetail =
   | { state: "ready"; deckId: string; deck: Deck }
   | { state: "invalid"; deckId: string; message: string };

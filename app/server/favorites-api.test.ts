@@ -130,6 +130,18 @@ describe("お気に入り", () => {
     expect(documents.map((item) => item.favorite)).toEqual([true]);
   });
 
+  it("スライドの1件の取得にも印が乗る(編集画面の帯の ☆)", async () => {
+    const deckId = await createDeck("提案");
+    const path = `/api/decks/${deckId}`;
+    expect((await getJson<WithFavorite<DeckDetail>>(path)).favorite).toBe(
+      false,
+    );
+    await send("PUT", `/api/favorites/${deckId}`, { favorite: true });
+    const detail = await getJson<WithFavorite<DeckDetail>>(path);
+    expect(detail.favorite).toBe(true);
+    expect(detail.state).toBe("ready");
+  });
+
   it("質問票と HTML 資料の1件の取得にも印が乗る(1件の画面の帯の ☆)", async () => {
     const sheetId = await createSheet();
     const sheetPath = `/api/sheets/${sheetId}`;

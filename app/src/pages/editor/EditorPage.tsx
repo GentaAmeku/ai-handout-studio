@@ -53,5 +53,12 @@ export const EditorPage = () => {
       />
     );
   }
-  return <Editor key={deckId} deckId={deckId} serverDeck={detail.data.deck} />;
+  return (
+    <Editor
+      key={deckId}
+      deckId={deckId}
+      serverDeck={detail.data.deck}
+      favorite={detail.data.favorite}
+    />
+  );
 };
