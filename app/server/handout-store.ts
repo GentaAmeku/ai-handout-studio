@@ -10,6 +10,7 @@ import {
   sheetAnswersSchema,
   sheetDocumentSchema,
 } from "../src/schema/sheet.ts";
+import type { AppActions } from "./app-actions.ts";
 import { readDocumentSource } from "./document-source.ts";
 import { documentText } from "./document-text.ts";
 import {
@@ -416,6 +417,8 @@ export const renderHandout = async (
   share = false,
   // 編集画面のプレビュー。章ごとに読む資料でも全章を流す
   editing = false,
+  // アプリで原寸に開いたときだけ渡す、署名の行の右端の操作(資料一覧・お気に入り)
+  appActions?: AppActions,
 ): Promise<StoreResult<{ html: string; title: string; lang: Locale }>> => {
   const meta = await readMeta(root, kind, id);
   if (meta.state !== "ready") return fail(404, "資料が見つからない");
@@ -440,6 +443,7 @@ export const renderHandout = async (
         fonts,
         assetsDir: assetsDirOf(root, "document", id),
         paging: !editing,
+        ...(appActions ? { appActions } : {}),
       }),
     };
   }
@@ -467,6 +471,7 @@ export const renderHandout = async (
       orgName,
       fonts,
       share,
+      ...(appActions ? { appActions } : {}),
     }),
   };
 };

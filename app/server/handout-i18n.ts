@@ -83,7 +83,24 @@ export type DocumentStrings = {
   readonly diffLabel: Readonly<Record<"added" | "changed" | "removed", string>>;
 };
 
-const ja: { sheet: SheetStrings; document: DocumentStrings } = {
+// アプリで原寸に開いたときだけ、署名の行の右端に出す操作(app-actions.ts)。
+// お気に入りのボタンの名前は変えず、付いているかは aria-pressed で伝える。吹き出し(title)は押したら起きることを書く
+export type AppActionStrings = {
+  readonly label: string;
+  readonly list: string;
+  readonly favorite: string;
+  readonly favoriteAdd: string;
+  readonly favoriteRemove: string;
+  readonly favoriteFailed: string;
+};
+
+type HandoutStrings = {
+  sheet: SheetStrings;
+  document: DocumentStrings;
+  actions: AppActionStrings;
+};
+
+const ja: HandoutStrings = {
   sheet: {
     noticeWord: { success: "成功", info: "情報", warning: "注意" },
     statusDone: "✓ 入力済み",
@@ -147,9 +164,17 @@ const ja: { sheet: SheetStrings; document: DocumentStrings } = {
     resizeColumn: "列の幅を変える",
     diffLabel: { added: "追加", changed: "変更", removed: "削除" },
   },
+  actions: {
+    label: "アプリの操作",
+    list: "資料一覧",
+    favorite: "お気に入り",
+    favoriteAdd: "お気に入りにする",
+    favoriteRemove: "お気に入りから外す",
+    favoriteFailed: "お気に入りを変えられませんでした",
+  },
 };
 
-const en: { sheet: SheetStrings; document: DocumentStrings } = {
+const en: HandoutStrings = {
   sheet: {
     noticeWord: { success: "Success", info: "Info", warning: "Warning" },
     statusDone: "✓ Answered",
@@ -215,9 +240,14 @@ const en: { sheet: SheetStrings; document: DocumentStrings } = {
     resizeColumn: "Resize column",
     diffLabel: { added: "Added", changed: "Changed", removed: "Removed" },
   },
+  actions: {
+    label: "App actions",
+    list: "Handouts",
+    favorite: "Favorite",
+    favoriteAdd: "Add to favorites",
+    favoriteRemove: "Remove from favorites",
+    favoriteFailed: "Couldn't update favorites",
+  },
 };
 
-export const HANDOUT_STRINGS: Record<
-  Locale,
-  { sheet: SheetStrings; document: DocumentStrings }
-> = { ja, en };
+export const HANDOUT_STRINGS: Record<Locale, HandoutStrings> = { ja, en };

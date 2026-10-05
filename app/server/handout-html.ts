@@ -4,6 +4,11 @@ import type { SheetBase } from "../src/schema/design.ts";
 import type { DocumentFile } from "../src/schema/document.ts";
 import type { Locale } from "../src/schema/profile.ts";
 import type { SheetAnswers, SheetDocument } from "../src/schema/sheet.ts";
+import {
+  type AppActions,
+  appActionsHtml,
+  appActionsScript,
+} from "./app-actions.ts";
 import { readTemplate } from "./design.ts";
 import { documentScript } from "./document-client.ts";
 import { DIFF_MARK_CSS, type DiffMark } from "./document-diff.ts";
@@ -71,14 +76,15 @@ const page = ({
   title,
   css,
   body,
-  script,
+  scripts,
   fonts,
   lang = "ja",
 }: {
   title: string;
   css: string;
   body: string;
-  script?: string;
+  // 1つずつ別の <script> に入れる(見本の口の CSP はそれぞれの指紋を許す)
+  scripts: readonly string[];
   fonts: FontSource;
   // 画面の文言の言語。<html lang> に出す
   lang?: Locale;
@@ -95,7 +101,7 @@ const page = ({
     "</head>",
     "<body>",
     body,
-    ...(script ? [`<script>${safeInline(script)}</script>`] : []),
+    ...scripts.map((script) => `<script>${safeInline(script)}</script>`),
     "</body>",
     "</html>",
     "",
@@ -122,6 +128,7 @@ export const renderSheetHtml = async ({
   orgName,
   fonts = "hosted",
   share = false,
+  appActions,
 }: {
   designDir: string;
   template: string;
@@ -134,6 +141,8 @@ export const renderSheetHtml = async ({
   fonts?: FontSource;
   // 共有用の束。「ファイルで保存」を出さない印を付ける
   share?: boolean;
+  // アプリで原寸に開いたときだけ渡す、署名の行の右端の操作(資料一覧・お気に入り)
+  appActions?: AppActions;
 }): Promise<string> => {
   const base = await sheetBaseOf(designDir, template, layout);
   // 画面の文言の言語。資料に無ければ ja で描く
@@ -142,13 +151,17 @@ export const renderSheetHtml = async ({
     title: `${doc.title} — ${HANDOUT_STRINGS[lang].sheet.titleSuffix}`,
     css: await readCss(designDir, "sheet", template),
     body: sheetBody(
-      { ...sheetView(doc, answers, 0, lang), ...(orgName ? { orgName } : {}) },
+      {
+        ...sheetView(doc, answers, 0, lang),
+        ...(orgName ? { orgName } : {}),
+        ...(appActions ? { actions: appActionsHtml(appActions, lang) } : {}),
+      },
       base,
       true,
       share,
     ),
     // 質問を移動するだけのスクリプト。回答の保存・送信は持たない
-    script: sheetScript(lang),
+    scripts: [sheetScript(lang), ...(appActions ? [appActionsScript()] : [])],
     fonts,
     lang,
   });
@@ -175,6 +188,8 @@ export const renderDocumentHtml = async (
     paging?: boolean;
     // 履歴の見比べで印を付けるセクション。渡したときだけ印の CSS を足す
     marks?: ReadonlyMap<string, DiffMark>;
+    // アプリで原寸に開いたときだけ渡す、署名の行の右端の操作(資料一覧・お気に入り)
+    appActions?: AppActions;
   } & DocumentSource,
 ): Promise<string> =>
   page({
@@ -198,10 +213,16 @@ export const renderDocumentHtml = async (
             input.doc.lang ?? "ja",
             input.paging ?? true,
             input.marks,
+            input.appActions
+              ? appActionsHtml(input.appActions, input.doc.lang ?? "ja")
+              : "",
           )
         : input.body,
-    // コードブロックの「コピー」を動かすだけのスクリプト
-    script: documentScript(),
+    // コードブロックの「コピー」などを動かすスクリプト
+    scripts: [
+      documentScript(),
+      ...(input.appActions ? [appActionsScript()] : []),
+    ],
     fonts: input.fonts ?? "hosted",
     lang: "doc" in input ? (input.doc.lang ?? "ja") : "ja",
   });
