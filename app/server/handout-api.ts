@@ -4,6 +4,7 @@ import { z } from "zod";
 import type {
   ApiErrorBody,
   DocumentVersionDetail,
+  HandoutDetail,
   HandoutExportResult,
   ShareApiResult,
 } from "../src/api/types.ts";
@@ -25,7 +26,7 @@ import {
   saveDocument,
   updateDocument,
 } from "./document-store.ts";
-import { setFavorite, withFavorites } from "./favorites.ts";
+import { readFavorites, setFavorite, withFavorites } from "./favorites.ts";
 import {
   createSheet,
   exportHandout,
@@ -172,9 +173,16 @@ const registerShared = (
     const id = paramId(c);
     const detail = await readHandout(workspaceRoot, designDir, kind, id);
     if (!detail) return c.json(errorBody("資料が見つからない"), 404);
-    // 公開した URL(share.json)を1件の詳細にだけ足す。一覧では読まない
+    // 公開した URL(share.json)を1件の詳細にだけ足す。一覧では読まない。
+    // お気に入りかどうかも足す(1件の画面の帯の ☆)
     const share = await readShareState(workspaceRoot, kind, id);
-    return c.json({ ...detail, shareUrl: share?.url ?? null });
+    const favorites = await readFavorites(workspaceRoot);
+    const body: HandoutDetail = {
+      ...detail,
+      shareUrl: share?.url ?? null,
+      favorite: favorites.has(id),
+    };
+    return c.json(body);
   });
 
   // 消した資料はお気に入りからも外す

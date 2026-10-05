@@ -219,7 +219,8 @@ export type HandoutSummary = {
   shareUrl?: string | null;
 };
 
-export type HandoutDetail = HandoutSummary;
+// 資料の1件。お気に入りかどうかも1件の取得にだけ足す(1件の画面の帯の ☆)
+export type HandoutDetail = WithFavorite<HandoutSummary>;
 
 export type HandoutExportResult = {
   kind: HandoutKind;

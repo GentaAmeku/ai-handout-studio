@@ -47,6 +47,7 @@ export const DocumentEditor = ({
   updatedAt,
   serverDocument,
   shareUrl,
+  favorite,
 }: {
   id: string;
   title: string;
@@ -56,6 +57,8 @@ export const DocumentEditor = ({
   serverDocument: DocumentFile;
   // 公開した Artifact の URL(share.json)。無ければ null
   shareUrl: string | null;
+  // お気に入りかどうか(workspace/favorites.json)
+  favorite: boolean;
 }) => {
   const { t } = useLanguage();
   const queryClient = useQueryClient();
@@ -151,6 +154,7 @@ export const DocumentEditor = ({
         saveError={saveDocument.error?.message}
         conflict={errorStatus(saveDocument.error) === 409 || showConflict}
         shareUrl={shareUrl}
+        favorite={favorite}
         onSave={save}
         onReload={() => void reloadFromFile()}
         onKeepEditing={() => {
@@ -276,6 +280,7 @@ export const DocumentEditorLoader = ({ id }: { id: string }) => {
       updatedAt={detail.data.updatedAt}
       serverDocument={document.data}
       shareUrl={detail.data.shareUrl ?? null}
+      favorite={detail.data.favorite}
     />
   );
 };

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, History, Pencil, Save, TriangleAlert } from "lucide-react";
 import { useSetHandoutTemplate } from "../../api/queries";
 import type { DesignTemplateSummary } from "../../api/types";
+import { FavoriteButton } from "../../components/FavoriteButton";
 import { HandoutExportButton } from "../../components/HandoutExportButton";
 import { InfoPopover, type InfoRow } from "../../components/InfoPopover";
 import { OpenFullLink } from "../../components/OpenFullLink";
@@ -11,7 +12,7 @@ import type { MessageKey } from "../../i18n/ja";
 import { useLanguage, type Vars } from "../../i18n/language";
 import { templateEditPath } from "../templates/paths";
 
-// 上の帯。戻る・題・テンプレートの入れ替え・履歴・原寸で開く・書き出し・共有・保存を1本にまとめる。
+// 上の帯。戻る・題・お気に入り・テンプレートの入れ替え・履歴・原寸で開く・書き出し・共有・保存を1本にまとめる。
 // スライドの EditorBar.tsx と同じ並びで、はみ出し検査と取り消しは持たない。
 // ボタンはアイコンだけにして(名前は読み上げと、マウスを重ねるか選んだときの吹き出し data-tooltip に持たせる)、帯を1行に収める
 
@@ -100,6 +101,7 @@ export const DocumentBar = ({
   saveError,
   conflict,
   shareUrl,
+  favorite,
   onSave,
   onReload,
   onKeepEditing,
@@ -118,6 +120,8 @@ export const DocumentBar = ({
   conflict: boolean;
   // 公開した Artifact の URL(share.json)。無ければ null
   shareUrl: string | null;
+  // お気に入りかどうか(workspace/favorites.json)
+  favorite: boolean;
   onSave: () => void;
   onReload: () => void;
   onKeepEditing: () => void;
@@ -140,6 +144,7 @@ export const DocumentBar = ({
       <h1 className="viewer__title" title={title}>
         {title}
       </h1>
+      <FavoriteButton kind="document" id={id} favorite={favorite} />
 
       <div className="editor__tools">
         <InfoPopover

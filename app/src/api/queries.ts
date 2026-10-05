@@ -1,4 +1,5 @@
 import {
+  type QueryClient,
   type QueryKey,
   queryOptions,
   useMutation,
@@ -342,16 +343,27 @@ export const handoutQuery = (kind: HandoutKind, id: string) =>
     queryFn: () => requestJson<HandoutDetail>(handoutApiPath(kind, id)),
   });
 
+// 書き換えの応答は概要だけ。1件の控えに足してある公開した URL とお気に入りの印は残す
+const mergeHandoutDetail = (
+  queryClient: QueryClient,
+  kind: HandoutKind,
+  id: string,
+  summary: HandoutSummary,
+) =>
+  queryClient.setQueryData(handoutQuery(kind, id).queryKey, (detail) =>
+    detail ? { ...detail, ...summary } : undefined,
+  );
+
 export const useSetHandoutTemplate = (kind: HandoutKind, id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (template: string) =>
-      requestJson<HandoutDetail>(`${handoutApiPath(kind, id)}/template`, {
+      requestJson<HandoutSummary>(`${handoutApiPath(kind, id)}/template`, {
         method: "PUT",
         body: JSON.stringify({ template }),
       }),
-    onSuccess: (detail) => {
-      queryClient.setQueryData(handoutQuery(kind, id).queryKey, detail);
+    onSuccess: (summary) => {
+      mergeHandoutDetail(queryClient, kind, id, summary);
       return queryClient.invalidateQueries({
         queryKey: handoutsQuery(kind).queryKey,
       });
@@ -394,7 +406,7 @@ export const useSaveDocument = (
       const saved = savedDocument(input.document, summary);
       onSaved(saved, input.document);
       queryClient.setQueryData(documentQuery(id).queryKey, saved);
-      queryClient.setQueryData(handoutQuery("document", id).queryKey, summary);
+      mergeHandoutDetail(queryClient, "document", id, summary);
       return queryClient.invalidateQueries({
         queryKey: handoutsQuery("document").queryKey,
       });
@@ -465,6 +477,12 @@ export const useShareHandout = (kind: HandoutKind, id: string) =>
       }),
   });
 
+const putFavorite = ({ id, favorite }: FavoriteResult) =>
+  requestJson<FavoriteResult>(`/api/favorites/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    body: JSON.stringify({ favorite }),
+  });
+
 // お気に入りの付け外し。押したらすぐ一覧の控えの印を替え、失敗したら元に戻す。
 // 一覧の控えは完全一致の鍵で触る(["decks"] は資料1件の控えの頭でもある)
 const useSetFavorite = <T extends { favorite: boolean }>(
@@ -473,11 +491,7 @@ const useSetFavorite = <T extends { favorite: boolean }>(
 ) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, favorite }: FavoriteResult) =>
-      requestJson<FavoriteResult>(`/api/favorites/${encodeURIComponent(id)}`, {
-        method: "PUT",
-        body: JSON.stringify({ favorite }),
-      }),
+    mutationFn: putFavorite,
     onMutate: async ({ id, favorite }) => {
       await queryClient.cancelQueries({ queryKey, exact: true });
       const previous = queryClient.getQueryData<T[]>(queryKey);
@@ -508,6 +522,37 @@ export const useSetHandoutFavorite = (kind: HandoutKind) =>
     handoutsQuery(kind).queryKey,
     (summary: WithFavorite<HandoutSummary>) => summary.id,
   );
+
+// 質問票の1件のページと HTML 資料の編集画面の帯の ☆。押したらすぐ1件の控えの印を替え、
+// 失敗したら元に戻す。済んだら1件と一覧の控えを読み直す
+export const useSetHandoutDetailFavorite = (kind: HandoutKind, id: string) => {
+  const queryClient = useQueryClient();
+  const { queryKey } = handoutQuery(kind, id);
+  return useMutation({
+    mutationFn: (favorite: boolean) => putFavorite({ id, favorite }),
+    onMutate: async (favorite) => {
+      await queryClient.cancelQueries({ queryKey, exact: true });
+      const previous = queryClient.getQueryData(queryKey);
+      queryClient.setQueryData(queryKey, (detail) =>
+        detail ? { ...detail, favorite } : undefined,
+      );
+      return { previous };
+    },
+    onError: (_error, _favorite, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKey, context.previous);
+      }
+    },
+    onSettled: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey, exact: true }),
+        queryClient.invalidateQueries({
+          queryKey: handoutsQuery(kind).queryKey,
+          exact: true,
+        }),
+      ]),
+  });
+};
 
 export const useDeleteHandout = (kind: HandoutKind) => {
   const queryClient = useQueryClient();
