@@ -1,79 +1,17 @@
 import { z } from "zod";
+import { checkDocumentBody } from "./document-body.ts";
 import { localeName } from "./profile.ts";
 
 // HTML 資料の形。正本は document.json(下半分)で、本文の断片(document.html)は移行期だけ読む。
 // 断片は `.ds-*` の部品で組んだものに限る。書き出しはテンプレートの CSS を埋めた1枚の HTML にするので、
 // 本文はページの枠(html・head・body)を持たない
 
-// 本文の上限。1枚で開く前提なので、これを超えるなら資料を分ける
-export const DOCUMENT_BODY_LIMIT = 1_000_000;
-
-// 持ってはいけない要素。ページの枠・スクリプト・外から読む参照
-const FORBIDDEN_TAGS = [
-  "html",
-  "head",
-  "body",
-  "script",
-  "style",
-  "link",
-  "meta",
-  "base",
-  "iframe",
-  "object",
-  "embed",
-  "form",
-  "input",
-  "textarea",
-  "button",
-] as const;
-
-const tagPattern = (tag: string): RegExp => new RegExp(`<${tag}[\\s/>]`, "i");
-
-const classPattern = /class\s*=\s*"([^"]*)"/g;
-const eventPattern = /\son[a-z]+\s*=/i;
-const javascriptUrlPattern = /(?:href|src)\s*=\s*"\s*javascript:/i;
-// 画像は本文に埋め込む(data:)だけにする。外から読むと配った先で欠ける
-const externalSrcPattern = /\ssrc\s*=\s*"(?!data:)/i;
-
-export type BodyCheck = { success: true } | { success: false; message: string };
-
-const fail = (message: string): BodyCheck => ({ success: false, message });
-
-// class は `.ds-*` だけ。部品の外の見た目を本文に持ち込ませない
-const foreignClass = (html: string): string | undefined => {
-  for (const match of html.matchAll(classPattern)) {
-    const bad = (match[1] ?? "")
-      .split(/\s+/)
-      .filter((name) => name.length > 0)
-      .find((name) => !name.startsWith("ds-"));
-    if (bad) return bad;
-  }
-  return undefined;
-};
-
-export const checkDocumentBody = (html: string): BodyCheck => {
-  if (html.trim().length === 0) return fail("本文が空");
-  if (html.length > DOCUMENT_BODY_LIMIT) {
-    return fail(`本文が大きすぎる(${DOCUMENT_BODY_LIMIT} 文字まで)`);
-  }
-  const tag = FORBIDDEN_TAGS.find((name) => tagPattern(name).test(html));
-  if (tag) {
-    return fail(
-      `本文に <${tag}> は書けない。本文だけの断片を .ds-* の部品で組む`,
-    );
-  }
-  if (eventPattern.test(html)) return fail("本文に on… の属性は書けない");
-  if (javascriptUrlPattern.test(html)) {
-    return fail("本文に javascript: のリンクは書けない");
-  }
-  if (externalSrcPattern.test(html)) {
-    return fail("本文の画像は data: で埋め込む(外から読む src は書けない)");
-  }
-  const bad = foreignClass(html);
-  return bad
-    ? fail(`本文の class は ds- で始まるものだけにする: ${bad}`)
-    : { success: true };
-};
+// 本文の断片の検査(許可リスト方式)は document-body.ts にある
+export {
+  type BodyCheck,
+  checkDocumentBody,
+  DOCUMENT_BODY_LIMIT,
+} from "./document-body.ts";
 
 // ---------- document.json ----------
 

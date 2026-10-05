@@ -110,7 +110,13 @@
 | `image` | スクリーンショット・生成した絵 | `src`(手元の画像ファイルのパス。保存で `assets/` に取り込まれる)・`alt`・`caption?` |
 | `html` | 他の型で書けない例外と移行の受け皿。**まず他の型を使う** | `html`(`.ds-*` の断片) |
 
-`html` と `figure` の `html` は、`.ds-*` の class だけを持つ断片に限る。`<script>`・`<style>`・外から読む `src`・入力部品・ページの枠はアプリが拒む。注意の色は `kind` が決める。帯か箱か、罫線か縞か、角の丸さはテンプレートが決めるので、JSON では選ばない。
+`html` と `figure` の `html` は、`.ds-*` の class だけを持つ断片に限る。アプリは HTML を解析し、許した要素・属性・行き先だけを通す(許可リスト)。
+- 要素: 文章・表・リストの部品(`div`・`p`・`span`・`h1`〜`h6`・`a`・`strong`・`em`・`code`・`pre`・`ul`・`ol`・`li`・`table` の一式・`figure`・`figcaption`・`img` など)と、図の SVG(`svg`・`g`・`rect`・`path`・`line`・`polygon`・`circle`・`text`・`tspan`・`title`・`marker`・`clipPath`・`image`・`animate` など)。`<script>`・`<style>`・入力部品・ページの枠・`<iframe>`・`<video>`・`<foreignObject>` は拒む
+- 属性: `class`(`ds-` で始まるものだけ)・`id`・`aria-*`・`role`・`alt`・`title`・`href`・`src`・表の `colspan` など、SVG の形・色の属性。`on…` の属性・`style`・`srcset`・`xlink:href` は拒む
+- 行き先: `href` は `#`・`https:`・`http:`・`mailto:` だけ。画像(`img` の `src`、SVG の `image` の `href`)は `data:image/` の png・jpeg・gif・webp で埋め込む(`data:image/svg+xml` と外の URL は拒む)。SVG の `url()` は本文の中の `#id` だけを指せる
+- HTML のコメント(`<!-- … -->`)は書かない。画面に出なくても、書き出しや共有の先では読める
+
+注意の色は `kind` が決める。帯か箱か、罫線か縞か、角の丸さはテンプレートが決めるので、JSON では選ばない。
 
 ### 文中の短いコード
 
