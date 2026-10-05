@@ -14,6 +14,11 @@ import {
 // 本文の上限。1枚で開く前提なので、これを超えるなら資料を分ける
 export const DOCUMENT_BODY_LIMIT = 1_000_000;
 
+// 要素の入れ子の上限。解析器は <div> などの開始タグのたびに、開いている要素を深さぶんたどる
+// (<p> が開いていれば閉じる、という仕様の手順)。上限が無いと、深さ n の本文は n² に比例して遅くなる。
+// Chromium と WebKit も 512 段より深い要素は入れ子にせず兄弟として置くので、それより深い本文は書いたとおりに出ない
+export const DOCUMENT_BODY_DEPTH_LIMIT = 512;
+
 export type BodyCheck = { success: true } | { success: false; message: string };
 
 const fail = (message: string): BodyCheck => ({ success: false, message });
@@ -451,6 +456,38 @@ const firstProblem = (
 // ページの枠は解析で読み捨てられて木に残らないので、字面で見て分かる言葉で止める
 const FRAME_TAG = /<(html|head|body)[\s/>]/i;
 
+const TOO_DEEP = new Error("本文の入れ子が深すぎる");
+
+// 本文を <div> の中に置いたものとして読む。入れ子が上限を超えたら、そこで解析をやめて undefined を返す
+const parseBody = (
+  html: string,
+  errors: ParserError[],
+): DefaultTreeAdapterTypes.DocumentFragment | undefined => {
+  // 開いている要素の数。断片の解析は根の <html> を1つ積んでから始まる
+  const open = { depth: -1 };
+  const treeAdapter: typeof defaultTreeAdapter = {
+    ...defaultTreeAdapter,
+    onItemPush: () => {
+      open.depth += 1;
+      if (open.depth > DOCUMENT_BODY_DEPTH_LIMIT) throw TOO_DEEP;
+    },
+    onItemPop: () => {
+      open.depth -= 1;
+    },
+  };
+  const context = treeAdapter.createElement("div", htmlSpec.NS.HTML, []);
+  try {
+    return parseFragment(context, html, {
+      treeAdapter,
+      sourceCodeLocationInfo: true,
+      onParseError: (error) => errors.push(error),
+    });
+  } catch (error) {
+    if (error === TOO_DEEP) return undefined;
+    throw error;
+  }
+};
+
 export const checkDocumentBody = (html: string): BodyCheck => {
   if (html.trim().length === 0) return fail("本文が空");
   if (html.length > DOCUMENT_BODY_LIMIT) {
@@ -464,11 +501,12 @@ export const checkDocumentBody = (html: string): BodyCheck => {
   }
   const errors: ParserError[] = [];
   // 資料では本文を <div> の中に置くので、同じ文脈で読む
-  const context = defaultTreeAdapter.createElement("div", htmlSpec.NS.HTML, []);
-  const fragment = parseFragment(context, html, {
-    sourceCodeLocationInfo: true,
-    onParseError: (error) => errors.push(error),
-  });
+  const fragment = parseBody(html, errors);
+  if (!fragment) {
+    return fail(
+      `本文の入れ子が深すぎる(${DOCUMENT_BODY_DEPTH_LIMIT} 段まで)。部品の入れ子を浅くする`,
+    );
+  }
   // タグや引用符が開いたまま終わると、後ろに続くページの部品を巻き込んで読まれる
   if (errors.some((error) => error.code.startsWith("eof-in-"))) {
     return fail("本文の終わりでタグか引用符が閉じていない");

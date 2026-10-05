@@ -10,6 +10,7 @@ import { localeName } from "./profile.ts";
 export {
   type BodyCheck,
   checkDocumentBody,
+  DOCUMENT_BODY_DEPTH_LIMIT,
   DOCUMENT_BODY_LIMIT,
 } from "./document-body.ts";
 
