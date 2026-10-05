@@ -41,6 +41,9 @@ importers:
       lucide-react:
         specifier: ^1.46.0
         version: 1.46.0(react@19.3.0)
+      parse5:
+        specifier: ^8.0.1
+        version: 8.0.1
       pptxgenjs:
         specifier: ^4.0.1
         version: 4.0.1

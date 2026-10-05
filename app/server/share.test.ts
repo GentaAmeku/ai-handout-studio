@@ -391,8 +391,9 @@ describe("buildShareBundle の警告", () => {
                 {
                   id: "b9",
                   type: "html",
+                  // 本文の検査は svg+xml を拒むので、base64 でない png で残りを作る
                   props: {
-                    html: '<div class="ds-figure-frame"><img src="data:image/svg+xml,%3Csvg%3E%3C/svg%3E" /></div>',
+                    html: '<div class="ds-figure-frame"><img src="data:image/png,%89PNG" alt="" /></div>',
                   },
                 },
               ],
