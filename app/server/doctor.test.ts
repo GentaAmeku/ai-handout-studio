@@ -16,6 +16,7 @@ import {
   type DoctorContext,
   type DoctorResult,
   decodeLsofName,
+  formatChecklist,
   formatDoctor,
   runDoctor,
   runUninstallDoctor,
@@ -46,6 +47,12 @@ const makeClone = (): void => {
     mkdirSync(join(repo, "setup"), { recursive: true });
     copyFileSync(join(realRepo, "setup", name), join(repo, "setup", name));
   });
+  // チェックリストの節の見出しはゲームブックから読む
+  ["SETUP.md", "SETUP.ja.md", "UNINSTALL.md", "UNINSTALL.ja.md"].forEach(
+    (name) => {
+      copyFileSync(join(realRepo, name), join(repo, name));
+    },
+  );
 };
 
 const install = (): void => {
@@ -81,11 +88,17 @@ const writeProfile = (profile: object): void => {
 const instructionsBlock = (): string =>
   readFileSync(join(realRepo, "setup", "agent-instructions.en.md"), "utf8");
 
+// 選ぶところを全部決めた profile。archify と mod は断ったことにする(入れる形は各テストで作る)
 const DECIDED = {
   orgName: "",
   locale: "en",
   features: { lan: false, imageGeneration: false, share: false },
+  archify: "declined",
+  mods: { claude: "declined" },
 };
+
+// mod が加わる前に済ませたセットアップの profile(archify と mod を決めていない)
+const { archify: _archify, mods: _mods, ...BEFORE_OFFERS } = DECIDED;
 
 // ハーネスのほかはそろった環境
 const makeBase = (): void => {
@@ -381,14 +394,20 @@ describe("doctor の各項目", () => {
     expect(result.next?.section).toBe(9);
   });
 
-  it("archify が無ければ節9の warn で入れ方を出し(止めない)、あれば ok", async () => {
+  it("archify は入れるか断るまで節9の missing で入れ方と断り方を出し、断れば skipped、あれば ok", async () => {
     makeReady();
+    writeProfile({ ...BEFORE_OFFERS, mods: { claude: "declined" } });
     const without = await runDoctor(context());
-    expect(statusOf(without, "archify")).toBe("warn");
-    expect(
-      without.checks.find((item) => item.id === "archify")?.detail,
-    ).toContain("npx skills add tt-a1i/archify -g");
-    expect(without.ok).toBe(true);
+    expect(statusOf(without, "archify")).toBe("missing");
+    const detail = without.checks.find((item) => item.id === "archify")?.detail;
+    expect(detail).toContain("npx skills add tt-a1i/archify -g");
+    expect(detail).toContain("settings --set archify=declined");
+    expect(without.next?.section).toBe(9);
+
+    writeProfile(DECIDED);
+    const declined = await runDoctor(context());
+    expect(statusOf(declined, "archify")).toBe("skipped");
+    expect(declined.ok).toBe(true);
 
     const archify = join(home, ".agents", "skills", "archify");
     touch(join(archify, "SKILL.md"));
@@ -397,18 +416,25 @@ describe("doctor の各項目", () => {
     expect(statusOf(withArchify, "archify")).toBe("ok");
   });
 
-  it("Claude Code の mod が無ければ節9の warn で入れ方を出し(止めない)、あれば ok", async () => {
+  it("Claude Code の mod は入れるか断るまで節9の missing で入れ方と断り方を出し、断れば skipped、あれば ok", async () => {
     makeReady();
+    writeProfile({ ...BEFORE_OFFERS, archify: "declined" });
     const without = await runDoctor(context());
-    expect(statusOf(without, "mod-claude")).toBe("warn");
+    expect(statusOf(without, "mod-claude")).toBe("missing");
     const detail = without.checks.find(
       (item) => item.id === "mod-claude",
     )?.detail;
-    expect(detail).toContain("handout-watch is not installed");
+    expect(detail).toContain("handout-watch is not installed and not declined");
     expect(detail).toContain(
       `ln -sfn "${join(repo, "mods", "handout-watch")}" "${join(home, ".claude", "skills", "handout-watch")}"`,
     );
-    expect(without.ok).toBe(true);
+    expect(detail).toContain("settings --set mods.claude=declined");
+    expect(without.next?.section).toBe(9);
+
+    writeProfile(DECIDED);
+    const declined = await runDoctor(context());
+    expect(statusOf(declined, "mod-claude")).toBe("skipped");
+    expect(declined.ok).toBe(true);
 
     linkMod();
     const withMod = await runDoctor(context());
@@ -448,6 +474,27 @@ describe("doctor の各項目", () => {
     mkdirSync(join(home, ".codex"), { recursive: true });
     const result = await runDoctor(context());
     expect(statusOf(result, "mod-claude")).toBe("skipped");
+  });
+
+  it("前に入れた mod のリンクが別の clone を指す・指す先が無いなら、断っていても outdated で張り直させる", async () => {
+    makeReady();
+    const link = join(home, ".claude", "skills", "handout-watch");
+    const other = join(root, "old-clone", "mods", "handout-watch");
+    mkdirSync(other, { recursive: true });
+    symlinkSync(other, link);
+    const elsewhere = await runDoctor(context());
+    expect(statusOf(elsewhere, "mod-claude")).toBe("outdated");
+    expect(elsewhere.next?.section).toBe(9);
+    expect(
+      elsewhere.checks.find((item) => item.id === "mod-claude")?.detail,
+    ).toContain(`ln -sfn "${join(repo, "mods", "handout-watch")}" "${link}"`);
+
+    rmSync(other, { recursive: true });
+    const broken = await runDoctor(context());
+    expect(statusOf(broken, "mod-claude")).toBe("outdated");
+    expect(
+      broken.checks.find((item) => item.id === "mod-claude")?.detail,
+    ).toContain("is a broken link");
   });
 
   it("mod の置き場がフォルダなら、入れ方を出さずに warn で利用者に聞かせる", async () => {
@@ -940,6 +987,53 @@ describe("doctor --uninstall", () => {
     rmSync(join(home, ".claude"), { recursive: true });
     const done = await runUninstallDoctor(down());
     expect(formatDoctor(done)).toContain("仕上げは UNINSTALL の節6");
+  });
+});
+
+describe("doctor のチェックリスト", () => {
+  it("済ませたあとに選ぶものが増えたら、もう一度流すと節9に戻り、チェックリストに次の節を示す", async () => {
+    makeReady();
+    writeProfile(BEFORE_OFFERS);
+    const result = await runDoctor(context());
+    expect(result.next?.section).toBe(9);
+    const lines = formatChecklist(result).split("\n");
+    expect(lines[0]).toBe("Setup progress: 8/9 sections (next: section 9)");
+    expect(lines.slice(2)).toHaveLength(9);
+    expect(lines[2]).toBe("- [x] 2. Prerequisites");
+    expect(lines).toContain(
+      "- [ ] 9. Optional features (to do: archify, mod-claude) ← next",
+    );
+    expect(lines).toContain("- [x] 10. Start and check");
+  });
+
+  it("全部飛ばした節には「飛ばした」、warn には「注意」を添える。見出しが読めなければ番号だけ", async () => {
+    makeReady();
+    writeProfile({ ...DECIDED, locale: "ja", agentInstructions: "declined" });
+    rmSync(join(workspace, "examples.json"));
+    const result = await runDoctor(context());
+    const checklist = formatChecklist(result);
+    expect(checklist.split("\n")[0]).toBe(
+      "セットアップの進み具合: 9/9 節(済んでいる)",
+    );
+    expect(checklist).toMatch(/^- \[x\] 8\. .+\(飛ばした\)$/m);
+    expect(checklist).toMatch(/^- \[x\] 10\. .+\(注意: examples\)$/m);
+    expect(checklist).not.toContain("←");
+
+    rmSync(join(repo, "SETUP.ja.md"));
+    expect(formatChecklist(await runDoctor(context()))).toContain("- [x] 節2");
+  });
+
+  it("外すときは UNINSTALL の節で、残っているものを「まだ」として出す", async () => {
+    makeReady();
+    const result = await runUninstallDoctor(
+      context({ probeServer: async () => "down" }),
+    );
+    const lines = formatChecklist(result).split("\n");
+    expect(lines[0]).toBe("Uninstall progress: 2/5 sections (next: section 3)");
+    expect(lines).toContain("- [x] 2. Server");
+    expect(lines).toContain(
+      "- [ ] 3. Agent instructions (to do: instructions-claude) ← next",
+    );
   });
 });
 

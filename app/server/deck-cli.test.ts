@@ -270,6 +270,33 @@ describe("parseCli", () => {
     ).toBe(false);
   });
 
+  it("settings は archify と mod(mods.claude)を入れるかも ask か declined で受ける", () => {
+    expect(
+      parseCli([
+        "settings",
+        "--set",
+        "archify=declined",
+        "--set",
+        "mods.claude=ask",
+      ]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "settings",
+        updates: [
+          { key: "archify", value: "declined" },
+          { key: "mods.claude", value: "ask" },
+        ],
+      },
+    });
+    expect(parseCli(["settings", "--set", "mods.claude=no"]).success).toBe(
+      false,
+    );
+    expect(parseCli(["settings", "--set", "mods.codex=ask"]).success).toBe(
+      false,
+    );
+  });
+
   it("題名が無い・形の違う id・知らないコマンドは失敗にする", () => {
     expect(parseCli(["new"]).success).toBe(false);
     expect(parseCli(["design"]).success).toBe(false);
@@ -578,6 +605,8 @@ describe("formatSettings / applySettingsUpdates", () => {
       locale: "ja" as const,
       features: { lan: false, imageGeneration: false, share: false },
       agentInstructions: "ask" as const,
+      archify: "declined" as const,
+      mods: { claude: "ask" as const },
     };
     expect(formatSettings(settings)).toBe(
       [
@@ -587,6 +616,8 @@ describe("formatSettings / applySettingsUpdates", () => {
         "features.imageGeneration: false",
         "features.share: false",
         "agentInstructions: ask",
+        "archify: declined",
+        "mods.claude: ask",
       ].join("\n"),
     );
   });
@@ -615,5 +646,14 @@ describe("formatSettings / applySettingsUpdates", () => {
         { key: "agentInstructions", value: "declined" },
       ]),
     ).toEqual({ orgName: "", agentInstructions: "declined" });
+    expect(
+      applySettingsUpdates({ orgName: "", archify: "declined" }, [
+        { key: "mods.claude", value: "declined" },
+      ]),
+    ).toEqual({
+      orgName: "",
+      archify: "declined",
+      mods: { claude: "declined" },
+    });
   });
 });

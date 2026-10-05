@@ -65,6 +65,10 @@
                 "why": "For the Japanese steps, point it at SETUP.ja.md."
               },
               {
+                "text": "Your agent first shows a checklist of the sections.",
+                "why": "It shows which sections are done and which comes next."
+              },
+              {
                 "text": "Your agent runs doctor and reads the section in next.section.",
                 "why": "next.reason says what is missing."
               },
@@ -139,7 +143,11 @@
                 "The agent instructions block",
                 "Show it and let you add or decline it"
               ],
-              ["9", "Optional features", "Ask all three in one question sheet"],
+              [
+                "9",
+                "Optional features",
+                "Ask what is not decided yet (features, archify, the mod) in one question sheet"
+              ],
               ["10", "The server on port 5190", "ai-handout-studio open"]
             ],
             "rowLabel": true
@@ -254,14 +262,14 @@
           "id": "b15",
           "type": "text",
           "props": {
-            "text": "To update, pull and follow doctor. If it says the agent instructions block is outdated, replace it in section 8 (with your consent). If the server code changed, restart it with ai-handout-studio restart."
+            "text": "To update, pull and run the setup again (/studio-setup in Claude Code). Finished sections stay checked; you are asked only about optional items the new version added and an outdated agent instructions block (replaced in section 8, with your consent). If the server code changed, restart it with ai-handout-studio restart."
           }
         },
         {
           "id": "b16",
           "type": "code",
           "props": {
-            "text": "git pull\npnpm install\nnode scripts/doctor.mjs --json",
+            "text": "git pull\npnpm install",
             "caption": "Updating"
           }
         },

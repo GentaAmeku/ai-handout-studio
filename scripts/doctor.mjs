@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // ai-handout-studio doctor。セットアップの状態を調べ、SETUP.md の次に読む節を返す。
 // --uninstall なら、外すときに残っているものを調べ、UNINSTALL.md の次に読む節を返す。
+// --checklist なら、節ごとの進み具合を Markdown のチェックリストで出す。
 // pnpm install の前にも動くよう、Node の標準だけで書く。何も書き換えない(直すのはエージェント)
 import { spawnSync } from "node:child_process";
 import {
@@ -636,6 +637,15 @@ const instructionChecks = (ctx, t, locale, harnesses, profile) => {
   );
 };
 
+// 勧めたものを利用者が断ったか(settings --set <キー>=declined)。path は profile.json の中の場所
+const isDeclined = (profile, path) =>
+  profile.state === "ready" &&
+  path.reduce(
+    (value, key) =>
+      value !== null && typeof value === "object" ? value[key] : undefined,
+    profile.value,
+  ) === "declined";
+
 // 節9: 任意の機能
 const featureChecks = (ctx, t, harnesses, profile) => {
   const features =
@@ -690,29 +700,40 @@ const featureChecks = (ctx, t, harnesses, profile) => {
 };
 
 // 節9: archify(別の作者のスキル)。入っていれば構成図などを資料に載せられる。
-// 入れるかは利用者が決めるので、無くても止めない(warn)
-const archifyCheck = (ctx, t) => {
+// 入れるかは利用者が決める。入れるか断るまでは missing にして、あとから流したセットアップでも聞く
+const archifyCheck = (ctx, t, profile) => {
   const found = findArchify({
     env: ctx.env,
     cwd: ctx.repoRoot,
     home: ctx.home,
   });
-  return found
-    ? check("archify", 9, "ok", found)
-    : check(
-        "archify",
-        9,
-        "warn",
-        t(
-          `archify が無い。入れると構成図・シーケンス図・データの流れ・状態の移り変わりの図を資料に載せられる。入れるなら(利用者の同意を取ってから): ${archifyInstall}(${archifyHome})`,
-          `archify is not installed. With it, handouts can include architecture, sequence, data-flow and lifecycle diagrams. To install it (ask the user first): ${archifyInstall} (${archifyHome})`,
-        ),
-      );
+  if (found) return check("archify", 9, "ok", found);
+  if (isDeclined(profile, ["archify"])) {
+    return check(
+      "archify",
+      9,
+      "skipped",
+      t(
+        "archify は断られている(archify: declined)",
+        "archify was declined (archify: declined)",
+      ),
+    );
+  }
+  return check(
+    "archify",
+    9,
+    "missing",
+    t(
+      `archify を入れるか決まっていない。入れると構成図・シーケンス図・データの流れ・状態の移り変わりの図を資料に載せられる。利用者に聞き、入れるなら: ${archifyInstall}(${archifyHome})。断られたら: ai-handout-studio settings --set archify=declined`,
+      `archify is not installed and not declined. With it, handouts can include architecture, sequence, data-flow and lifecycle diagrams. Ask the user; to install it: ${archifyInstall} (${archifyHome}); if declined: ai-handout-studio settings --set archify=declined`,
+    ),
+  );
 };
 
 // 節9: Claude Code の mod(その会話で作った資料を入力欄の上に出す)。
-// 入れるかは利用者が決めるので、無くても止めない(warn)。Claude Code が無ければ聞かない(skipped)
-const modCheck = (ctx, t, harnesses) => {
+// 入れるかは利用者が決める。入れるか断るまでは missing にして、あとから流したセットアップでも聞く。
+// Claude Code が無ければ聞かない(skipped)
+const modCheck = (ctx, t, harnesses, profile) => {
   const claude = harnesses.find((harness) => harness.id === "claude");
   if (claude?.present !== true) {
     return check(
@@ -736,7 +757,11 @@ const modCheck = (ctx, t, harnesses) => {
       : "";
   const stat = lstatOf(link);
   const target = realpathOf(link);
-  if (stat?.isSymbolicLink() === true && target === realpathOf(source)) {
+  if (
+    stat?.isSymbolicLink() === true &&
+    target !== undefined &&
+    target === realpathOf(source)
+  ) {
     return check("mod-claude", 9, old === "" ? "ok" : "warn", `${link}${old}`);
   }
   if (stat !== undefined && !stat.isSymbolicLink()) {
@@ -750,23 +775,44 @@ const modCheck = (ctx, t, harnesses) => {
       ),
     );
   }
-  const problem =
-    stat === undefined
-      ? t(`${MOD} が入っていない`, `${MOD} is not installed`)
-      : target === undefined
+  const install = `mkdir -p "${claude.skillsDir}" && ln -sfn "${source}" "${link}"`;
+  // 前に入れたリンクが古い clone を指す・指す先が無い。入れると決めたものなので、聞かずに張り直す
+  if (stat !== undefined) {
+    const problem =
+      target === undefined
         ? t(`${link} は指す先の無いリンク`, `${link} is a broken link`)
         : t(
             `${link} が別の場所(${target})を指す`,
             `${link} points elsewhere (${target})`,
           );
-  const install = `mkdir -p "${claude.skillsDir}" && ln -sfn "${source}" "${link}"`;
+    return check(
+      "mod-claude",
+      9,
+      "outdated",
+      t(
+        `${problem}。張り直す: ${install}${old}`,
+        `${problem}; replace it: ${install}${old}`,
+      ),
+    );
+  }
+  if (isDeclined(profile, ["mods", "claude"])) {
+    return check(
+      "mod-claude",
+      9,
+      "skipped",
+      t(
+        `${MOD} は断られている(mods.claude: declined)`,
+        `${MOD} was declined (mods.claude: declined)`,
+      ),
+    );
+  }
   return check(
     "mod-claude",
     9,
-    "warn",
+    "missing",
     t(
-      `${problem}。入れると、Claude Code の会話で作った資料が入力欄の上に出る。入れるなら(利用者の同意を取ってから): ${install}${old}`,
-      `${problem}. With it, Claude Code shows the handouts made in a conversation above the prompt. To install it (ask the user first): ${install}${old}`,
+      `${MOD} を入れるか決まっていない。入れると、Claude Code の会話で作った資料が入力欄の上に出る。利用者に聞き、入れるなら: ${install}。断られたら: ai-handout-studio settings --set mods.claude=declined${old}`,
+      `${MOD} is not installed and not declined. With it, Claude Code shows the handouts made in a conversation above the prompt. Ask the user; to install it: ${install}; if declined: ai-handout-studio settings --set mods.claude=declined${old}`,
     ),
   );
 };
@@ -837,8 +883,39 @@ const examplesCheck = (ctx, t, server) => {
       );
 };
 
+// 節の見出し。ゲームブック(SETUP.md・UNINSTALL.md。ja なら .ja.md)の「## 2. 前提」から読むので、
+// 見出しを変えてもここは直さなくてよい。読めなければ番号だけで出す
+const sectionTitlesOf = (repoRoot, book, locale) => {
+  const text =
+    readText(join(repoRoot, `${book}${locale === "ja" ? ".ja" : ""}.md`)) ?? "";
+  return new Map(
+    [...text.matchAll(/^## (\d+)\. (.+)$/gm)].map((match) => [
+      Number(match[1]),
+      match[2].trim(),
+    ]),
+  );
+};
+
+// 節ごとの進み具合。止める項目が無い節は済み。チェックリスト(--checklist)が読む
+const sectionsOf = (checks, blocking, titles) =>
+  [...new Set(checks.map((item) => item.section))]
+    .sort((a, b) => a - b)
+    .map((section) => {
+      const items = checks.filter((item) => item.section === section);
+      const idsOf = (pick) => items.filter(pick).map((item) => item.id);
+      const todo = idsOf((item) => blocking.has(item.status));
+      return {
+        section,
+        title: titles.get(section) ?? "",
+        done: todo.length === 0,
+        todo,
+        warn: idsOf((item) => item.status === "warn"),
+        skipped: items.every((item) => item.status === "skipped"),
+      };
+    });
+
 // 最初に止まる項目の節を next で返す
-const summarize = (checks, blocking) => {
+const summarize = (checks, blocking, titles) => {
   const first = checks.find((item) => blocking.has(item.status));
   return {
     ok: first === undefined,
@@ -847,6 +924,7 @@ const summarize = (checks, blocking) => {
       first === undefined
         ? null
         : { section: first.section, reason: first.detail },
+    sections: sectionsOf(checks, blocking, titles),
   };
 };
 
@@ -865,14 +943,15 @@ export const runDoctor = async (context = defaultContext()) => {
     ...profileChecks(profile, t),
     ...instructionChecks(context, t, locale, harnesses, profile),
     ...featureChecks(context, t, harnesses, profile),
-    archifyCheck(context, t),
-    modCheck(context, t, harnesses),
+    archifyCheck(context, t, profile),
+    modCheck(context, t, harnesses, profile),
   ];
   const server = await serverCheck(context, t);
   return {
     ...summarize(
       [...checks, server, examplesCheck(context, t, server)],
       new Set(["missing", "outdated"]),
+      sectionTitlesOf(context.repoRoot, "SETUP", locale),
     ),
     locale,
     mode: "setup",
@@ -1258,7 +1337,11 @@ export const runUninstallDoctor = async (context = defaultContext()) => {
     uninstallWorkspaceCheck(context, t),
   ];
   return {
-    ...summarize(checks, new Set(["remaining"])),
+    ...summarize(
+      checks,
+      new Set(["remaining"]),
+      sectionTitlesOf(context.repoRoot, "UNINSTALL", locale),
+    ),
     locale,
     mode: "uninstall",
   };
@@ -1293,15 +1376,76 @@ export const formatDoctor = (result) => {
   return [...lines, "", tail].join("\n");
 };
 
+// 進み具合のチェックリスト(--checklist)。節ごとに1行の Markdown のタスクリストで、
+// エージェントが最初に利用者へそのまま見せる
+export const formatChecklist = (result) => {
+  const ja = result.locale === "ja";
+  const done = result.sections.filter((item) => item.done).length;
+  const heading =
+    result.mode === "uninstall"
+      ? ja
+        ? "外す進み具合"
+        : "Uninstall progress"
+      : ja
+        ? "セットアップの進み具合"
+        : "Setup progress";
+  const state = result.next
+    ? ja
+      ? `次は節${result.next.section}`
+      : `next: section ${result.next.section}`
+    : ja
+      ? "済んでいる"
+      : "complete";
+  const lines = result.sections.map((item) => {
+    const label =
+      item.title === ""
+        ? ja
+          ? `節${item.section}`
+          : `Section ${item.section}`
+        : `${item.section}. ${item.title}`;
+    const notes = [
+      item.todo.length > 0
+        ? ja
+          ? `まだ: ${item.todo.join("・")}`
+          : `to do: ${item.todo.join(", ")}`
+        : "",
+      item.done && item.skipped ? (ja ? "飛ばした" : "skipped") : "",
+      item.warn.length > 0
+        ? ja
+          ? `注意: ${item.warn.join("・")}`
+          : `note: ${item.warn.join(", ")}`
+        : "",
+    ].filter((note) => note !== "");
+    const note =
+      notes.length === 0
+        ? ""
+        : ja
+          ? `(${notes.join("。")})`
+          : ` (${notes.join("; ")})`;
+    const next =
+      result.next?.section === item.section ? (ja ? " ← 次" : " ← next") : "";
+    return `- [${item.done ? "x" : " "}] ${label}${note}${next}`;
+  });
+  return [
+    ja
+      ? `${heading}: ${done}/${result.sections.length} 節(${state})`
+      : `${heading}: ${done}/${result.sections.length} sections (${state})`,
+    "",
+    ...lines,
+  ].join("\n");
+};
+
 export const main = async (argv) => {
   const result = argv.includes("--uninstall")
     ? await runUninstallDoctor()
     : await runDoctor();
-  const { locale: _locale, mode: _mode, ...json } = result;
+  const { locale: _locale, mode: _mode, sections: _sections, ...json } = result;
   console.log(
     argv.includes("--json")
       ? JSON.stringify(json, null, 2)
-      : formatDoctor(result),
+      : argv.includes("--checklist")
+        ? formatChecklist(result)
+        : formatDoctor(result),
   );
   return result.ok ? 0 : 1;
 };

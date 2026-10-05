@@ -15,10 +15,22 @@ export type DoctorCheck = {
   detail: string;
 };
 
+// 節ごとの進み具合(--checklist)。todo は止める項目、warn は伝える項目の id
+export type DoctorSection = {
+  section: number;
+  title: string;
+  done: boolean;
+  todo: string[];
+  warn: string[];
+  // 節の項目が全部 skipped(断った共通指示など)
+  skipped: boolean;
+};
+
 export type DoctorResult = {
   ok: boolean;
   checks: DoctorCheck[];
   next: { section: number; reason: string } | null;
+  sections: DoctorSection[];
   locale: "ja" | "en";
   // どちらのゲームブックか(SETUP.md か UNINSTALL.md)
   mode: "setup" | "uninstall";
@@ -52,4 +64,5 @@ export const runUninstallDoctor: (
   context?: DoctorContext,
 ) => Promise<DoctorResult>;
 export const formatDoctor: (result: DoctorResult) => string;
+export const formatChecklist: (result: DoctorResult) => string;
 export const main: (argv: string[]) => Promise<number>;

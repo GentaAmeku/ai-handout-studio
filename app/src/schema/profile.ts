@@ -13,26 +13,39 @@ export const featuresSchema = z.strictObject({
 });
 export type Features = z.infer<typeof featuresSchema>;
 
-// 共通指示(~/.claude/CLAUDE.md など)へ段落を足すかどうか。断ったら declined を残し、doctor は以後聞かない
-export const agentInstructionsName = z.enum(["ask", "declined"]);
-export type AgentInstructions = z.infer<typeof agentInstructionsName>;
+// セットアップが勧め、利用者が断れるもの(共通指示への段落・archify・mod)。
+// 断ったら declined を残し、doctor は以後聞かない。ask に戻すとまた聞く
+export const offerName = z.enum(["ask", "declined"]);
+export type Offer = z.infer<typeof offerName>;
+
+// Claude Code などのハーネスごとの mod(節9)
+export const modsSchema = z.strictObject({
+  claude: offerName.optional(),
+});
+export type Mods = z.infer<typeof modsSchema>;
 
 // 自分用の既定値。見た目はテーマ(design/themes/)と面ごとの選択(design/selection.json)が持つ
 export const profileSchema = z.strictObject({
   orgName: z.string(),
   locale: localeName.optional(),
   features: featuresSchema.optional(),
-  agentInstructions: agentInstructionsName.optional(),
+  // 共通指示(~/.claude/CLAUDE.md など)へ段落を足すか
+  agentInstructions: offerName.optional(),
+  // archify(別の作者のスキル)を入れるか
+  archify: offerName.optional(),
+  mods: modsSchema.optional(),
 });
 
 export type Profile = z.infer<typeof profileSchema>;
 
-// locale・features は既定値で埋めた形。`ai-handout-studio settings` が出す形と同じ
+// locale・features などは既定値で埋めた形。`ai-handout-studio settings` が出す形と同じ
 export type ResolvedSettings = {
   orgName: string;
   locale: Locale;
   features: Required<Features>;
-  agentInstructions: AgentInstructions;
+  agentInstructions: Offer;
+  archify: Offer;
+  mods: Required<Mods>;
 };
 
 const hexColor = z
