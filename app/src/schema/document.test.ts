@@ -8,6 +8,7 @@ import { documentSample } from "../../server/document-sample";
 import {
   checkDocument,
   checkDocumentBody,
+  DOCUMENT_BODY_DEPTH_LIMIT,
   DOCUMENT_BODY_LIMIT,
 } from "./document";
 
@@ -178,7 +179,18 @@ describe("checkDocumentBody", () => {
   });
 
   it("深い入れ子でも落ちずに判定する", () => {
-    expect(rejected(`${"<div>".repeat(20_000)}a`)).toBe("");
+    // 上限までは通し、超えたら解析の途中で止めて拒む(解析の時間は深さの2乗で伸びるので、待たずに返す)
+    expect(rejected(`${"<div>".repeat(DOCUMENT_BODY_DEPTH_LIMIT)}a`)).toBe("");
+    expect(
+      rejected(`${"<div>".repeat(DOCUMENT_BODY_DEPTH_LIMIT + 1)}a`),
+    ).toContain("入れ子が深すぎる");
+    expect(rejected(`${"<div>".repeat(20_000)}a`)).toContain(
+      "入れ子が深すぎる",
+    );
+    expect(rejected(`<svg>${"<g>".repeat(20_000)}</svg>`)).toContain(
+      "入れ子が深すぎる",
+    );
+    // 深くない要素は、何万あっても通す
     expect(rejected(`<p>${"<br>".repeat(200_000)}</p>`)).toBe("");
   });
 
