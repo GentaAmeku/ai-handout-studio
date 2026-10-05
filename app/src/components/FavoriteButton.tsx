@@ -1,21 +1,21 @@
 import { Star, X } from "lucide-react";
-import { useSetHandoutDetailFavorite } from "../api/queries";
-import type { HandoutKind } from "../api/types";
+import { type FavoriteKind, useSetDetailFavorite } from "../api/queries";
 import { useLanguage } from "../i18n/language";
 
-// 質問票の1件のページと HTML 資料の編集画面の帯に置く ☆。資料一覧のカードの ☆ と同じお気に入りを付け外しする。
+// スライドの編集画面・質問票の1件のページ・HTML 資料の編集画面の帯に置く ☆。
+// 資料一覧のカードの ☆ と同じお気に入りを付け外しする。
 // 付け外しできなかったときは、帯の下に知らせを出す(テンプレートの入れ替えの失敗と同じ形)
 export const FavoriteButton = ({
   kind,
   id,
   favorite,
 }: {
-  kind: HandoutKind;
+  kind: FavoriteKind;
   id: string;
   favorite: boolean;
 }) => {
   const { t } = useLanguage();
-  const setFavorite = useSetHandoutDetailFavorite(kind, id);
+  const setFavorite = useSetDetailFavorite(kind, id);
   return (
     <>
       {/* アイコンだけ。名前は読み上げと吹き出し(data-tooltip)に持たせ、付いているかは aria-pressed で伝える */}

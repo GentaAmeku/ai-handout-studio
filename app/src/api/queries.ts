@@ -53,8 +53,18 @@ export const decksQuery = queryOptions({
 export const deckQuery = (deckId: string) =>
   queryOptions({
     queryKey: ["decks", deckId],
-    queryFn: () => requestJson<DeckDetail>(deckApiPath(deckId)),
+    queryFn: () => requestJson<WithFavorite<DeckDetail>>(deckApiPath(deckId)),
   });
+
+// 保存・版の戻しの応答はお気に入りの印を持たない。1件の控えにある印は残す
+const mergeDeckDetail = (
+  queryClient: QueryClient,
+  deckId: string,
+  detail: DeckDetail,
+) =>
+  queryClient.setQueryData(deckQuery(deckId).queryKey, (previous) =>
+    previous ? { ...detail, favorite: previous.favorite } : undefined,
+  );
 
 export const profileQuery = queryOptions({
   queryKey: ["profile"],
@@ -115,7 +125,7 @@ export const useSaveDeck = (
     onSuccess: (detail, input) => {
       if (detail.state !== "ready") return;
       onSaved(detail.deck, input.deck);
-      queryClient.setQueryData(deckQuery(deckId).queryKey, detail);
+      mergeDeckDetail(queryClient, deckId, detail);
       return queryClient.invalidateQueries({
         queryKey: decksQuery.queryKey,
         exact: true,
@@ -212,7 +222,7 @@ export const useRestoreVersion = (
     onSuccess: (detail) => {
       if (detail.state !== "ready") return;
       onRestored(detail.deck);
-      queryClient.setQueryData(deckQuery(deckId).queryKey, detail);
+      mergeDeckDetail(queryClient, deckId, detail);
       return queryClient.invalidateQueries({ queryKey: ["decks"] });
     },
   });
@@ -523,33 +533,47 @@ export const useSetHandoutFavorite = (kind: HandoutKind) =>
     (summary: WithFavorite<HandoutSummary>) => summary.id,
   );
 
-// 質問票の1件のページと HTML 資料の編集画面の帯の ☆。押したらすぐ1件の控えの印を替え、
+// 1件の画面の帯の ☆ を置く区分。スライド(deck)と、質問票・HTML 資料
+export type FavoriteKind = HandoutKind | "deck";
+
+// 1件の控えと一覧の控えの鍵
+const favoriteKeysOf = (
+  kind: FavoriteKind,
+  id: string,
+): { detail: QueryKey; list: QueryKey } =>
+  kind === "deck"
+    ? { detail: deckQuery(id).queryKey, list: decksQuery.queryKey }
+    : {
+        detail: handoutQuery(kind, id).queryKey,
+        list: handoutsQuery(kind).queryKey,
+      };
+
+// スライドの編集画面・質問票の1件のページ・HTML 資料の編集画面の帯の ☆。押したらすぐ1件の控えの印を替え、
 // 失敗したら元に戻す。済んだら1件と一覧の控えを読み直す
-export const useSetHandoutDetailFavorite = (kind: HandoutKind, id: string) => {
+export const useSetDetailFavorite = (kind: FavoriteKind, id: string) => {
   const queryClient = useQueryClient();
-  const { queryKey } = handoutQuery(kind, id);
+  const keys = favoriteKeysOf(kind, id);
   return useMutation({
     mutationFn: (favorite: boolean) => putFavorite({ id, favorite }),
     onMutate: async (favorite) => {
-      await queryClient.cancelQueries({ queryKey, exact: true });
-      const previous = queryClient.getQueryData(queryKey);
-      queryClient.setQueryData(queryKey, (detail) =>
+      await queryClient.cancelQueries({ queryKey: keys.detail, exact: true });
+      const previous = queryClient.getQueryData<{ favorite: boolean }>(
+        keys.detail,
+      );
+      queryClient.setQueryData<{ favorite: boolean }>(keys.detail, (detail) =>
         detail ? { ...detail, favorite } : undefined,
       );
       return { previous };
     },
     onError: (_error, _favorite, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(queryKey, context.previous);
+        queryClient.setQueryData(keys.detail, context.previous);
       }
     },
     onSettled: () =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey, exact: true }),
-        queryClient.invalidateQueries({
-          queryKey: handoutsQuery(kind).queryKey,
-          exact: true,
-        }),
+        queryClient.invalidateQueries({ queryKey: keys.detail, exact: true }),
+        queryClient.invalidateQueries({ queryKey: keys.list, exact: true }),
       ]),
   });
 };
