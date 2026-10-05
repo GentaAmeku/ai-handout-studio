@@ -9,19 +9,25 @@ This file is written for a coding agent (Claude Code, Codex CLI, OpenCode, Gemin
 
 The setup is a game book. `doctor` checks the state and tells you which section to read next. The section numbers are the same in [SETUP.ja.md](SETUP.ja.md) (Japanese).
 
+You can run the setup again at any time, for example after an update (Appendix A). Sections that are done stay done: doctor stops only where something is missing or not decided yet, so the agent asks only about what a newer version added.
+
 ## 1. Introduction (for the agent)
 
-Repeat this loop until `ok` is `true`:
+First, in the repository root, run `node scripts/doctor.mjs --checklist` and show its output to the user as it is. It is a Markdown checklist with one line per section: what is done, what is left and which section comes next.
+
+Then repeat this loop until `ok` is `true`:
 
 1. In the repository root, run `node scripts/doctor.mjs --json` (it uses only Node's standard library, so it works before `pnpm install`; once section 5 is done, `ai-handout-studio doctor --json` is the same).
 2. Read the section named by `next.section`. `next.reason` says what is missing. The exit code is 1 until the setup is complete.
 3. Do what that section says, then run doctor again.
 
-`checks` lists every item with `status`: `ok`, `missing`, `outdated`, `skipped` (a skills folder no installed agent reads, an agent whose instructions cannot live in a file, or instructions the user declined) or `warn` (worth mentioning, but it does not block).
+When `ok` is `true`, show the checklist again if you finished any section in this run, and tell the user about each `warn` check (it does not block, but the user may want to act on it).
+
+`checks` lists every item with `status`: `ok`, `missing` (not there, or a choice not made yet), `outdated`, `skipped` (a skills folder no installed agent reads, an agent whose instructions cannot live in a file, or something the user declined: the instructions block, archify or the mod) or `warn` (worth mentioning, but it does not block).
 
 Promises to the user:
 
-- Speak the user's language. Ask only about the choices: language, organization name, adding a block to the agent instructions, and the optional features. Decide everything else yourself.
+- Speak the user's language. Ask only about the choices: language, organization name, adding a block to the agent instructions, and the optional features. Decide everything else yourself. Do not ask again about what doctor reports as `ok` or `skipped`.
 - Ask for consent before you edit the user's agent instructions (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.config/opencode/AGENTS.md`, `~/.gemini/GEMINI.md`, `~/.grok/AGENTS.md`; see section 8) or shell configuration (`~/.zshrc`, `~/.bashrc`, …).
 - Never use `sudo`. When a step needs it, show the command and ask the user to run it.
 - Do not change anything a section does not mention. Do not install tools from other sources than the ones named here.
@@ -142,9 +148,9 @@ To be asked again later: `ai-handout-studio settings --set agentInstructions=ask
 
 ## 9. Optional features
 
-doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks whether archify (a skill by another author) is installed and, when Claude Code is set up, whether this repository's Claude Code mod is installed (`mod-claude`). Both are `ok` if installed and `warn` if not; neither blocks.
+doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks archify (a skill by another author) and, when Claude Code is set up, this repository's Claude Code mod (`mod-claude`): each is `ok` when installed, `skipped` when the user declined it, and `missing` until then. A setup run again after an update comes back here when a newer version adds an item.
 
-Ask the three at once with a question sheet. If archify or the mod is missing, ask in the same sheet whether to install it (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
+Ask about every item in this section that doctor reports as `missing`, at once with a question sheet, and leave out the ones already decided (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
 
 | Feature | What it does | Risk to tell the user |
 | --- | --- | --- |
@@ -158,18 +164,26 @@ For image generation, check which of `codex` and `agy` are installed and mention
 ai-handout-studio settings --set features.lan=false --set features.imageGeneration=true --set features.share=false
 ```
 
-With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw architecture, sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; diagrams fall back to tables, text and the bundled flow figures. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, leave it (doctor keeps a warn, but it does not block).
+Record what the user declined, so that doctor stops asking (to be asked again later, set it back to `ask`):
+
+```bash
+ai-handout-studio settings --set archify=declined --set mods.claude=declined
+```
+
+With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw architecture, sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; diagrams fall back to tables, text and the bundled flow figures. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, record `archify=declined`.
 
 ```bash
 npx skills add tt-a1i/archify -g
 ```
 
-The Claude Code mod `handout-watch` (in this repository's `mods/`) shows, above the prompt in Claude Code (the terminal and the desktop app's Code tab), the handouts made or changed in the current conversation (HTML handouts, slides and question sheets), with links to read, edit or answer them; `/handout-watch` lists them in a side pane. Handouts work without it. Ask only when `mod-claude` is `warn` (it is `skipped` when Claude Code is not set up). In the question, say what it shows and what it reads: the `ai-handout-studio` commands and the handout files that Claude writes in the conversation, and the handouts in `workspace/`. It runs with the user's permissions inside Claude Code and sends nothing outside this computer. It needs Claude Code 2.1.287 or later (doctor's detail says so when `claude --version` is older). Install it only if the user says yes; it is linked like the skills in section 6, so `git pull` keeps it current. It loads in new Claude Code sessions (in an open terminal session, `/reload-plugins`).
+The Claude Code mod `handout-watch` (in this repository's `mods/`) shows, above the prompt in Claude Code (the terminal and the desktop app's Code tab), the handouts made or changed in the current conversation (HTML handouts, slides and question sheets), with links to read, edit or answer them; `/handout-watch` lists them in a side pane. Handouts work without it. Ask only when `mod-claude` is `missing` (it is `skipped` when Claude Code is not set up or the user declined it). In the question, say what it shows and what it reads: the `ai-handout-studio` commands and the handout files that Claude writes in the conversation, and the handouts in `workspace/`. It runs with the user's permissions inside Claude Code and sends nothing outside this computer. It needs Claude Code 2.1.287 or later (doctor's detail says so when `claude --version` is older). Install it only if the user says yes; if they decline, record `mods.claude=declined`. It is linked like the skills in section 6, so `git pull` keeps it current. It loads in new Claude Code sessions (in an open terminal session, `/reload-plugins`).
 
 ```bash
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
+
+If `mod-claude` is `outdated`, the mod was installed before and its link points to another clone or to nothing: replace it with the same commands without asking. If it is `warn` because a folder, not a link, is in its place, ask the user before replacing it.
 
 ## 10. Start and check
 
@@ -186,10 +200,9 @@ Give the user the `url` (and `lanUrl` when it is printed). Then suggest trying i
 ```bash
 git pull
 pnpm install
-node scripts/doctor.mjs --json
 ```
 
-Then follow doctor as in section 1. If the agent-instructions block is `outdated`, section 8 replaces it (with consent).
+Then run the setup again: `/studio-setup` in Claude Code, `$studio-setup` in Codex CLI, or ask other agents "Set this up by following SETUP.md." It starts with the checklist. Sections done before stay checked, and doctor stops only where the update added something: a new optional item to install or decline (section 9), or an `outdated` agent-instructions block (section 8 replaces it, with consent).
 
 `pnpm install` runs `prepare`, which installs git `post-merge` and `post-rewrite` hooks. From then on, `git pull` reinstalls dependencies or rebuilds `design/dist` only when their inputs (`pnpm-lock.yaml`, the sources of `design/dist`) changed, and then restarts the running server. `ai-handout-studio open`, `restart` and `pnpm dev` check the same before they start the server. When only server code changed, the running server reloads it by itself.
 

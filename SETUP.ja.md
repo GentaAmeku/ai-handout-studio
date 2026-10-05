@@ -9,19 +9,25 @@
 
 進み方はゲームブックの形で、`doctor` が状態を調べて次に読む節を返す。節の番号は英語の [SETUP.md](SETUP.md) と同じ。
 
+セットアップは、更新のあと(付録 A)などに何度流してもよい。済んだ節は済んだままで、doctor が止まるのは足りないものと、まだ決めていないものだけ。新しい版で増えたものだけを聞かれる。
+
 ## 1. はじめに(エージェントへ)
 
-`ok` が `true` になるまで、次を繰り返す。
+まず、リポジトリの直下で `node scripts/doctor.mjs --checklist` を実行し、出たものをそのまま利用者に見せる。節ごとに1行の Markdown のチェックリストで、済んだ節・残っている項目・次に読む節が分かる。
+
+続けて、`ok` が `true` になるまで、次を繰り返す。
 
 1. リポジトリの直下で `node scripts/doctor.mjs --json` を実行する(Node の標準だけで動くので `pnpm install` の前でも使える。節5のあとは `ai-handout-studio doctor --json` でも同じ)。
 2. `next.section` の節を読む。`next.reason` に足りないことが書いてある。済むまでは終了コードが 1 になる。
 3. その節のとおりにしてから、もう一度 doctor を実行する。
 
-`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い)・`outdated`(古い・別の場所を指す)・`skipped`(入っているエージェントが読まないスキルの置き場、共通指示をファイルに置けないエージェント、断った共通指示)・`warn`(伝えておくが止めない)。
+`ok` が `true` になったら、この回で済ませた節があればチェックリストをもう一度見せる。`warn` の項目があれば、1つずつ利用者に伝える(止めないが、利用者が手を打ちたいことがある)。
+
+`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い、またはまだ決めていない)・`outdated`(古い・別の場所を指す)・`skipped`(入っているエージェントが読まないスキルの置き場、共通指示をファイルに置けないエージェント、利用者が断ったもの: 共通指示の段落・archify・mod)・`warn`(伝えておくが止めない)。
 
 利用者への約束:
 
-- 利用者の言語で話す。聞くのは選ぶところ(言語・組織名・共通指示への追記・任意の機能)だけ。ほかはこちらで決めて進める。
+- 利用者の言語で話す。聞くのは選ぶところ(言語・組織名・共通指示への追記・任意の機能)だけ。ほかはこちらで決めて進める。doctor が `ok` か `skipped` と返したものは聞き直さない。
 - 利用者の共通指示(`~/.claude/CLAUDE.md`・`~/.codex/AGENTS.md`・`~/.config/opencode/AGENTS.md`・`~/.gemini/GEMINI.md`・`~/.grok/AGENTS.md`。節8)とシェルの設定(`~/.zshrc`・`~/.bashrc` など)は、同意を取ってから書き換える。
 - `sudo` は使わない。要るときはコマンドを示し、利用者に実行してもらう。
 - 節に書いていないことは変えない。ここに書いた以外のところから道具を入れない。
@@ -142,9 +148,9 @@ ai-handout-studio settings --set agentInstructions=declined
 
 ## 9. 任意の機能
 
-doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)が入っているかと、Claude Code が入っていればこのリポジトリの Claude Code の mod が入っているか(`mod-claude`)も見る。どちらも入っていれば `ok`、無ければ `warn` で、止めない。
+doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)と、Claude Code が入っていればこのリポジトリの Claude Code の mod(`mod-claude`)も見る。どちらも、入っていれば `ok`、利用者が断っていれば `skipped`、そのどちらでもないうちは `missing`。更新のあとに流し直したセットアップは、新しい版で項目が増えるとこの節に戻る。
 
-3つを1枚の質問票でまとめて聞く。archify か mod が無ければ、入れるかも同じ質問票で聞く(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
+この節で doctor が `missing` と返した項目を、1枚の質問票でまとめて聞く。決まっている項目は聞き直さない(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
 
 | 機能 | できること | 伝える危うさ |
 | --- | --- | --- |
@@ -158,18 +164,26 @@ doctor は `features.lan`・`features.imageGeneration`・`features.share` が決
 ai-handout-studio settings --set features.lan=false --set features.imageGeneration=true --set features.share=false
 ```
 
-archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントが構成図・シーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、図は表や文、同梱の流れの図で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら入れない(doctor の warn は残るが、止まらない)。
+利用者が断ったものは記録し、doctor がもう聞かないようにする(あとでまた聞いてほしくなったら `ask` に戻す)。
+
+```bash
+ai-handout-studio settings --set archify=declined --set mods.claude=declined
+```
+
+archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントが構成図・シーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、図は表や文、同梱の流れの図で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら `archify=declined` を記録する。
 
 ```bash
 npx skills add tt-a1i/archify -g
 ```
 
-Claude Code の mod `handout-watch`(このリポジトリの `mods/`)を入れると、Claude Code(ターミナルとデスクトップアプリの Code タブ)の入力欄の上に、その会話で作った・直した資料(HTML 資料・スライド・質問票)が、読む・直す・回答するリンクつきで出る。`/handout-watch` で横のパネルに一覧も開ける。入れなくても資料は作れる。`mod-claude` が `warn` のときだけ聞く(Claude Code が入っていなければ `skipped`)。質問では、何を出すかと、何を読むか(会話で Claude が走らせる `ai-handout-studio` のコマンドと書く資料のファイル、`workspace/` の資料)を書く。利用者の権限で Claude Code の中で動き、この PC の外へは何も送らない。Claude Code 2.1.287 以降が要る(`claude --version` が古ければ doctor の detail に出る)。入れると答えたときだけ、次を実行する。節6のスキルと同じくリンクで入れるので、`git pull` でそのまま新しくなる。次に起こした Claude Code の会話から効く(開いているターミナルの会話では `/reload-plugins`)。
+Claude Code の mod `handout-watch`(このリポジトリの `mods/`)を入れると、Claude Code(ターミナルとデスクトップアプリの Code タブ)の入力欄の上に、その会話で作った・直した資料(HTML 資料・スライド・質問票)が、読む・直す・回答するリンクつきで出る。`/handout-watch` で横のパネルに一覧も開ける。入れなくても資料は作れる。`mod-claude` が `missing` のときだけ聞く(Claude Code が入っていないか、利用者が断っていれば `skipped`)。質問では、何を出すかと、何を読むか(会話で Claude が走らせる `ai-handout-studio` のコマンドと書く資料のファイル、`workspace/` の資料)を書く。利用者の権限で Claude Code の中で動き、この PC の外へは何も送らない。Claude Code 2.1.287 以降が要る(`claude --version` が古ければ doctor の detail に出る)。入れると答えたときだけ、次を実行する。断られたら `mods.claude=declined` を記録する。節6のスキルと同じくリンクで入れるので、`git pull` でそのまま新しくなる。次に起こした Claude Code の会話から効く(開いているターミナルの会話では `/reload-plugins`)。
 
 ```bash
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
+
+`mod-claude` が `outdated` なら、前に入れた mod のリンクが別の clone を指すか、指す先が無い。聞かずに同じコマンドで張り直す。置き場にリンクではなくフォルダがあって `warn` のときは、置き換えるかを利用者に聞く。
 
 ## 10. 起動と確かめ
 
@@ -186,10 +200,9 @@ ai-handout-studio open
 ```bash
 git pull
 pnpm install
-node scripts/doctor.mjs --json
 ```
 
-あとは節1のとおり doctor に従う。共通指示の段落が `outdated` なら、節8で(同意を取って)入れ替える。
+続けてセットアップを流し直す。Claude Code なら `/studio-setup`、Codex CLI なら `$studio-setup`、そのほかのエージェントには「SETUP.md のとおりに入れて」と頼む。最初にチェックリストが出る。前に済ませた節は済んだままで、doctor が止まるのは更新で増えたところだけ: 入れるか断るかを決める新しい任意の項目(節9)と、`outdated` になった共通指示の段落(節8で、同意を取って入れ替える)。
 
 `pnpm install` の `prepare` が git の `post-merge`・`post-rewrite` フックを置く。以後の `git pull` では、依存(`pnpm-lock.yaml`)か `design/dist` の元が変わったときだけ、フックが入れ直し・作り直しをして、動いているサーバーを起こし直す。`ai-handout-studio open`・`restart` と `pnpm dev` も、サーバーを起こす前に同じことを確かめる。サーバーのコードだけが変わったときは、動いているサーバーが自分で読み直す。
 

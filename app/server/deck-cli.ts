@@ -7,10 +7,10 @@ import {
   surfaceNames,
 } from "../src/schema/design.ts";
 import {
-  type AgentInstructions,
-  agentInstructionsName,
   type Locale,
   localeName,
+  type Offer,
+  offerName,
   type Profile,
   type ResolvedSettings,
 } from "../src/schema/profile.ts";
@@ -65,9 +65,9 @@ export const USAGE = [
   "  ai-handout-studio design build",
   "  ai-handout-studio settings",
   "  ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]",
-  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share(true|false)・agentInstructions(ask|declined)",
+  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share(true|false)・agentInstructions・archify・mods.claude(ask|declined)",
   "  ai-handout-studio examples [--lang ja|en]",
-  "  ai-handout-studio doctor [--uninstall] [--json]",
+  "  ai-handout-studio doctor [--uninstall] [--json|--checklist]",
 ].join("\n");
 
 export type CliCommand =
@@ -110,7 +110,9 @@ export type SettingsUpdate =
   | { key: "features.lan"; value: boolean }
   | { key: "features.imageGeneration"; value: boolean }
   | { key: "features.share"; value: boolean }
-  | { key: "agentInstructions"; value: AgentInstructions };
+  | { key: "agentInstructions"; value: Offer }
+  | { key: "archify"; value: Offer }
+  | { key: "mods.claude"; value: Offer };
 
 export type ParsedCli =
   | { success: true; command: CliCommand }
@@ -365,6 +367,13 @@ const parseSettingsOptions = (args: readonly string[]) => {
   }
 };
 
+// セットアップが勧め、利用者が断れるもの。値は ask か declined
+const SETTINGS_OFFER_KEYS = [
+  "agentInstructions",
+  "archify",
+  "mods.claude",
+] as const;
+
 const SETTINGS_BOOLEAN_KEYS = [
   "features.lan",
   "features.imageGeneration",
@@ -384,15 +393,16 @@ const parseSettingsUpdate = (raw: string): SettingsUpdate | string => {
       ? { key, value: parsed.data }
       : `locale は ja か en(渡された値: ${value})`;
   }
-  if (key === "agentInstructions") {
-    const parsed = agentInstructionsName.safeParse(value);
+  const offerKey = SETTINGS_OFFER_KEYS.find((known) => known === key);
+  if (offerKey !== undefined) {
+    const parsed = offerName.safeParse(value);
     return parsed.success
-      ? { key, value: parsed.data }
-      : `agentInstructions は ask か declined(渡された値: ${value})`;
+      ? { key: offerKey, value: parsed.data }
+      : `${key} は ask か declined(渡された値: ${value})`;
   }
   const booleanKey = SETTINGS_BOOLEAN_KEYS.find((known) => known === key);
   if (booleanKey === undefined) {
-    return `知らない設定のキー: ${key}(orgName・locale・${SETTINGS_BOOLEAN_KEYS.join("・")}・agentInstructions のどれか)`;
+    return `知らない設定のキー: ${key}(orgName・locale・${[...SETTINGS_BOOLEAN_KEYS, ...SETTINGS_OFFER_KEYS].join("・")} のどれか)`;
   }
   if (value === "true") return { key: booleanKey, value: true };
   if (value === "false") return { key: booleanKey, value: false };
@@ -704,6 +714,8 @@ export const formatSettings = (settings: ResolvedSettings): string =>
     `features.imageGeneration: ${settings.features.imageGeneration}`,
     `features.share: ${settings.features.share}`,
     `agentInstructions: ${settings.agentInstructions}`,
+    `archify: ${settings.archify}`,
+    `mods.claude: ${settings.mods.claude}`,
   ].join("\n");
 
 const FEATURE_OF = {
@@ -720,6 +732,10 @@ const applySettingsUpdate = (
   if (update.key === "locale") return { ...profile, locale: update.value };
   if (update.key === "agentInstructions") {
     return { ...profile, agentInstructions: update.value };
+  }
+  if (update.key === "archify") return { ...profile, archify: update.value };
+  if (update.key === "mods.claude") {
+    return { ...profile, mods: { ...profile.mods, claude: update.value } };
   }
   return {
     ...profile,

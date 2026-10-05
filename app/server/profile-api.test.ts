@@ -134,6 +134,8 @@ describe("設定(言語と任意の機能。141)", () => {
         locale: "en",
         features: { lan: false, imageGeneration: false, share: false },
         agentInstructions: "ask",
+        archify: "ask",
+        mods: { claude: "ask" },
       });
       expect(await readLocale(context.workspaceRoot)).toBe("en");
     } finally {
@@ -212,6 +214,8 @@ describe("設定(言語と任意の機能。141)", () => {
       locale: "en",
       features: { lan: true, imageGeneration: true, share: false },
       agentInstructions: "ask",
+      archify: "ask",
+      mods: { claude: "ask" },
     });
   });
 });

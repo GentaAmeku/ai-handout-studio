@@ -65,6 +65,10 @@
                 "why": "日本語の手順を読ませるなら「SETUP.ja.md のとおりに入れて」。"
               },
               {
+                "text": "エージェントが、まず節ごとのチェックリストを見せる。",
+                "why": "済んだ節と、次に読む節が分かる。"
+              },
+              {
                 "text": "エージェントが doctor を実行し、出力の next.section の節を読む。",
                 "why": "next.reason に足りないことが書いてある。"
               },
@@ -131,7 +135,11 @@
               ["6", "2つのスキル", "スキルの置き場に symlink を張る"],
               ["7", "言語と組織名", "settings --set locale=… --set orgName=…"],
               ["8", "共通指示の段落", "見せて、足すか断るかを選んでもらう"],
-              ["9", "任意の機能", "質問票で3つをまとめて聞く"],
+              [
+                "9",
+                "任意の機能",
+                "決まっていない機能・archify・mod を質問票でまとめて聞く"
+              ],
               ["10", "5190 番のサーバー", "ai-handout-studio open"]
             ],
             "rowLabel": true
@@ -246,14 +254,14 @@
           "id": "b15",
           "type": "text",
           "props": {
-            "text": "更新は pull してから doctor に従う。共通指示の段落が古いと言われたら、節8で(同意を取って)入れ替える。サーバーのコードが変わったら ai-handout-studio restart で起こし直す。"
+            "text": "更新は pull してから、セットアップをもう一度流す(Claude Code なら /studio-setup)。済んだ節は済んだままで、聞かれるのは新しい版で増えた任意の項目と、古くなった共通指示の段落(節8で、同意を取って入れ替える)だけ。サーバーのコードが変わったら ai-handout-studio restart で起こし直す。"
           }
         },
         {
           "id": "b16",
           "type": "code",
           "props": {
-            "text": "git pull\npnpm install\nnode scripts/doctor.mjs --json",
+            "text": "git pull\npnpm install",
             "caption": "更新"
           }
         },

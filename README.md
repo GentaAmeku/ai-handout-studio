@@ -57,6 +57,10 @@ language, your organization's name, and a few optional features — see
 [SETUP.md](SETUP.md) (or [SETUP.ja.md](SETUP.ja.md) for the Japanese steps).
 Prefer to install by hand instead? The same file has every command.
 
+The setup starts by showing a checklist of its sections, so you can see how far
+it has come. Run it again after an update (`git pull`): finished sections stay
+checked, and it asks only about what the new version added.
+
 Once it's done, ask your agent in any folder: "make a handout about ...".
 
 ## Uninstall
@@ -85,7 +89,7 @@ ai-handout-studio shot <url or html file> --out <png>
 ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <png|jpg|webp>
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio settings [--set <key>=<value>]
-ai-handout-studio doctor [--uninstall] [--json]
+ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```
 
 Run `ai-handout-studio` with no arguments for the full list. Everyday work

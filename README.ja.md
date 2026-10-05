@@ -33,6 +33,8 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 セットアップはゲームブックの形で進む。エージェントが `doctor` を実行し、指された節を読み、済むまで繰り返す。聞かれるのは言語・組織名・いくつかの任意の機能だけ([SETUP.ja.md](SETUP.ja.md)。英語の手順は [SETUP.md](SETUP.md))。手で入れたい人も、同じファイルにコマンドが全部ある。
 
+セットアップは最初に節ごとのチェックリストを出すので、どこまで済んだかが分かる。更新(`git pull`)のあとにもう一度流してよい。済んだ節は済んだままで、新しい版で増えたものだけを聞かれる。
+
 入り終えたら、どのフォルダの会話でも「〜の資料を作って」と頼める。
 
 ## 外し方
@@ -54,7 +56,7 @@ ai-handout-studio shot <URL か HTML のファイル> --out <PNG>
 ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <PNG か JPG か WebP>
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio settings [--set <キー>=<値>]
-ai-handout-studio doctor [--uninstall] [--json]
+ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```
 
 引数なしで `ai-handout-studio` を実行すると全部の一覧が出る。ふだんはエージェントの `ai-handout-studio` スキルを通して使い、これらのコマンドはその内部で呼ばれる。

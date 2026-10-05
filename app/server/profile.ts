@@ -73,6 +73,8 @@ export const resolveSettings = (
   locale: profile?.locale ?? envLocale(),
   features: { ...DEFAULT_FEATURES, ...profile?.features },
   agentInstructions: profile?.agentInstructions ?? "ask",
+  archify: profile?.archify ?? "ask",
+  mods: { claude: profile?.mods?.claude ?? "ask" },
 });
 
 // profile.json が読めない(JSON でない・形が合わない)ときの知らせ。値を1つでも黙って捨てないよう、直すまで止める
