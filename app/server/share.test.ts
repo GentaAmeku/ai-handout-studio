@@ -198,6 +198,48 @@ describe("extractImages", () => {
     ).toBe(false);
   });
 
+  it("中身が PNG・JPEG・WebP と分からないもの(HTML・SVG・種類の食い違い)はファイルにせず残し、hasLeftoverImage が見つける", () => {
+    const htmlBytes = Buffer.from("<script>alert(1)</script>").toString(
+      "base64",
+    );
+    const svgBytes = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>',
+    ).toString("base64");
+    const html = [
+      // 本文の文字に書いた data: の形。検査は本文の文字を見ないので、ここで止める
+      `<p class="ds-x">src="data:image/html;base64,${htmlBytes}"</p>`,
+      `<img src="data:image/svg+xml;base64,${svgBytes}" />`,
+      `<img src="data:image/png;base64,${htmlBytes}" />`,
+    ].join("");
+    const result = extractImages(html);
+    expect(result).toEqual({ html, images: [] });
+    expect(hasLeftoverImage(result.html)).toBe(true);
+  });
+
+  it("拡張子は種類の文字ではなく中身から付ける(WebP も出す)", () => {
+    const webp = Buffer.concat([
+      Buffer.from("RIFF"),
+      Buffer.alloc(4),
+      Buffer.from("WEBPVP8 "),
+    ]).toString("base64");
+    const result = extractImages(
+      [
+        `<img src="data:image/gif;base64,${PNG_A}" />`,
+        `<img src="data:image/webp;base64,${webp}" />`,
+      ].join(""),
+    );
+    expect(result.images.map((image) => image.name)).toEqual([
+      "img-1.png",
+      "img-2.webp",
+    ]);
+  });
+
+  it("引用符の無い src の data: の画像も、残りとして見つける", () => {
+    expect(
+      hasLeftoverImage(`<img src=data:image/png;base64,${PNG_A} alt="">`),
+    ).toBe(true);
+  });
+
   it("画像が無ければそのまま", () => {
     expect(extractImages("<p>ただの文章</p>")).toEqual({
       html: "<p>ただの文章</p>",
