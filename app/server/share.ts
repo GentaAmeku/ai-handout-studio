@@ -6,6 +6,7 @@ import {
   shareStateSchema,
 } from "../src/schema/share.ts";
 import { readDocumentSource } from "./document-source.ts";
+import { sniffImage } from "./handout-assets.ts";
 import {
   readMeta,
   readSheetAnswers,
@@ -68,31 +69,21 @@ const TEXT_BYTES_LIMIT = 100_000;
 
 const PLACEHOLDER = "[[要確認]]";
 
-const MIME_EXT: Record<string, string> = {
-  jpeg: "jpg",
-  png: "png",
-  gif: "gif",
-  webp: "webp",
-  "svg+xml": "svg",
-};
-
-const extOf = (mime: string): string => {
-  const lower = mime.toLowerCase();
-  return MIME_EXT[lower] ?? lower.replace(/[^a-z0-9]/g, "");
-};
-
 export type ExtractedImage = { readonly name: string; readonly bytes: Buffer };
 
 // SVG の <image href="data:…">(xlink:href も)と <img src="data:…"> の両方を拾い、番号のファイル名に置き換える。
 // 本文はエージェントが手で書くので、引用符は " と '、= の前後の空白、種類の大文字、
 // ;base64 の前の引数(;charset=… など)、base64 の途中の改行も受ける。
-// 同じ画像(空白を除いた同じ base64)は最初に出た番号のファイルにまとめる
+// 同じ画像(空白を除いた同じ base64)は最初に出た番号のファイルにまとめる。
+// 文字列で探すので、本文の文字や alt の中の文字にも当たる。ファイルにするのは、解いた中身が
+// PNG・JPEG・WebP と分かったものだけ(拡張子も中身から付ける)。ほかは置き換えずに残し、警告に回す
 const DATA_IMAGE =
   /\b(src|href)(\s*=\s*)(["'])data:image\/([a-z0-9+.-]+)(?:;[a-z0-9-]+=[^;,"']*)*;base64,([a-z0-9+/=\s]+)\3/gi;
 
-// 置き換えのあとに残った data: の画像(srcset・style の url()・base64 でない SVG など)。見つけたら警告する
+// 置き換えのあとに残った data: の画像(srcset・style の url()・base64 でない SVG・引用符の無い src・
+// 中身が画像でないものなど)。見つけたら警告する
 const LEFTOVER_IMAGE =
-  /\b(?:src|href|srcset)\s*=\s*["']\s*data:image\/|url\(\s*["']?\s*data:image\//i;
+  /\b(?:src|href|srcset)\s*=\s*["']?\s*data:image\/|url\(\s*["']?\s*data:image\//i;
 
 export const extractImages = (
   html: string,
@@ -102,20 +93,22 @@ export const extractImages = (
   const replaced = html.replaceAll(
     DATA_IMAGE,
     (
-      _whole,
+      whole: string,
       attr: string,
       equals: string,
       quote: string,
-      mime: string,
+      _mime: string,
       raw: string,
     ) => {
       const base64 = raw.replace(/\s+/g, "");
       const existing = named.get(base64);
-      const name = existing ?? `img-${images.length + 1}.${extOf(mime)}`;
-      if (!existing) {
-        named.set(base64, name);
-        images.push({ name, bytes: Buffer.from(base64, "base64") });
-      }
+      if (existing) return `${attr}${equals}${quote}${existing}${quote}`;
+      const bytes = Buffer.from(base64, "base64");
+      const type = sniffImage(bytes);
+      if (!type) return whole;
+      const name = `img-${images.length + 1}.${type.ext}`;
+      named.set(base64, name);
+      images.push({ name, bytes });
       return `${attr}${equals}${quote}${name}${quote}`;
     },
   );
