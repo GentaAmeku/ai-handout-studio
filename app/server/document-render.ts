@@ -256,12 +256,17 @@ const summaryHtml = (
 ): string =>
   `<div class="ds-summary"><div class="ds-label">${escapeHtml(summary.label ?? t.summaryLabel)}</div><p>${inlineCode(summary.text)}</p></div>`;
 
-// 上端の署名の行。組織名は資料に書いた値を優先し、空なら設定の組織名。どちらも無ければ出さない
-const signatureHtml = (doc: DocumentFile, orgName?: string): string => {
+// 上端の署名の行。組織名は資料に書いた値を優先し、空なら設定の組織名。どちらも無ければ出さない。
+// アプリの操作(actions)があれば右端に置き、組織名も添え書きも無くても行を出す
+const signatureHtml = (
+  doc: DocumentFile,
+  orgName: string | undefined,
+  actions: string,
+): string => {
   const org = doc.signature?.org || orgName;
   const note = doc.signature?.note;
-  return org || note
-    ? `<div class="ds-signature">${org ? `<span>${escapeHtml(org)}</span>` : ""}${note ? `<span>${escapeHtml(note)}</span>` : ""}</div>`
+  return org || note || actions
+    ? `<div class="ds-signature">${org ? `<span>${escapeHtml(org)}</span>` : ""}${note ? `<span>${escapeHtml(note)}</span>` : ""}${actions}</div>`
     : "";
 };
 
@@ -321,7 +326,8 @@ const pagingAttributes = (doc: DocumentFile, t: DocumentStrings): string =>
 // images は画像の src から data: への対応(資料の assets/ から読んだもの)。
 // lang は画面の文言(目次・要約の見出しなど)の言語。資料に無ければ ja。
 // paging を false にすると、章ごとに読む資料でも全章を流す(編集中のプレビュー)。
-// marks は履歴の見比べで印を付けるセクション(編集画面だけで渡す)
+// marks は履歴の見比べで印を付けるセクション(編集画面だけで渡す)。
+// actions はアプリで原寸に開いたときだけ署名の行の右端に置く操作の HTML(app-actions.ts)
 export const documentBody = (
   source: DocumentFile,
   orgName?: string,
@@ -329,6 +335,7 @@ export const documentBody = (
   lang: Locale = "ja",
   paging = true,
   marks: Marks = new Map(),
+  actions = "",
 ): string => {
   const t = HANDOUT_STRINGS[lang].document;
   const doc = withImageData(source, images);
@@ -337,7 +344,7 @@ export const documentBody = (
   const groups = groupSections(doc.sections);
   return [
     `<div class="ds-page"${paging ? pagingAttributes(doc, t) : ""}>`,
-    signatureHtml(doc, orgName),
+    signatureHtml(doc, orgName, actions),
     headHtml(doc.head),
     doc.summary ? summaryHtml(doc.summary, t) : "",
     '<div class="ds-cols">',

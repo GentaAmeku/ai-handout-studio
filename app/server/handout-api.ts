@@ -1,3 +1,4 @@
+import type { IncomingMessage } from "node:http";
 import { platform } from "node:process";
 import type { Context, Hono } from "hono";
 import { z } from "zod";
@@ -10,6 +11,11 @@ import type {
 } from "../src/api/types.ts";
 import { isTemplateName } from "../src/schema/design.ts";
 import type { Locale } from "../src/schema/profile.ts";
+import {
+  type AppActions,
+  appActionsScriptHash,
+  handoutListPath,
+} from "./app-actions.ts";
 import {
   createDocumentAiRequest,
   readDocumentAiPatch,
@@ -40,6 +46,7 @@ import {
 } from "./handout-store.ts";
 import { deleteHandoutDir, type HandoutKind, isHandoutId } from "./handouts.ts";
 import { openFolderCommand } from "./open-folder.ts";
+import { isLoopbackAddress } from "./request-guard.ts";
 import {
   buildShareBundle,
   formatShareRequest,
@@ -58,8 +65,35 @@ const PREVIEW_CSP =
 // 質問票は質問を移動する、HTML 資料はコードブロックをコピーする小さなスクリプトを埋めている。
 // 許すのはその指紋1つだけで、中身に紛れ込んだ script(HTML 資料の生の HTML を含む)は動かない。
 // 質問票のスクリプトは言語ごとに中身が違うので、指紋も資料の言語で決める
-const previewCsp = (kind: HandoutKind, lang: Locale): string =>
-  `${PREVIEW_CSP}; script-src ${kind === "sheet" ? sheetScriptHash(lang) : documentScriptHash()}`;
+// 署名の行の右端の操作(資料一覧・お気に入り)を出すときは、☆ のスクリプトの指紋と、
+// お気に入りの API へ送るための同じ origin への通信も許す
+const previewCsp = (
+  kind: HandoutKind,
+  lang: Locale,
+  withActions: boolean,
+): string =>
+  [
+    PREVIEW_CSP,
+    ...(withActions ? ["connect-src 'self'"] : []),
+    `script-src ${[
+      kind === "sheet" ? sheetScriptHash(lang) : documentScriptHash(),
+      ...(withActions ? [appActionsScriptHash()] : []),
+    ].join(" ")}`,
+  ].join("; ");
+
+// 要求を送ってきた端末のアドレス。@hono/node-server が env.incoming に Node の要求を渡す
+// (テストの app.request では無いので undefined)
+const remoteAddressOf = (c: Context): string | undefined =>
+  (c.env as { incoming?: IncomingMessage } | undefined)?.incoming?.socket
+    ?.remoteAddress;
+
+// 原寸の画面に操作を出すか。アプリを動かしている PC で、枠に入れずに開いたときだけ出す。
+// LAN の端末からはお気に入りを付け外しできないので出さない。アプリの1件の画面と編集画面の
+// 枠(iframe)には帯に同じ操作があるので出さない(ブラウザが Sec-Fetch-Dest: iframe を付ける)
+const showsAppActions = (c: Context, editing: boolean): boolean =>
+  !editing &&
+  c.req.header("sec-fetch-dest") !== "iframe" &&
+  isLoopbackAddress(remoteAddressOf(c));
 
 const errorBody = (error: string): ApiErrorBody => ({ error });
 
@@ -215,16 +249,27 @@ const registerShared = (
   });
 
   // 画面の見本。書き出すものと同じ1枚の HTML を、外への通信を止めて返す。
-  // 編集画面の枠は ?view=edit を付けて開き、章ごとに読む HTML 資料でも全章を流す
+  // 編集画面の枠は ?view=edit を付けて開き、章ごとに読む HTML 資料でも全章を流す。
+  // アプリで原寸に開いたときだけ、署名の行の右端に資料一覧とお気に入りを足す
   app.get(`${base}/:id/preview`, async (c) => {
+    const id = paramId(c);
+    const editing = c.req.query("view") === "edit";
+    const actions: AppActions | undefined = showsAppActions(c, editing)
+      ? {
+          id,
+          listPath: handoutListPath[kind],
+          favorite: (await readFavorites(workspaceRoot)).has(id),
+        }
+      : undefined;
     const result = await renderHandout(
       workspaceRoot,
       designDir,
       kind,
-      paramId(c),
+      id,
       "hosted",
       false,
-      c.req.query("view") === "edit",
+      editing,
+      actions,
     );
     if (!result.success) {
       return c.json(errorBody(result.message), result.status);
@@ -232,7 +277,11 @@ const registerShared = (
     return c.body(result.html, 200, {
       "content-type": "text/html; charset=utf-8",
       "x-content-type-options": "nosniff",
-      "content-security-policy": previewCsp(kind, result.lang),
+      "content-security-policy": previewCsp(
+        kind,
+        result.lang,
+        actions !== undefined,
+      ),
       "cache-control": "no-store",
     });
   });

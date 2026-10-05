@@ -70,6 +70,8 @@ export type SheetView = {
   readonly current: number;
   // 設定の組織名。題名の上に HTML 資料の署名の行と同じ形で出す
   readonly orgName?: string;
+  // アプリで原寸に開いたときだけ、署名の行の右端に置く操作の HTML(app-actions.ts)
+  readonly actions?: string;
   // 画面の文言の言語。資料に無ければ ja
   readonly lang: Locale;
 };
@@ -323,10 +325,12 @@ const heading = (
 ): string => {
   const t = stringsOf(view);
   const { doc } = view;
-  // 組織名は見出しの帯の1行目に横いっぱいで置き、題名と「質問一覧を閉じる」は次の行に並ぶ
-  const org = view.orgName
-    ? `<div class="ds-signature"><span>${escapeHtml(view.orgName)}</span></div>`
-    : "";
+  // 組織名は見出しの帯の1行目に横いっぱいで置き、題名と「質問一覧を閉じる」は次の行に並ぶ。
+  // アプリの操作があれば同じ行の右端に置く(組織名が無くても行を出す)
+  const org =
+    view.orgName || view.actions
+      ? `<div class="ds-signature">${view.orgName ? `<span>${escapeHtml(view.orgName)}</span>` : ""}${view.actions ?? ""}</div>`
+      : "";
   const title = `${org}<div class="ds-board-title"><h1>${escapeHtml(doc.title)}</h1>${doc.description ? `<p class="ds-subtle">${escapeHtml(doc.description)}</p>` : ""}</div>`;
   if (layout === "print") {
     return `<header class="ds-board-heading">${title}<p class="ds-print-meta">${t.printMeta(escapeHtml(doc.id), escapeHtml(doc.revision), doc.questions.length)}</p></header>`;
