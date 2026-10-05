@@ -61,6 +61,8 @@ export const en: Record<MessageKey, string> = {
     "Couldn't copy it. Long-press the field below, choose “Select all,” then “Copy.”",
   "handouts.shared": "Shared",
   "handouts.shareFallback": "Sharing request",
+  "handouts.favorite": "Add to favorites",
+  "handouts.unfavorite": "Remove from favorites",
 
   "nav.notFound": "Page not found.",
   "nav.notFoundBack": "Back to decks",
@@ -278,7 +280,7 @@ export const en: Record<MessageKey, string> = {
   "help.list1":
     "Each kind has its own Decks list, shown as photo cards of the covers. Hover over a card to show the title and actions (open, ☆, delete). Deleting cannot be undone.",
   "help.list2":
-    "Press ☆ to add a favorite; favorites are listed separately under Favorites at the top.",
+    "Press ☆ to add a favorite; favorites are listed separately under Favorites at the top. For question sheets and HTML documents, you can also use the ☆ in the bar at the top of the opened page.",
   "help.list3": "The slide list can be filtered by tag.",
   "help.list4":
     "The magnifying glass at the right end of the header opens search. It looks through the titles of all three kinds and template names at once. Pick with ↑↓ and open with Enter; Esc closes it.",

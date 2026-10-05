@@ -16,6 +16,7 @@ import type {
   HandoutKind,
   HandoutSummary,
 } from "../../api/types";
+import { FavoriteButton } from "../../components/FavoriteButton";
 import { HandoutExportButton } from "../../components/HandoutExportButton";
 import { favoriteControlOf } from "../../components/ListCardParts";
 import { OpenFullLink } from "../../components/OpenFullLink";
@@ -223,6 +224,11 @@ export const SectionDetailPage = ({
         </h1>
         {handout.data && (
           <>
+            <FavoriteButton
+              kind={section}
+              id={id}
+              favorite={handout.data.favorite}
+            />
             <TemplatePicker
               section={section}
               id={id}

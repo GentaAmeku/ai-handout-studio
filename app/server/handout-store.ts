@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { HandoutDetail, HandoutSummary } from "../src/api/types.ts";
+import type { HandoutSummary } from "../src/api/types.ts";
 import type { SheetBase } from "../src/schema/design.ts";
 import { type HandoutMeta, handoutMetaSchema } from "../src/schema/handout.ts";
 import type { Locale } from "../src/schema/profile.ts";
@@ -208,7 +208,7 @@ export const readHandout = async (
   designDir: string,
   kind: HandoutKind,
   id: string,
-): Promise<HandoutDetail | undefined> => {
+): Promise<HandoutSummary | undefined> => {
   const meta = await readMeta(root, kind, id);
   if (meta.state !== "ready") return undefined;
   return summarize(root, designDir, kind, id, meta.value);

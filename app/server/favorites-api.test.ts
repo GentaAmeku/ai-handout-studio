@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type {
   DeckDetail,
   DeckSummary,
+  HandoutDetail,
   HandoutSummary,
   WithFavorite,
 } from "../src/api/types";
@@ -127,6 +128,26 @@ describe("お気に入り", () => {
     const documents =
       await getJson<WithFavorite<HandoutSummary>[]>("/api/documents");
     expect(documents.map((item) => item.favorite)).toEqual([true]);
+  });
+
+  it("質問票と HTML 資料の1件の取得にも印が乗る(1件の画面の帯の ☆)", async () => {
+    const sheetId = await createSheet();
+    const sheetPath = `/api/sheets/${sheetId}`;
+    expect((await getJson<HandoutDetail>(sheetPath)).favorite).toBe(false);
+    await send("PUT", `/api/favorites/${sheetId}`, { favorite: true });
+    expect((await getJson<HandoutDetail>(sheetPath)).favorite).toBe(true);
+
+    const document = (await (
+      await send("POST", "/api/documents", {
+        title: "保存の仕組み",
+        body: '<div class="ds-page"><h1>保存の仕組み</h1></div>',
+      })
+    ).json()) as HandoutSummary;
+    const documentPath = `/api/documents/${document.id}`;
+    await send("PUT", `/api/favorites/${document.id}`, { favorite: true });
+    expect((await getJson<HandoutDetail>(documentPath)).favorite).toBe(true);
+    await send("PUT", `/api/favorites/${document.id}`, { favorite: false });
+    expect((await getJson<HandoutDetail>(documentPath)).favorite).toBe(false);
   });
 
   it("同時に付けても、どれも残る", async () => {
