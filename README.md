@@ -36,7 +36,8 @@ list you can search, favorite, and open from your phone on the same Wi-Fi.
 - One of Claude Code, Codex CLI, OpenCode, Gemini CLI, Cursor CLI or Grok CLI,
   so your agent can write handouts for you and follow the setup steps below.
   Publishing question sheets and handouts as Artifacts (`share`) needs Claude
-  Code.
+  Code, and so does the optional mod that shows the handouts made in a
+  conversation above the prompt (Claude Code 2.1.287 or later).
 
 ## Install
 
@@ -65,7 +66,7 @@ In the cloned folder, type `/studio-uninstall` in Claude Code or
 following UNINSTALL.md." It is a game book like the
 setup: your agent runs `doctor --uninstall` and removes what is left in order
 (the server, the `ai-handout-studio` block in your agent instructions, the
-skill and command links, and Playwright's Chromium). It asks you once, before
+skill, mod and command links, and Playwright's Chromium). It asks you once, before
 it starts, including whether to keep or delete your handouts (`workspace/`)
 and the clone — see [UNINSTALL.md](UNINSTALL.md).
 

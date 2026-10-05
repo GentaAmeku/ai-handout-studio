@@ -1,0 +1,7 @@
+{
+  "name": "handout-watch",
+  "version": "1.0.0",
+  "description": "Shows the AI Handout Studio handouts (HTML handouts, slides and question sheets) made or changed in this conversation above the prompt, with links to open them",
+  "author": { "name": "GentaAmeku" },
+  "types": "./types/index.d.ts"
+}

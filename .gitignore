@@ -27,3 +27,5 @@ workspace/examples.json
 # 利用者ごとの設定(組織名・言語・任意の機能)。無ければ既定値で読む
 workspace/profile.json
 
+# Claude Code が mod を読み込んだときに書く型(中にも .gitignore を置くが、念のため)
+mods/*/.claude-plugin/types/

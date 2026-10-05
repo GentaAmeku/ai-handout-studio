@@ -142,9 +142,9 @@ ai-handout-studio settings --set agentInstructions=declined
 
 ## 9. 任意の機能
 
-doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)が入っているかも見る(入っていれば `ok`、無ければ `warn` で止めない)。
+doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)が入っているかと、Claude Code が入っていればこのリポジトリの Claude Code の mod が入っているか(`mod-claude`)も見る。どちらも入っていれば `ok`、無ければ `warn` で、止めない。
 
-3つを1枚の質問票でまとめて聞く。archify が無ければ、入れるかも同じ質問票で聞く(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
+3つを1枚の質問票でまとめて聞く。archify か mod が無ければ、入れるかも同じ質問票で聞く(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
 
 | 機能 | できること | 伝える危うさ |
 | --- | --- | --- |
@@ -162,6 +162,13 @@ archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れる�
 
 ```bash
 npx skills add tt-a1i/archify -g
+```
+
+Claude Code の mod `handout-watch`(このリポジトリの `mods/`)を入れると、Claude Code(ターミナルとデスクトップアプリの Code タブ)の入力欄の上に、その会話で作った・直した資料(HTML 資料・スライド・質問票)が、読む・直す・回答するリンクつきで出る。`/handout-watch` で横のパネルに一覧も開ける。入れなくても資料は作れる。`mod-claude` が `warn` のときだけ聞く(Claude Code が入っていなければ `skipped`)。質問では、何を出すかと、何を読むか(会話で Claude が走らせる `ai-handout-studio` のコマンドと書く資料のファイル、`workspace/` の資料)を書く。利用者の権限で Claude Code の中で動き、この PC の外へは何も送らない。Claude Code 2.1.287 以降が要る(`claude --version` が古ければ doctor の detail に出る)。入れると答えたときだけ、次を実行する。節6のスキルと同じくリンクで入れるので、`git pull` でそのまま新しくなる。次に起こした Claude Code の会話から効く(開いているターミナルの会話では `/reload-plugins`)。
+
+```bash
+mkdir -p ~/.claude/skills
+ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
 
 ## 10. 起動と確かめ

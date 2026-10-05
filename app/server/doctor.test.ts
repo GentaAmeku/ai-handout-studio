@@ -66,6 +66,14 @@ const linkSkills = (skillsDir: string): void => {
   });
 };
 
+// Claude Code の mod(節9)。clone の mods/handout-watch を ~/.claude/skills へリンクする
+const linkMod = (): void => {
+  const source = join(repo, "mods", "handout-watch");
+  touch(join(source, ".claude-plugin", "plugin.json"), "{}");
+  mkdirSync(join(home, ".claude", "skills"), { recursive: true });
+  symlinkSync(source, join(home, ".claude", "skills", "handout-watch"));
+};
+
 const writeProfile = (profile: object): void => {
   touch(join(workspace, "profile.json"), JSON.stringify(profile));
 };
@@ -387,6 +395,71 @@ describe("doctor の各項目", () => {
     touch(join(archify, "bin", "archify.mjs"));
     const withArchify = await runDoctor(context());
     expect(statusOf(withArchify, "archify")).toBe("ok");
+  });
+
+  it("Claude Code の mod が無ければ節9の warn で入れ方を出し(止めない)、あれば ok", async () => {
+    makeReady();
+    const without = await runDoctor(context());
+    expect(statusOf(without, "mod-claude")).toBe("warn");
+    const detail = without.checks.find(
+      (item) => item.id === "mod-claude",
+    )?.detail;
+    expect(detail).toContain("handout-watch is not installed");
+    expect(detail).toContain(
+      `ln -sfn "${join(repo, "mods", "handout-watch")}" "${join(home, ".claude", "skills", "handout-watch")}"`,
+    );
+    expect(without.ok).toBe(true);
+
+    linkMod();
+    const withMod = await runDoctor(context());
+    expect(statusOf(withMod, "mod-claude")).toBe("ok");
+  });
+
+  it("Claude Code が古ければ、mod が入っていても warn で版を伝える", async () => {
+    makeReady();
+    linkMod();
+    const base = context();
+    const result = await runDoctor(
+      context({
+        run: (command, args) =>
+          command === "claude"
+            ? { status: 0, stdout: "2.1.286 (Claude Code)" }
+            : base.run(command, args),
+      }),
+    );
+    expect(statusOf(result, "mod-claude")).toBe("warn");
+    expect(
+      result.checks.find((item) => item.id === "mod-claude")?.detail,
+    ).toContain("Claude Code 2.1.286 may not run it (2.1.287 or later");
+
+    const current = await runDoctor(
+      context({
+        run: (command, args) =>
+          command === "claude"
+            ? { status: 0, stdout: "2.1.289 (Claude Code)" }
+            : base.run(command, args),
+      }),
+    );
+    expect(statusOf(current, "mod-claude")).toBe("ok");
+  });
+
+  it("Claude Code が無ければ mod は聞かない(skipped)", async () => {
+    makeBase();
+    mkdirSync(join(home, ".codex"), { recursive: true });
+    const result = await runDoctor(context());
+    expect(statusOf(result, "mod-claude")).toBe("skipped");
+  });
+
+  it("mod の置き場がフォルダなら、入れ方を出さずに warn で利用者に聞かせる", async () => {
+    makeReady();
+    mkdirSync(join(home, ".claude", "skills", "handout-watch"));
+    const result = await runDoctor(context());
+    expect(statusOf(result, "mod-claude")).toBe("warn");
+    const detail = result.checks.find(
+      (item) => item.id === "mod-claude",
+    )?.detail;
+    expect(detail).toContain("is a folder, not a link");
+    expect(detail).not.toContain("ln -sfn");
   });
 
   it("5190 番を別のものが使っていれば節10で知らせる", async () => {
@@ -785,6 +858,25 @@ describe("doctor --uninstall", () => {
     expect(statusOf(mixed, "skills-claude")).toBe("skipped");
     expect(statusOf(mixed, "skills-agents")).toBe("remaining");
     expect(detailOf(mixed, "skills-agents")).toContain("a broken link");
+  });
+
+  it("Claude Code の mod のリンクも節4で外し、別の clone のものは残す", async () => {
+    makeUninstalled();
+    linkMod();
+    const linked = await runUninstallDoctor(down());
+    expect(statusOf(linked, "skills-claude")).toBe("remaining");
+    expect(detailOf(linked, "skills-claude")).toContain(
+      `${join(home, ".claude", "skills", "handout-watch")} points to this repository`,
+    );
+    expect(linked.next?.section).toBe(4);
+
+    const link = join(home, ".claude", "skills", "handout-watch");
+    rmSync(link);
+    const elsewhere = join(root, "old-clone", "mods", "handout-watch");
+    mkdirSync(elsewhere, { recursive: true });
+    symlinkSync(elsewhere, link);
+    const other = await runUninstallDoctor(down());
+    expect(statusOf(other, "skills-claude")).toBe("skipped");
   });
 
   it("コマンドは PATH に無くても ~/.local/bin のリンクを見つけ、pnpm の入口も外す。別の clone のものは残す", async () => {

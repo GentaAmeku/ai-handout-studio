@@ -68,15 +68,15 @@ Cursor CLI の共通指示はファイルではなく、設定画面の User Rul
 
 ## 4. スキル
 
-doctor は、2つのスキルの置き場(`skills-agents` は `~/.agents/skills/` で Codex CLI・OpenCode・Gemini CLI・Cursor CLI が読む。`skills-claude` は `~/.claude/skills/` で Claude Code・Grok CLI が読む)に、このリポジトリを指す `ai-handout-studio`・`question-sheet` のリンクが無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
+doctor は、2つのスキルの置き場(`skills-agents` は `~/.agents/skills/` で Codex CLI・OpenCode・Gemini CLI・Cursor CLI が読む。`skills-claude` は `~/.claude/skills/` で Claude Code・Grok CLI が読む)に、このリポジトリを指す `ai-handout-studio`・`question-sheet` のリンクが無いことと、`~/.claude/skills/` に、このリポジトリを指す `handout-watch` のリンク(セットアップの節9の Claude Code の mod)が無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
 
 ```bash
 # detail に挙がったリンクだけを消す
-rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet
+rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/handout-watch
 rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet
 ```
 
-- `rm` にはリンクの名前をそのまま渡す。`-r` と末尾の `/` は付けない。付けるとリンクの先(このリポジトリの `skills/`)を消してしまう。
+- `rm` にはリンクの名前をそのまま渡す。`-r` と末尾の `/` は付けない。付けるとリンクの先(このリポジトリの `skills/` か `mods/`)を消してしまう。
 - `skipped` のもの(中身のあるフォルダ、別の clone を指すリンク)は残す。スキルの置き場のフォルダも残す。
 
 ## 5. コマンド
