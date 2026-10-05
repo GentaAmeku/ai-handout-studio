@@ -142,9 +142,9 @@ To be asked again later: `ai-handout-studio settings --set agentInstructions=ask
 
 ## 9. Optional features
 
-doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks whether archify (a skill by another author) is installed (`ok` if it is, `warn` if not; it does not block).
+doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks whether archify (a skill by another author) is installed and, when Claude Code is set up, whether this repository's Claude Code mod is installed (`mod-claude`). Both are `ok` if installed and `warn` if not; neither blocks.
 
-Ask the three at once with a question sheet. If archify is missing, ask in the same sheet whether to install it (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
+Ask the three at once with a question sheet. If archify or the mod is missing, ask in the same sheet whether to install it (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
 
 | Feature | What it does | Risk to tell the user |
 | --- | --- | --- |
@@ -162,6 +162,13 @@ With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the age
 
 ```bash
 npx skills add tt-a1i/archify -g
+```
+
+The Claude Code mod `handout-watch` (in this repository's `mods/`) shows, above the prompt in Claude Code (the terminal and the desktop app's Code tab), the handouts made or changed in the current conversation (HTML handouts, slides and question sheets), with links to read, edit or answer them; `/handout-watch` lists them in a side pane. Handouts work without it. Ask only when `mod-claude` is `warn` (it is `skipped` when Claude Code is not set up). In the question, say what it shows and what it reads: the `ai-handout-studio` commands and the handout files that Claude writes in the conversation, and the handouts in `workspace/`. It runs with the user's permissions inside Claude Code and sends nothing outside this computer. It needs Claude Code 2.1.287 or later (doctor's detail says so when `claude --version` is older). Install it only if the user says yes; it is linked like the skills in section 6, so `git pull` keeps it current. It loads in new Claude Code sessions (in an open terminal session, `/reload-plugins`).
+
+```bash
+mkdir -p ~/.claude/skills
+ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
 
 ## 10. Start and check

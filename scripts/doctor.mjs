@@ -24,6 +24,10 @@ import {
 import { harnessesOf, skillPlacesOf } from "./harnesses.mjs";
 
 const SKILLS = ["ai-handout-studio", "question-sheet"];
+// Claude Code の mod。clone の mods/ に置き、Claude Code のスキルの置き場へ symlink で入れる(節9)
+const MOD = "handout-watch";
+// mod が正式に動く Claude Code の版
+const MOD_CLAUDE_VERSION = "2.1.287";
 const FEATURES = [
   ["lan", "feature-lan"],
   ["imageGeneration", "feature-image-generation"],
@@ -198,6 +202,15 @@ const check = (id, section, status, detail) => ({
 const majorOf = (version) => Number.parseInt(version.split(".")[0] ?? "", 10);
 
 const versionOf = (text) => text.match(/\d+\.\d+\.\d+/)?.[0];
+
+// a.b.c の形の版を、数として比べる
+const isOlderThan = (version, minimum) => {
+  const [have, need] = [version, minimum].map((text) =>
+    text.split(".").map(Number),
+  );
+  const index = have.findIndex((part, i) => part !== need[i]);
+  return index !== -1 && have[index] < need[index];
+};
 
 // 節2: 前提
 const prerequisiteChecks = (ctx, t) => {
@@ -697,6 +710,67 @@ const archifyCheck = (ctx, t) => {
       );
 };
 
+// 節9: Claude Code の mod(その会話で作った資料を入力欄の上に出す)。
+// 入れるかは利用者が決めるので、無くても止めない(warn)。Claude Code が無ければ聞かない(skipped)
+const modCheck = (ctx, t, harnesses) => {
+  const claude = harnesses.find((harness) => harness.id === "claude");
+  if (claude?.present !== true) {
+    return check(
+      "mod-claude",
+      9,
+      "skipped",
+      t("Claude Code が入っていない", "Claude Code is not set up"),
+    );
+  }
+  const link = join(claude.skillsDir, MOD);
+  const source = join(ctx.repoRoot, "mods", MOD);
+  const claudeVersion = ctx.run("claude", ["--version"]);
+  const version =
+    claudeVersion?.status === 0 ? versionOf(claudeVersion.stdout) : undefined;
+  const old =
+    version !== undefined && isOlderThan(version, MOD_CLAUDE_VERSION)
+      ? t(
+          `。Claude Code ${version} では動かないことがある(${MOD_CLAUDE_VERSION} 以降が要る)`,
+          `; Claude Code ${version} may not run it (${MOD_CLAUDE_VERSION} or later is needed)`,
+        )
+      : "";
+  const stat = lstatOf(link);
+  const target = realpathOf(link);
+  if (stat?.isSymbolicLink() === true && target === realpathOf(source)) {
+    return check("mod-claude", 9, old === "" ? "ok" : "warn", `${link}${old}`);
+  }
+  if (stat !== undefined && !stat.isSymbolicLink()) {
+    return check(
+      "mod-claude",
+      9,
+      "warn",
+      t(
+        `${link} はリンクではなくフォルダ。セットアップが置いたものではないので、置き換えるかは利用者に聞く`,
+        `${link} is a folder, not a link; setup did not put it there, so ask the user before replacing it`,
+      ),
+    );
+  }
+  const problem =
+    stat === undefined
+      ? t(`${MOD} が入っていない`, `${MOD} is not installed`)
+      : target === undefined
+        ? t(`${link} は指す先の無いリンク`, `${link} is a broken link`)
+        : t(
+            `${link} が別の場所(${target})を指す`,
+            `${link} points elsewhere (${target})`,
+          );
+  const install = `mkdir -p "${claude.skillsDir}" && ln -sfn "${source}" "${link}"`;
+  return check(
+    "mod-claude",
+    9,
+    "warn",
+    t(
+      `${problem}。入れると、Claude Code の会話で作った資料が入力欄の上に出る。入れるなら(利用者の同意を取ってから): ${install}${old}`,
+      `${problem}. With it, Claude Code shows the handouts made in a conversation above the prompt. To install it (ask the user first): ${install}${old}`,
+    ),
+  );
+};
+
 // 節10: 起動。動いているサーバーがこのリポジトリのものかも見る(古い clone のサーバーを使わない)
 const serverCheck = async (ctx, t) => {
   const state = await ctx.probeServer();
@@ -792,6 +866,7 @@ export const runDoctor = async (context = defaultContext()) => {
     ...instructionChecks(context, t, locale, harnesses, profile),
     ...featureChecks(context, t, harnesses, profile),
     archifyCheck(context, t),
+    modCheck(context, t, harnesses),
   ];
   const server = await serverCheck(context, t);
   return {
@@ -975,8 +1050,7 @@ const worstOf = (items) =>
 
 // スキルの置き場のもの。このリポジトリを指すリンクと、指す先の無いリンクを外す。
 // 中身のあるフォルダ(セットアップはリンクしか置かない)と、別の場所を指すリンクは残す
-const skillLeftover = (ctx, t, skillsDir, skill) => {
-  const path = join(skillsDir, skill);
+const linkLeftover = (t, path, ours) => {
   const stat = lstatOf(path);
   if (stat === undefined) return undefined;
   if (!stat.isSymbolicLink()) {
@@ -995,11 +1069,7 @@ const skillLeftover = (ctx, t, skillsDir, skill) => {
       text: t(`${path}(指す先の無いリンク)`, `${path} (a broken link)`),
     };
   }
-  const ours = [
-    join(ctx.repoRoot, "skills", skill),
-    join(ctx.repoRoot, "skills"),
-  ].map(realpathOf);
-  return ours.includes(target)
+  return ours.map(realpathOf).includes(target)
     ? {
         status: "remaining",
         text: t(
@@ -1016,13 +1086,26 @@ const skillLeftover = (ctx, t, skillsDir, skill) => {
       };
 };
 
-// 節4: スキル。両方の置き場を調べる(ハーネスが無くても、リンクだけ残っていることがある)
+const skillLeftover = (ctx, t, skillsDir, skill) =>
+  linkLeftover(t, join(skillsDir, skill), [
+    join(ctx.repoRoot, "skills", skill),
+    join(ctx.repoRoot, "skills"),
+  ]);
+
+// mod は Claude Code の置き場(~/.claude/skills)にだけ入れる
+const modLeftover = (ctx, t, place) =>
+  place.id === "claude"
+    ? linkLeftover(t, join(place.dir, MOD), [join(ctx.repoRoot, "mods", MOD)])
+    : undefined;
+
+// 節4: スキルと mod。両方の置き場を調べる(ハーネスが無くても、リンクだけ残っていることがある)
 const uninstallSkillChecks = (ctx, t) =>
   skillPlacesOf(ctx.home).map((place) => {
     const id = `skills-${place.id}`;
-    const found = SKILLS.map((skill) =>
-      skillLeftover(ctx, t, place.dir, skill),
-    ).filter((item) => item !== undefined);
+    const found = [
+      ...SKILLS.map((skill) => skillLeftover(ctx, t, place.dir, skill)),
+      modLeftover(ctx, t, place),
+    ].filter((item) => item !== undefined);
     return found.length === 0
       ? check(
           id,

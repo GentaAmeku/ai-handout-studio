@@ -21,7 +21,7 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 - macOS か Linux。Windows は WSL の中で動かす
 - Node 24 以上、pnpm 11(入れ方は [SETUP.ja.md](SETUP.ja.md))
-- Claude Code・Codex CLI・OpenCode・Gemini CLI・Cursor CLI・Grok CLI のどれか。エージェントに資料作りと下の入れ方を頼む。質問票や資料を Artifact として共有する(`share`)には Claude Code が要る
+- Claude Code・Codex CLI・OpenCode・Gemini CLI・Cursor CLI・Grok CLI のどれか。エージェントに資料作りと下の入れ方を頼む。質問票や資料を Artifact として共有する(`share`)には Claude Code が要る。会話で作った資料を入力欄の上に出す任意の mod も Claude Code(2.1.287 以降)で動く
 
 ## 入れ方
 
@@ -37,7 +37,7 @@ AI エージェントが作った資料(スライド・HTML 資料・質問票)�
 
 ## 外し方
 
-clone したフォルダで、Claude Code なら `/studio-uninstall`、Codex CLI なら `$studio-uninstall` と打ち、そのほかは「UNINSTALL.md のとおりに外して」と頼む。入れるときと同じゲームブックの形で、エージェントが `doctor --uninstall` を実行し、残っているもの(サーバー、共通指示の `ai-handout-studio` の段落、スキルとコマンドのリンク、Playwright の Chromium)を順に外す。聞かれるのは始める前の1回だけで、資料(`workspace/`)と clone を消すか残すかもそこで決める([UNINSTALL.ja.md](UNINSTALL.ja.md))。
+clone したフォルダで、Claude Code なら `/studio-uninstall`、Codex CLI なら `$studio-uninstall` と打ち、そのほかは「UNINSTALL.md のとおりに外して」と頼む。入れるときと同じゲームブックの形で、エージェントが `doctor --uninstall` を実行し、残っているもの(サーバー、共通指示の `ai-handout-studio` の段落、スキル・mod・コマンドのリンク、Playwright の Chromium)を順に外す。聞かれるのは始める前の1回だけで、資料(`workspace/`)と clone を消すか残すかもそこで決める([UNINSTALL.ja.md](UNINSTALL.ja.md))。
 
 ## コマンド
 
