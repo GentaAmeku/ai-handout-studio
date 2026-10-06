@@ -1,0 +1,3 @@
+# 同梱の見本(design/samples)は生成物。GitHub の言語の集計から外す
+design/samples/** linguist-generated
+design/samples/**/*.html linguist-vendored

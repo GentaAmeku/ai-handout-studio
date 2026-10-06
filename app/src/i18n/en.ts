@@ -22,6 +22,8 @@ export const en: Record<MessageKey, string> = {
 
   "nav.main": "Main",
   "nav.decks": "Decks",
+  "nav.sheets": "Sheets",
+  "nav.documents": "Documents",
   "nav.templates": "Templates",
   "nav.help": "Help",
   "nav.settings": "Settings",
@@ -65,7 +67,7 @@ export const en: Record<MessageKey, string> = {
   "handouts.unfavorite": "Remove from favorites",
 
   "nav.notFound": "Page not found.",
-  "nav.notFoundBack": "Back to decks",
+  "nav.notFoundBack": "Back to slides",
 
   "decks.title": "Slides",
   "decks.lead":
@@ -124,7 +126,7 @@ export const en: Record<MessageKey, string> = {
   "help.flow4":
     "The agent makes the handout, fixes it until it passes the checks, and saves it.",
   "help.flow5":
-    "You get URLs back: one to open on your computer, and one to open on a phone on the same Wi-Fi. The handout also appears under Decks in the left menu.",
+    "You get URLs back: one to open on your computer, and one to open on a phone on the same Wi-Fi. The handout also appears in the matching list (Decks, Sheets or Documents) in the left menu.",
   "help.tipsTitle": "Tips for asking",
   "help.tip1":
     "State the audience, length, and key message up front, and the question sheet gets shorter or is skipped. Say “don't ask, just make it” and the agent skips the sheet and tells you what it decided at the end.",
@@ -213,7 +215,7 @@ export const en: Record<MessageKey, string> = {
     "On the last question (or in the bottom bar when all questions are shown), a “Copy answers” (回答をコピー) button appears. It copies your answers as Markdown; paste them into the conversation. Nothing is sent to the server from the page.",
   "help.sheetAnswer4":
     "The agent saves the pasted answers into the handout. When you open it later, your answers are filled in.",
-  "help.sheetEditLead": "Click a card in Decks to open the handout's page.",
+  "help.sheetEditLead": "Click a card in Sheets to open the handout's page.",
   "help.sheetEdit1": "Change the template. You can also pick the preview zoom.",
   "help.sheetEdit2": "“Open at full size” opens the answer page.",
   "help.sheetEdit3":
@@ -243,7 +245,7 @@ export const en: Record<MessageKey, string> = {
   "help.documentResult":
     "A single HTML page you read top to bottom. The title, lede, summary, and table of contents are followed by sections built from parts: text, bullets, steps, tables, cards, notices, notes, alerts, open items, quotes, code, and figures. A glossary may sit alongside. The full-size page also reads well at phone width.",
   "help.documentEditLead":
-    "Click a card in Decks to open the editor. Sections and blocks are on the left, the preview in the middle, and the edit panel (Properties, Parts, AI) on the right.",
+    "Click a card in Documents to open the editor. Sections and blocks are on the left, the preview in the middle, and the edit panel (Properties, Parts, AI) on the right.",
   "help.documentEdit1":
     "Select, delete, and reorder (by dragging) sections and blocks on the left. Add a section with “Add a section” on the left. Edit the selected item in Properties on the right.",
   "help.documentEdit2":
@@ -276,9 +278,9 @@ export const en: Record<MessageKey, string> = {
   "help.template4":
     "Ask the agent which templates exist and it will list them.",
 
-  "help.listTitle": "Decks and search",
+  "help.listTitle": "Lists and search",
   "help.list1":
-    "Each kind has its own Decks list, shown as photo cards of the covers. Hover over a card to show the title and actions (open, ☆, delete). Deleting cannot be undone.",
+    "Each kind has its own list (Decks, Sheets, Documents), shown as photo cards of the covers. Hover over a card to show the title and actions (open, ☆, delete). Deleting cannot be undone.",
   "help.list2":
     "Press ☆ to add a favorite; favorites are listed separately under Favorites at the top. You can also use the ☆ in the bar at the top of an opened handout.",
   "help.list3": "The slide list can be filtered by tag.",

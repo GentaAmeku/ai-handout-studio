@@ -60,7 +60,7 @@ export const USAGE = [
   ...HANDOUT_USAGE,
   "  ai-handout-studio share <id>",
   "  ai-handout-studio share <id> --url <公開した Artifact の URL>",
-  "  ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>]",
+  "  ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>] [--scale 1|2]",
   `  ai-handout-studio diagram <${DIAGRAM_TYPES.join("|")}> <spec.json> --out <画像(.png・.jpg・.webp)>`,
   "  ai-handout-studio design build",
   "  ai-handout-studio settings",
@@ -92,6 +92,7 @@ export type CliCommand =
       height: number;
       full: boolean;
       wait: number;
+      scale: 1 | 2;
     }
   // archify の図を画像にする。形式は --out の拡張子で選ぶ。archify が無ければ exit 3
   | { name: "diagram"; type: DiagramType; spec: string; out: string }
@@ -261,6 +262,7 @@ const parseShotOptions = (args: readonly string[]) => {
         height: { type: "string" },
         full: { type: "boolean" },
         wait: { type: "string" },
+        scale: { type: "string" },
       },
       allowPositionals: true,
     });
@@ -305,6 +307,10 @@ const parseShot = (args: readonly string[]): ParsedCli => {
       "--width は 320〜3840、--height は 240〜3840、--wait は 0〜30000 の整数",
     );
   }
+  const scale = values.scale === undefined ? 1 : Number(values.scale);
+  if (scale !== 1 && scale !== 2) {
+    return fail("--scale は 1 か 2");
+  }
   return {
     success: true,
     command: {
@@ -315,6 +321,7 @@ const parseShot = (args: readonly string[]): ParsedCli => {
       height,
       full: values.full ?? false,
       wait,
+      scale,
     },
   };
 };

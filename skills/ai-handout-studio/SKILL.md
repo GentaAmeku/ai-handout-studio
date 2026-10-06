@@ -30,7 +30,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | `ai-handout-studio templates [--kind slide\|sheet\|document]` | いまあるテンプレートの識別子・表示名・説明・既定を一覧で返す。テンプレートは利用者に聞かないが、利用者が名前(表示名でもよい)を挙げたときに識別子へ直して `--template` に渡すために使う |
 | `ai-handout-studio share <id>` | 質問票・HTML 資料を、Claude の Artifact に配れる束(`share/index.html` と画像のファイルだけ)にする。束の場所・ファイルの一覧・Claude Code への依頼文を返す。スライドはまだ使えない |
 | `ai-handout-studio share <id> --url <URL>` | 公開した Artifact の URL を資料に残す。次の `share <id>` は同じ URL を更新する依頼文になる |
-| `ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>]` | Web の画面か手元の HTML(見た目の案のモック)を PNG に撮る。撮った場所と大きさを出す。使い方は「画像を用意する」 |
+| `ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>] [--scale 1\|2]` | Web の画面か手元の HTML(見た目の案のモック)を PNG に撮る。撮った場所と大きさを出す。使い方は「画像を用意する」 |
 | `ai-handout-studio diagram <architecture\|workflow\|sequence\|dataflow\|lifecycle> <spec.json> --out <画像>` | archify(別の作者のスキル)で図を作り、archify のビューアーの Export で図の全体を画像に書き出す。形式は `--out` の拡張子(`.png`・`.jpg`・`.webp`)で選ぶ。書き出した場所と大きさを出す。archify が無ければ exit 3。使い方は「図を載せる」 |
 
 資料を伝えるときは `ai-handout-studio open <id>` を実行し、出力に `lanReadUrl`(スライドは `lanUrl`)があれば、スマートフォンで読む URL として並べて伝える。LAN に開くかは設定(`features.lan`)で決まるので `--lan` は付けない。`open` が `restart` を促したら、それを実行する。利用者が共有の Wi-Fi にいると言ったときは `--no-lan` を付ける。
@@ -87,7 +87,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 スライド・HTML 資料・質問票のどれでも同じ手順で用意する。画面・操作・見た目の話は、文だけより画像の方が早く伝わる。飾りのためだけの画像は足さない。
 
-- **スクリーンショット**: Web の画面は `ai-handout-studio shot <URL> --out <PNG>` で撮る(既定は 1440x900。縦に長いページは `--full`)。Web でない画面は、環境にある画面を撮る道具を使う。撮れなければ置き場所を `[[要確認]]` にして利用者に伝える
+- **スクリーンショット**: Web の画面は `ai-handout-studio shot <URL> --out <PNG>` で撮る(既定は 1440x900。縦に長いページは `--full`。縮めて載せるなら `--scale 2` で画素を2倍にすると文字が滲まない。ただしファイルは重くなる)。Web でない画面は、環境にある画面を撮る道具を使う。撮れなければ置き場所を `[[要確認]]` にして利用者に伝える
 - **見た目の変更案(完成イメージ)**: 次の順で作る
   1. 自分で作る。画像を直接出せないエージェントは、HTML でモックを描いて `ai-handout-studio shot <モック.html> --out <PNG>` で撮る(作れる画面に近い)。自分で画像を出せるエージェント(Codex など)は、その機能で作る
   2. 写真調の絵・挿絵・雰囲気の案のように HTML で描けないものは、画像生成の CLI に頼む。先に `ai-handout-studio settings` を読み、`features.imageGeneration` が false なら使わず、「使うには ai-handout-studio の SETUP.md の節9で画像生成をオンにする」と伝える。どちらも1枚およそ1分で、保存先を指示すればそこに PNG を置く
