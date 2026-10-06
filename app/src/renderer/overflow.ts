@@ -1,5 +1,7 @@
 // 描画後のはみ出し検査。事前の文字数制限ではなく、実寸で測る
 
+import { translate } from "../i18n/language";
+
 export type OverflowIssue = {
   blockId: string;
   type: "overflow";
@@ -25,8 +27,8 @@ const issueFor = (block: HTMLElement): OverflowIssue[] => {
       type: "overflow",
       message:
         overY > TOLERANCE_PX
-          ? `本文が${overY}pxはみ出している`
-          : `横に${overX}pxはみ出している`,
+          ? translate("overflow.vertical", { px: overY })
+          : translate("overflow.horizontal", { px: overX }),
     },
   ];
 };

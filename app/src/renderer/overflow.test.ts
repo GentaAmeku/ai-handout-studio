@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { inspectOverflow } from "./overflow";
 
 // jsdom はレイアウトを計算しないので、実寸だけ差し込む
@@ -24,6 +24,10 @@ const block = (id: string) => {
   element.dataset.blockId = id;
   return element;
 };
+
+afterEach(() => {
+  document.documentElement.lang = "";
+});
 
 describe("inspectOverflow", () => {
   it("枠より高い中身のブロックを、はみ出した量つきで返す", () => {
@@ -61,5 +65,25 @@ describe("inspectOverflow", () => {
     expect(inspectOverflow(root)).toEqual([
       { slideId: "s01", ok: true, issues: [] },
     ]);
+  });
+
+  it('英語 UI(<html lang="en">)では英語の文で返す', () => {
+    document.documentElement.lang = "en";
+    const root = document.createElement("div");
+    const slide = document.createElement("div");
+    slide.dataset.slideId = "s02";
+    slide.append(
+      sized(block("b01"), { scrollHeight: 100, clientHeight: 96 }),
+      sized(block("b02"), {
+        scrollHeight: 10,
+        clientHeight: 10,
+        scrollWidth: 130,
+        clientWidth: 100,
+      }),
+    );
+    root.append(slide);
+    expect(
+      inspectOverflow(root)[0]?.issues.map((issue) => issue.message),
+    ).toEqual(["Text overflows by 4px", "Overflows sideways by 30px"]);
   });
 });

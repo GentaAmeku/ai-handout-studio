@@ -429,6 +429,8 @@ export const ja = {
   "overflow.none": "はみ出しは見つかりませんでした。",
   "overflow.some": "はみ出しが {n} 件あります",
   "overflow.close": "検査の結果を閉じる",
+  "overflow.vertical": "本文が{px}pxはみ出している",
+  "overflow.horizontal": "横に{px}pxはみ出している",
 
   "json.lead":
     "選んでいるスライドの JSON です。直したら「適用」で検証してから反映します。",
