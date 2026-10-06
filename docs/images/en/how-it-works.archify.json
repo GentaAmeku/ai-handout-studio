@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "How AI Handout Studio works",
+    "quality_profile": "showcase",
+    "viewBox": [1120, 480],
+    "views": [
+      {
+        "id": "authoring",
+        "label": "From a chat to a handout",
+        "focus": ["agent", "skills", "cli", "workspace"],
+        "note": "The agent follows the skill, writes JSON and saves it through the CLI."
+      },
+      {
+        "id": "finishing",
+        "label": "Finish and hand out",
+        "focus": ["workspace", "server", "browser", "exports"],
+        "note": "The local server serves the workspace to the browser, where you read, edit and export."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "AI agent",
+      "sublabel": "Claude Code, Codex and 4 more",
+      "pos": [38, 70],
+      "size": [160, 72]
+    },
+    {
+      "id": "skills",
+      "type": "frontend",
+      "label": "Skills",
+      "sublabel": "handouts and question sheets",
+      "pos": [318, 70],
+      "size": [160, 72]
+    },
+    {
+      "id": "cli",
+      "type": "backend",
+      "label": "CLI",
+      "sublabel": "check and save",
+      "pos": [598, 70],
+      "size": [160, 72]
+    },
+    {
+      "id": "workspace",
+      "type": "database",
+      "label": "Workspace",
+      "sublabel": "deck.json, document.json, sheets",
+      "pos": [878, 70],
+      "size": [200, 72]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Local server",
+      "sublabel": "127.0.0.1:5190",
+      "pos": [598, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "Browser",
+      "sublabel": "list, edit, read, answer",
+      "pos": [318, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "exports",
+      "type": "external",
+      "label": "Exports",
+      "sublabel": "PDF, PNG, HTML, PPTX",
+      "pos": [38, 330],
+      "size": [160, 72]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-to-skills",
+      "from": "agent",
+      "to": "skills",
+      "label": "ask in chat",
+      "variant": "emphasis"
+    },
+    { "id": "skills-to-cli", "from": "skills", "to": "cli", "label": "JSON" },
+    {
+      "id": "cli-to-workspace",
+      "from": "cli",
+      "to": "workspace",
+      "label": "save"
+    },
+    {
+      "id": "workspace-to-server",
+      "from": "workspace",
+      "to": "server",
+      "label": "read"
+    },
+    {
+      "id": "server-to-browser",
+      "from": "server",
+      "to": "browser",
+      "label": "URL",
+      "variant": "emphasis"
+    },
+    {
+      "id": "browser-to-exports",
+      "from": "browser",
+      "to": "exports",
+      "label": "export"
+    },
+    {
+      "id": "browser-to-skills",
+      "from": "browser",
+      "to": "skills",
+      "label": "answers as Markdown",
+      "variant": "dashed"
+    }
+  ]
+}
