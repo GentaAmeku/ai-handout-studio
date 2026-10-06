@@ -47,7 +47,7 @@ claude   # 起動したら /studio-setup と打つ(Codex CLI は codex を起動
 
 スライドの見た目 8 種と構成 5 種(提案・勉強会・自己紹介・キックオフ・登壇)、質問票 3 種、HTML 資料 4 種。頼むときに名前で指定しても(*「Lumen で作って」*)、あとで替えてもよく、中身はそのまま。テンプレートは `tokens.json` から CSS を生むので、自分の見た目も足せる([design/templates/README.md](design/templates/README.md))。
 
-### 20 往復の代わりに質問票
+### 会話の往復の代わりに質問票
 
 ![質問票で 3 案のモックを見比べ、推奨の案を選んだ状態](docs/images/ja/sheet.png)
 
