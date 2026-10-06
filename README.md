@@ -10,7 +10,7 @@ English | [日本語](README.ja.md)
 
 Your agent can already write a deck or a report. Then it is a file in whatever folder the conversation ran in, you cannot fix one line without asking again, and the next one looks nothing like the last. AI Handout Studio is for people who make handouts with Claude Code or Codex every week: every handout lands in one local list, you fix it on screen, switch the look in one click, and hand it over as PDF, PPTX or HTML.
 
-![The same cover slide drawn by seven templates, side by side](docs/images/en/hero-templates.png)
+![The same cover drawn by the seven built-in templates: one deck, seven looks](docs/images/en/hero-templates.png)
 
 *One cover, seven templates. Name one when you ask, or switch on screen later.*
 
@@ -31,43 +31,43 @@ The setup is a game book: it opens with a checklist, your agent runs `doctor`, r
 
 ### Ask, and it lands in the list
 
-![The handout list with slides from several conversations, favorites at the top and tag filters](docs/images/en/list.png)
+![The deck list: every handout your agents made, with favorites and tag filters](docs/images/en/list.png)
 
 Ask from a conversation in any folder; the handout shows up in one list with search, favorites and tags, next to every handout you made before.
 
 ### Fix it on screen
 
-![The slide editor with a heading block selected and its text being changed in the Properties panel](docs/images/en/editor.png)
+![Editing a slide on screen: the heading is selected and its text is being changed in the Properties panel](docs/images/en/editor.png)
 
 Double-click text on the canvas, move and resize blocks, reorder slides, check for overflow, and save with a history of the last 30 versions. Bigger changes go back through the conversation (*"shorten slide 3"*): the agent reads the `request.md` the editor writes and returns a `patch.json` you apply on screen. Launching the agent from the editor's AI panel is experimental.
 
 ### 15 templates, switched in one click
 
-![The template switcher with thumbnails of every look, and the deck redrawn in the chosen one](docs/images/en/template-switch-01.png)
+![The deck re-drawn in the chosen template while the dialog is still open](docs/images/en/template-switch-03.png)
 
 8 slide looks plus 5 outlines (proposal, study session, self-introduction, kickoff, talk), 3 question-sheet looks and 4 document looks. Name one when you ask (*"make it with Lumen"*) or switch later; the content stays. A template is a `tokens.json` compiled to CSS, so you can add your own — see [design/templates/README.md](design/templates/README.md).
 
 ### Question sheets instead of twenty chat turns
 
-![A question sheet comparing three design candidates as images, with the Copy answers button on the last question](docs/images/en/sheet.png)
+![A question sheet comparing three mock-ups side by side, with the recommended one chosen](docs/images/en/sheet.png)
 
-Before it writes, the agent asks everything at once on one page: audience, length, which of three layouts, which of these mockups. Each question carries the comparison table, image or diagram you need to decide, and a recommended answer. Press *Copy answers* and paste the Markdown into the conversation; the agent saves your answers with the sheet.
+Before it writes, the agent asks everything at once on one page: audience, length, which of three layouts, which of these mock-ups. Each question carries the comparison table, image or diagram you need to decide, and a recommended answer.
 
-![The Markdown from Copy answers pasted into a Claude Code conversation, and the agent continuing](docs/images/en/sheet-markdown.png)
+![The last question of a sheet: every answer is in and Copy answers turns them into Markdown for the chat](docs/images/en/sheet-answers.png)
+
+On the last question, press *Copy answers* and paste the Markdown into the conversation; the agent reads it, carries on, and saves your answers with the sheet.
 
 ### Hand it over
 
 Export slides to PDF, PNG, HTML or PPTX — text stays text and the notes become speaker notes — and HTML documents and question sheets to a single HTML file. Question sheets and HTML documents can also be published at a URL as a Claude Artifact and read on a phone on the same Wi-Fi.
 
-![A question sheet read on a phone](docs/images/en/phone.png)
+<img src="docs/images/en/phone.png" alt="The same question sheet read on a phone" width="320">
 
 In Claude Code, the bundled mod shows a band above the prompt — *Handouts in this conversation: 3* — with links to read, edit or answer each one.
 
-![The band above the Claude Code prompt listing the handouts made in this conversation](docs/images/en/mod.png)
-
 ## How it works
 
-![Agents, the two skills and the CLI write JSON; the local server renders it for the list, editor and reader, and exports from the same rendering](docs/images/en/how-it-works.png)
+![How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown](docs/images/en/how-it-works.png)
 
 The agent never writes a slide. It writes JSON (`deck.json`, `document.json` or a questions file) with the bundled skill, and a template turns design tokens into CSS, so the agent decides content and the template decides the look. A local server renders that JSON in your browser for the list, the editor and the reader, and every export comes from the same rendering: the PPTX is rebuilt from measured positions into shapes and text, not a screenshot. What makes the result something you can trust: the agent runs `check` until it passes and the editor flags text that overflows its box; a number, date or name without a source stays `[[要確認]]` (to confirm) instead of being invented; and an HTML document goes through a reader test — someone without the context reads it — before it is handed over.
 
