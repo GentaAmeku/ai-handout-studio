@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "survey-results-document-en-2026-10-07",
+  "revision": "1",
+  "title": "Before writing the survey results",
+  "description": "Two choices before the interview results become an HTML document. The content (24 interviews, five findings) is already in the notes; only the shape of the document is open.",
+  "questions": [
+    {
+      "id": "findings",
+      "title": "How should the findings be shown?",
+      "type": "single",
+      "summary": "One table per question, one card per finding, or charts drawn as images.",
+      "detail": "A table keeps every number but reads poorly on a phone. Cards show one number and one sentence per finding, so the five findings fit on the first screen. Charts need an image per question, which takes longer and cannot be edited on screen afterwards.\n\nMost readers will open the document on a phone between meetings, so cards are recommended.",
+      "options": [
+        { "id": "table", "label": "A: One table per question" },
+        { "id": "cards", "label": "B: One card per finding" },
+        { "id": "charts", "label": "C: Charts drawn as images" }
+      ],
+      "recommended": ["cards"],
+      "visual": {
+        "type": "comparison",
+        "caption": "The three shapes, compared on what matters for this document",
+        "columns": ["", "A: Tables", "B: Cards", "C: Charts"],
+        "rows": [
+          [
+            "Reads on a phone",
+            "Scrolls sideways",
+            "Fits the first screen",
+            "Fits, as images"
+          ],
+          ["Keeps every number", "Yes", "One per finding", "Yes"],
+          ["Editable on screen", "Yes", "Yes", "No (images)"],
+          ["Time to make", "Short", "Short", "Long"]
+        ]
+      }
+    },
+    {
+      "id": "reader",
+      "title": "Who reads it first?",
+      "type": "single",
+      "summary": "The first reader decides what goes on top: the conclusion or the method.",
+      "detail": "Managers want the conclusion and what it means for the study session on the first screen. Organizers want the method and the numbers. Putting the conclusion first works for both, since the method still follows.",
+      "options": [
+        { "id": "managers", "label": "Department managers" },
+        { "id": "team", "label": "The whole team" },
+        { "id": "organizers", "label": "Study-session organizers" }
+      ],
+      "recommended": ["managers"],
+      "visualRationale": "A choice of reader, not of shape; no figure needed."
+    }
+  ]
+}

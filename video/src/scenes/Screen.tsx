@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { OffthreadVideo, staticFile } from "remotion";
 import {
   Callout,
   DESK_PLACEMENT,
   Desk,
   Heading,
+  type HeadingAt,
+  Headings,
   type Placement,
   Window,
 } from "../Desk";
@@ -20,11 +22,13 @@ import {
 export const Clip = ({
   use,
   placement,
+  style,
 }: {
   use: ClipUse;
   placement: Placement;
+  style?: CSSProperties;
 }) => (
-  <Window placement={placement}>
+  <Window placement={placement} style={style}>
     <OffthreadVideo
       src={staticFile(`clips/${use.name}.mp4`)}
       trimBefore={Math.round(use.trim * FPS)}
@@ -47,7 +51,7 @@ export type CalloutSpec = {
   dy?: number;
 };
 
-// 場面 3〜7 の共通形: 机 + 見出し + 録画の窓 + 吹き出し
+// 画面の場面の共通形: 机 + 見出し(1 つか、途中で替わる並び)+ 録画の窓 + 吹き出し
 export const Screen = ({
   heading,
   lang,
@@ -55,18 +59,20 @@ export const Screen = ({
   clip,
   callouts = [],
   placement = DESK_PLACEMENT,
+  windowStyle,
   children,
 }: {
-  heading: string;
+  heading: string | HeadingAt[];
   lang: Lang;
   use: ClipUse;
   clip: ClipMeta;
   callouts?: CalloutSpec[];
   placement?: Placement;
+  windowStyle?: CSSProperties;
   children?: ReactNode;
 }) => (
   <Desk>
-    <Clip use={use} placement={placement} />
+    <Clip use={use} placement={placement} style={windowStyle} />
     {callouts.map((spec) => {
       const target = clip.targets[spec.target];
       const event = clip.events.find((item) => item.label === spec.event);
@@ -87,6 +93,10 @@ export const Screen = ({
       );
     })}
     {children}
-    <Heading text={heading} lang={lang} />
+    {typeof heading === "string" ? (
+      <Heading text={heading} lang={lang} />
+    ) : (
+      <Headings items={heading} lang={lang} />
+    )}
   </Desk>
 );

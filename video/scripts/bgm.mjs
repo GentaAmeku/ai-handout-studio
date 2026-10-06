@@ -16,7 +16,7 @@ const toneJs = createRequire(join(videoRoot, "package.json")).resolve(
   "tone/build/Tone.js",
 );
 
-const SECONDS = 42;
+const SECONDS = 61;
 // 最終的なラウドネス(LUFS)。ナレーションが無いので、動画全体でこの値になる
 const LOUDNESS = -16;
 

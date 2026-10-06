@@ -1,9 +1,9 @@
 {
   "scatter": {
-    "heading": "Your agent writes decks. Then they scatter.",
+    "heading": "Your agent writes handouts. Then they scatter.",
     "folders": ["~/projects/intranet", "~/notes/2026", "~/Downloads"],
     "files": [
-      "deck.html",
+      "survey.html",
       "report.pptx",
       "slides-v2.pdf",
       "notes.html",
@@ -15,8 +15,8 @@
   "ask": {
     "heading": "Ask from any folder.",
     "cwd": "~/projects/intranet",
-    "prompt": "make slides about using AI agents in everyday work",
-    "saved": "Saved: Using AI agents in everyday work (10 slides, Cobalt)"
+    "prompt": "write up the survey results as an HTML document",
+    "reply": "Two questions first. Opening a question sheet…"
   },
   "sheet": {
     "heading": "It asks once, on one page. Answer, copy, paste back.",
@@ -26,21 +26,35 @@
     },
     "pasteTitle": "Pasted into the chat",
     "paste": [
-      "## Choose the look of the study-session page",
-      "- Which layout for the announcement page?: B: When, who and what to bring as cards",
-      "- What should the button say?: Sign up"
+      "## Before writing the survey results",
+      "- How should the findings be shown?: B: One card per finding",
+      "- Who reads it first?: Department managers"
     ],
-    "reply": "Got it. Writing the page with layout B and a Sign up button."
+    "reply": "Got it. Writing the document with one card per finding."
+  },
+  "document": {
+    "headings": {
+      "open": "The document opens in three columns.",
+      "edit": "Fix the text, reorder sections, compare with history.",
+      "share": "Export one HTML file, or share it as an Artifact."
+    },
+    "callouts": {
+      "summary": "Fix the summary",
+      "reorder": "Drag to reorder",
+      "before": "Before / After",
+      "export": "One HTML file",
+      "share": "Copy the sharing request"
+    },
+    "pasteTitle": "Pasted into the chat",
+    "paste": [
+      "Publish the bundle in documents/doc_20260926_002/share as an Artifact.",
+      "Keep the content as it is; it starts private."
+    ],
+    "published": "✓ Published: https://claude.ai/artifact/…",
+    "phone": "Opens on any phone"
   },
   "list": {
-    "heading": "Every handout lands in one list."
-  },
-  "editor": {
-    "heading": "Fix it on screen.",
-    "callouts": {
-      "heading": "Double-click to edit",
-      "block": "Drag to move"
-    }
+    "heading": "Slides too. Every handout lands in one list."
   },
   "switch": {
     "heading": "Switch the look. The content stays.",

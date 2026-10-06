@@ -68,6 +68,31 @@ export const Heading = ({
   );
 };
 
+// 場面の途中で見出しを替える。from のコマから次の見出しが下から出る(前のは消える)
+export type HeadingAt = { text: string; from: number };
+export const Headings = ({
+  items,
+  lang,
+}: {
+  items: HeadingAt[];
+  lang: Lang;
+}) => {
+  const frame = useCurrentFrame();
+  const current = items
+    .filter((item) => item.from <= frame)
+    .sort((a, b) => a.from - b.from)
+    .at(-1);
+  if (!current) return null;
+  return (
+    <Heading
+      key={current.from}
+      text={current.text}
+      lang={lang}
+      delay={current.from}
+    />
+  );
+};
+
 // 録画の窓の置き方。1280x720 の録画を scale 倍にして、x, y に置く(上に 26px の枠)
 export type Placement = { x: number; y: number; scale: number; chrome: number };
 export const DESK_PLACEMENT: Placement = {
