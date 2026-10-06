@@ -1,0 +1,65 @@
+{
+  "scatter": {
+    "heading": "エージェントは資料を書ける。でも、散らばる。",
+    "folders": ["~/projects/intranet", "~/notes/2026", "~/Downloads"],
+    "files": [
+      "deck.html",
+      "report.pptx",
+      "slides-v2.pdf",
+      "notes.html",
+      "deck-final.pptx",
+      "intro.pdf",
+      "q3-review.html"
+    ]
+  },
+  "ask": {
+    "heading": "どのフォルダからでも頼める。",
+    "cwd": "~/projects/intranet",
+    "prompt": "AI エージェントを日々の仕事で使う話のスライドを作って",
+    "saved": "保存した: AI エージェントを日々の仕事で使うには(10 枚、Cobalt)"
+  },
+  "sheet": {
+    "heading": "聞きたいことは 1 枚にまとめて。答えてコピーし、貼り戻す。",
+    "callouts": {
+      "choose B": "推奨",
+      "copy": "回答をコピー"
+    },
+    "pasteTitle": "会話に貼り付け",
+    "paste": [
+      "## Choose the look of the study-session page",
+      "- Which layout for the announcement page?: B: When, who and what to bring as cards",
+      "- What should the button say?: Sign up"
+    ],
+    "reply": "了解。B の配置と「Sign up」のボタンで作ります。"
+  },
+  "list": {
+    "heading": "できた資料は、1 つの一覧に並ぶ。"
+  },
+  "editor": {
+    "heading": "画面で直す。",
+    "callouts": {
+      "heading": "ダブルクリックで編集",
+      "block": "ドラッグで移動"
+    }
+  },
+  "switch": {
+    "heading": "見た目を替える。中身はそのまま。",
+    "callouts": {
+      "open": "テンプレート"
+    }
+  },
+  "export": {
+    "heading": "PDF・PPTX・HTML で渡す。",
+    "callouts": {
+      "pdf": "ワンクリック"
+    }
+  },
+  "end": {
+    "title": "AI Handout Studio",
+    "line": "2 行で始める。",
+    "code": [
+      "git clone https://github.com/GentaAmeku/ai-handout-studio.git && cd ai-handout-studio",
+      "claude   # 起動したら /studio-setup と打つ"
+    ]
+  }
+}

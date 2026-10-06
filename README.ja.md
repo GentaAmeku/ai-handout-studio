@@ -43,7 +43,9 @@ claude   # 起動したら /studio-setup と打つ(Codex CLI は codex を起動
 
 ### テンプレート 15 種、ワンクリックで切り替え
 
-![選んだテンプレート(lumen)で描き直された資料(窓は開いたまま)](docs/images/ja/template-switch-03.png)
+<img src="docs/images/ja/template-switch.gif" alt="テンプレートの切り替え:選択の窓を開き、Lumen・Podium・Prism と選ぶたびに資料が描き直される" width="960">
+
+*[デモ動画](video/README.md)の 5 秒。同じ資料を 4 つの見た目で。*
 
 スライドの見た目 8 種と構成 5 種(提案・勉強会・自己紹介・キックオフ・登壇)、質問票 3 種、HTML 資料 4 種。頼むときに名前で指定しても(*「Lumen で作って」*)、あとで替えてもよく、中身はそのまま。テンプレートは `tokens.json` から CSS を生むので、自分の見た目も足せる([design/templates/README.md](design/templates/README.md))。
 

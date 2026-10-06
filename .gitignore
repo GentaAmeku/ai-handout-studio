@@ -29,3 +29,10 @@ workspace/profile.json
 
 # Claude Code が mod を読み込んだときに書く型(中にも .gitignore を置くが、念のため)
 mods/*/.claude-plugin/types/
+
+# デモ動画(video/README.md)。録画・BGM・書き出した mp4 は作り直せるので git に入れない。
+# GIF は docs/images/<lang>/ に書き出して commit する
+video/node_modules/
+video/out/
+video/public/clips/
+video/public/bgm.wav

@@ -66,7 +66,7 @@ node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_2
 | `sheet-answers.png` | Last question answered; the Copy answers button replaces Next question | The last question of a sheet: every answer is in and Copy answers turns them into Markdown for the chat |
 | `phone.png` | Same sheet at 390x844 with the question list closed, scrolled to the mock-ups | The same question sheet read on a phone |
 
-The template-switch frames double as the key frames of the 5-second GIF.
+The template-switch frames double as the key frames of the 5-second GIF. The GIF itself and the demo video are recorded from the same workspace by `scripts/demo-record.mjs` and composed in `video/`; see [video/README.md](../video/README.md).
 
 ## 4. Architecture diagram
 

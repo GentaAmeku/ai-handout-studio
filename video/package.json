@@ -1,0 +1,26 @@
+{
+  "name": "ai-handout-studio-video",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The README demo video and the template-switch GIF, composed with Remotion from Playwright recordings",
+  "scripts": {
+    "dev": "remotion studio",
+    "bgm": "node scripts/bgm.mjs",
+    "render": "node scripts/render.mjs",
+    "gif": "node scripts/gif.mjs",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.529",
+    "@remotion/transitions": "4.0.529",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.529",
+    "tone": "15.1.22"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "typescript": "5.9.3"
+  }
+}
