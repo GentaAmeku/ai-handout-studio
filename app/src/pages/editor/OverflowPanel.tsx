@@ -1,5 +1,5 @@
 import { CircleCheck, TriangleAlert, X } from "lucide-react";
-import { useLanguage } from "../../i18n/language";
+import { overflowMessage, useLanguage } from "../../i18n/language";
 import type { OverflowReport } from "../../renderer/overflow";
 
 // 検査の結果。項目を押すと、そのスライドとブロックを選ぶ
@@ -41,7 +41,7 @@ export const OverflowPanel = ({
                   <span className="overflow-panel__where">
                     {issue.slideId} / {issue.blockId}
                   </span>
-                  {issue.message}
+                  {overflowMessage(issue, t)}
                 </button>
               </li>
             ))}

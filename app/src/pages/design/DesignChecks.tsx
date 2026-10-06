@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useRef } from "react";
-import { useLanguage } from "../../i18n/language";
-import { inspectOverflow } from "../../renderer/overflow";
+import { overflowMessage, useLanguage } from "../../i18n/language";
+import { inspectOverflow, type OverflowReport } from "../../renderer/overflow";
 import { SlideView } from "../../renderer/SlideView";
 import type { Slide } from "../../schema/deck";
 
@@ -29,7 +29,18 @@ export const SlideOverflowCheck = ({
   onDone: (issues: OverflowIssue[]) => void;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const report = useEffectEvent((issues: OverflowIssue[]) => onDone(issues));
+  const { t } = useLanguage();
+  // 文は測り終えたときの言語で作る
+  const report = useEffectEvent((reports: OverflowReport[]) =>
+    onDone(
+      reports.flatMap((slide) =>
+        slide.issues.map((issue) => ({
+          where: `${slide.slideId} / ${issue.blockId}`,
+          message: overflowMessage(issue, t),
+        })),
+      ),
+    ),
+  );
 
   useEffect(() => {
     const root = ref.current;
@@ -39,14 +50,7 @@ export const SlideOverflowCheck = ({
       await new Promise((resolve) => requestAnimationFrame(resolve));
       await document.fonts.ready;
       if (state.cancelled) return;
-      report(
-        inspectOverflow(root).flatMap((slide) =>
-          slide.issues.map((issue) => ({
-            where: `${slide.slideId} / ${issue.blockId}`,
-            message: issue.message,
-          })),
-        ),
-      );
+      report(inspectOverflow(root));
     };
     void measure();
     return () => {
