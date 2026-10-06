@@ -133,7 +133,7 @@ export const en: Record<MessageKey, string> = {
   "help.tip2":
     "To use a specific template, name it (for example, “make it with Lumen”). Otherwise the default template is used. You can switch templates on screen later.",
   "help.tip3":
-    "Numbers, prices, dates, and proper nouns come only from the conversation and the materials you provide. Anything without a source is written as `[[要確認]]`; fill it in on screen or in the conversation.",
+    "Numbers, prices, dates, and proper nouns come only from the conversation and the materials you provide. Anything without a source is written as `[[要確認]]` (“to confirm”); fill it in on screen or in the conversation.",
   "help.tip4":
     "You can also fix a finished handout through the conversation (for example, “shorten slide 3”). Small wording fixes are quicker on screen.",
   "help.tip5":
@@ -430,6 +430,8 @@ export const en: Record<MessageKey, string> = {
   "overflow.none": "No overflow found.",
   "overflow.some": "{n} overflow issues",
   "overflow.close": "Close results",
+  "overflow.vertical": "Text overflows by {px}px",
+  "overflow.horizontal": "Overflows sideways by {px}px",
 
   "json.lead":
     "JSON of the selected slide. Press “Apply” to validate before reflecting changes.",
@@ -486,7 +488,8 @@ export const en: Record<MessageKey, string> = {
   "field.noIcon": "None",
   "field.figures": "Figures",
   "field.value": "Value",
-  "field.valueHint": "Leave [[to confirm]] for numbers without a source.",
+  "field.valueHint":
+    "Leave [[要確認]] (“to confirm”) for numbers without a source.",
   "field.label": "Label",
   "field.note": "Note",
   "field.leftColumn": "Left column",
