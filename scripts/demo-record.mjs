@@ -1,7 +1,9 @@
-// デモ動画の場面 3〜7 を Playwright で録る。手順は video/README.md
-//   node scripts/demo-record.mjs --deck <deckId> --sheet <sheetId> [--only sheet,list,editor,switch,export] [--out video/public/clips]
+// デモ動画の画面の場面を Playwright で録る。手順は video/README.md
+//   node scripts/demo-record.mjs --deck <deckId> --sheet <sheetId> --document <docId> [--only sheet,document,phone,list,switch,export] [--out video/public/clips]
 // 動いているサーバー(127.0.0.1:5190)が、撮影用の作業場(docs/screenshots.md の 1)を開いていること。
-// 場面ごとに 1280x720・1x の mp4 と、合成に使う JSON(長さ・押した要素の位置・操作の時刻)を書く。
+// 場面ごとに 1280x720 の mp4(phone だけ 390x844)と、合成に使う JSON(長さ・押した要素の位置・操作の時刻)を書く。
+// 録画は CSS の画素のまま(recordVideo は deviceScaleFactor を見ない。大きい size を渡すと左上に小さく描かれる)。
+// document の場面は資料を直して保存する(要約の文・セクションの並び)ので、録り終えたら document.json を録る前に戻す
 // Playwright はカーソルを描かないので、ページに丸いカーソルを注入して、録画に写るようにする
 import { execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
@@ -17,17 +19,36 @@ const { chromium } = createRequire(join(repoRoot, "package.json"))(
 
 const ORIGIN = "http://127.0.0.1:5190";
 const SIZE = { width: 1280, height: 720 };
-const STEPS = ["sheet", "list", "editor", "switch", "export"];
+// 共有ページをスマホで読む場面。合成では 390 より小さく描くので、1 倍で足りる
+const PHONE = { width: 390, height: 844 };
+const STEPS = ["sheet", "document", "phone", "list", "switch", "export"];
 const LABELS = {
   next: "Next question",
   copy: "Copy answers",
   copied: "Copied",
-  edit: ", safely",
+  front: "Front matter",
+  body: "Body",
+  summary: " Keep it hands-on.",
+  save: "Save",
+  saved: "Saved",
+  history: "History",
+  compare: "View changes",
+  before: "Before",
+  after: "After",
+  compareEnd: "Stop comparing",
+  export: "Export a single HTML file",
+  exported: "Exported",
+  closeNotice: "Close",
+  share: "Copy the sharing request",
 };
 // はみ出し検査の帯と、書き出しの知らせの中のはみ出しの行。文言が日本語固定なので英語の録画には写さない
 const HIDE_OVERFLOW = `
 .overflow-panel, .export-notice__warnings { display: none !important; }
 .canvas__hit[data-overflow="true"] { outline: none !important; box-shadow: none !important; }`;
+// 共有の吹き出しは押したボタンの左端から右へ開く。1280 幅ではボタンが右端にあり、吹き出しが画面の外へはみ出て
+// ページが横に動くので、録画では右端に寄せて左へ開く
+const SHARE_POP_LEFT = `
+.share-button__pop { left: auto !important; right: 0 !important; justify-items: end !important; }`;
 
 const parseArgs = (argv) =>
   Object.fromEntries(
@@ -43,8 +64,10 @@ const parseArgs = (argv) =>
 const args = parseArgs(process.argv.slice(2));
 const outDir = resolve(args.out ?? join(repoRoot, "video/public/clips"));
 const only = args.only ? args.only.split(",") : STEPS;
-if (!args.deck || !args.sheet) {
-  console.error("--deck と --sheet を指定する(docs/screenshots.md の 2)");
+if (!args.deck || !args.sheet || !args.document) {
+  console.error(
+    "--deck・--sheet・--document を指定する(docs/screenshots.md の 2 と video/README.md の 2)",
+  );
   process.exit(1);
 }
 
@@ -91,13 +114,13 @@ const CURSOR_SCRIPT = `(() => {
   else make();
 })();`;
 
-// 1 場面 = 1 コンテキスト = 1 動画。操作の記録(JSON)も一緒に返す
-const record = async (browser, name, run) => {
+// 1 場面 = 1 コンテキスト = 1 動画。操作の記録(JSON)も一緒に返す。size は画面の大きさ(既定は 1280x720)
+const record = async (browser, name, run, size = SIZE) => {
   const dir = await mkdtemp(join(tmpdir(), `demo-${name}-`));
   const context = await browser.newContext({
-    viewport: SIZE,
+    viewport: size,
     deviceScaleFactor: 1,
-    recordVideo: { dir, size: SIZE },
+    recordVideo: { dir, size },
     permissions: ["clipboard-read", "clipboard-write"],
   });
   await context.addInitScript(CURSOR_SCRIPT);
@@ -192,7 +215,7 @@ const record = async (browser, name, run) => {
   );
   await writeFile(
     join(outDir, `${name}.json`),
-    `${JSON.stringify({ name, seconds: measured, size: SIZE, targets: log.targets, events: log.events }, null, 2)}\n`,
+    `${JSON.stringify({ name, seconds: measured, size, targets: log.targets, events: log.events }, null, 2)}\n`,
   );
   await rm(dir, { recursive: true, force: true });
   console.log(`wrote ${mp4} (${measured.toFixed(1)}s)`);
@@ -211,7 +234,7 @@ const scrollTo = async (page, selector, offset) => {
   await page.waitForTimeout(700);
 };
 
-// 場面 3: 質問票。3 案を見比べ、推奨(B)を選び、最後の質問で回答をコピーする
+// 場面 3: 質問票。比較表(か画像)で 3 案を見比べ、推奨(B)を選び、最後の質問で回答をコピーする
 const recordSheet = (browser) =>
   record(browser, "sheet", async ({ page, begin, target, click, wait }) => {
     await page.goto(`${ORIGIN}/api/sheets/${args.sheet}/preview`, {
@@ -221,7 +244,7 @@ const recordSheet = (browser) =>
     await wait(600);
     begin();
     await wait(600);
-    await scrollTo(page, "figure img, img", 140);
+    await scrollTo(page, "figure", 140);
     await wait(900);
     const radios = page.locator("input[type=radio]:visible");
     await target("optionB", radios.nth(1));
@@ -248,7 +271,7 @@ const recordSheet = (browser) =>
     await wait(1800);
   });
 
-// 場面 4: 一覧。お気に入り → 全部 → タグの並びを上から下へ見せる
+// 場面 5: スライドの一覧。お気に入り → 全部 → タグの並びを上から下へ見せる(締めの全景にも使う)
 const recordList = (browser) =>
   record(browser, "list", async ({ page, begin, wait }) => {
     await page.goto(`${ORIGIN}/slides`, { waitUntil: "networkidle" });
@@ -271,84 +294,163 @@ const recordList = (browser) =>
     await wait(600);
   });
 
-// キャンバスの最初の見出しブロック(幅 300px より広く、上の帯より下)
-const headingBox = async (page) => {
-  const blocks = page.locator("[data-block-id]");
-  const count = await blocks.count();
-  const boxes = await Promise.all(
-    Array.from({ length: count }, (_, index) =>
-      blocks.nth(index).boundingBox(),
-    ),
-  );
-  const target = boxes.find((box) => box && box.width > 300 && box.y > 60);
-  if (!target) throw new Error("見出しブロックが見つからない");
-  return target;
-};
-
-// 場面 5: 編集。見出しをダブルクリックして直し、ブロックをドラッグする
-// (はみ出し検査は、結果の文言が日本語固定なので英語の録画には入れない)
-const recordEditor = (browser) =>
-  record(browser, "editor", async ({ page, begin, target, event, wait }) => {
-    await page.goto(`${ORIGIN}/decks/${args.deck}`, {
-      waitUntil: "networkidle",
-    });
-    await page.mouse.move(640, 600);
-    await wait(1500);
-    begin();
-    await wait(500);
-    const heading = await headingBox(page);
-    const hx = heading.x + heading.width / 2;
-    const hy = heading.y + heading.height / 2;
-    await target("heading", page.locator("[data-block-id]").first());
-    await page.mouse.move(hx, hy, { steps: 28 });
-    await wait(400);
-    event("dblclick", "heading");
-    await page.mouse.dblclick(hx, hy, { delay: 40 });
-    await wait(500);
-    await page.keyboard.press("End");
-    await page.keyboard.type(LABELS.edit, { delay: 90 });
-    await wait(700);
-    // 枠の外(キャンバスの余白)を押して確定する
-    const stage = await page.locator(".canvas").boundingBox();
-    await page.mouse.move(stage.x + 12, stage.y + stage.height - 12, {
-      steps: 18,
-    });
-    await page.mouse.click(stage.x + 12, stage.y + stage.height - 12);
-    await wait(600);
-    // 見出しの下にある 2 つ目のブロック(日付の行)を、少し下へ引く。1 つ目を引くと次の行に重なる
-    const hits = page.locator(".canvas__hit");
-    const count = await hits.count();
-    const boxes = await Promise.all(
-      Array.from({ length: count }, (_, index) =>
-        hits.nth(index).boundingBox(),
-      ),
-    );
-    const below = boxes
-      .filter((box) => box && box.y > heading.y + heading.height)
-      .sort((a, b) => a.y - b.y);
-    const moving = below[1] ?? below[0];
-    if (moving) {
-      const sx = moving.x + moving.width / 2;
-      const sy = moving.y + moving.height / 2;
+// 場面 4: HTML 資料。一覧 → 開く(3 列)→ 要約の文を直す → セクションをドラッグ → 保存 → 履歴の変更前 / 変更後 →
+// 1 枚の HTML に書き出す → 共有の依頼をコピー。合成では、このあとにターミナル風の絵とスマホの場面が続く
+const recordDocument = (browser) =>
+  record(
+    browser,
+    "document",
+    async ({ page, begin, target, event, click, wait }) => {
+      await page.goto(`${ORIGIN}/documents`, { waitUntil: "networkidle" });
+      await page.mouse.move(900, 80);
+      await wait(1000);
+      begin();
+      await wait(900);
+      const card = page.locator(
+        `a.photo-card__preview[href$="/documents/${args.document}"]`,
+      );
+      await click(card, "open", { steps: 30 });
+      await page.locator(".outline__front").waitFor({ timeout: 10000 });
+      await page.waitForLoadState("networkidle");
+      await wait(1400);
+      // 左の列の「表紙まわり」を押すと、右の列に題名・リード・要約の欄が出る
+      await click(page.locator(".outline__front"), "front");
+      await wait(600);
+      const body = page.getByLabel(LABELS.body, { exact: true }).last();
+      await click(body, "summary", { steps: 20 });
+      await body.evaluate((el) => {
+        el.setSelectionRange(el.value.length, el.value.length);
+      });
+      await wait(250);
+      await page.keyboard.type(LABELS.summary, { delay: 70 });
+      await wait(500);
+      // 欄の外(左の列の見出し)を押して確定すると、中央のプレビューが描き直される
+      await page.locator(".outline .viewer__slides-head").click();
+      await wait(1500);
+      // 2 つ目のセクションのつまみを、3 つ目の下へ引く
+      const grips = page.locator(
+        ".outline__sections > li > .outline__row > .outline__grip",
+      );
+      const from = await grips.nth(1).boundingBox();
+      const to = await grips.nth(2).boundingBox();
+      if (!from || !to) throw new Error("セクションのつまみが見つからない");
+      const sx = from.x + from.width / 2;
+      const sy = from.y + from.height / 2;
       await page.mouse.move(sx, sy, { steps: 24 });
-      await wait(300);
-      event("drag", "block");
-      await target("block", moving);
+      await wait(350);
+      event("drag", "reorder");
+      await target("reorder", from);
       await page.mouse.down();
-      await page.mouse.move(sx + 4, sy + 40, { steps: 30 });
-      await wait(150);
+      await page.mouse.move(sx, sy + 8, { steps: 4 });
+      await page.mouse.move(sx, to.y + to.height / 2 + 12, { steps: 30 });
+      await wait(200);
       await page.mouse.up();
       await wait(1200);
-    }
-    // 枠の外を押して選択を外し、直した表紙を見せる
-    await page.mouse.move(stage.x + 12, stage.y + stage.height - 12, {
-      steps: 18,
-    });
-    await page.mouse.click(stage.x + 12, stage.y + stage.height - 12);
-    await wait(1500);
-  });
+      await click(page.getByRole("button", { name: LABELS.save }), "save");
+      await page
+        .locator(".editor__status", { hasText: LABELS.saved })
+        .waitFor({ timeout: 10000 });
+      await wait(700);
+      // 履歴: 保存した版を選び、変更前 / 変更後で見比べる
+      await click(
+        page.getByRole("button", { name: LABELS.history }),
+        "history",
+      );
+      await page.locator(".version-row").first().waitFor({ timeout: 10000 });
+      await wait(600);
+      await click(page.locator(".version-row").first(), "version", {
+        steps: 14,
+      });
+      await wait(600);
+      await click(
+        page.getByRole("button", { name: LABELS.compare }),
+        "compare",
+      );
+      await page
+        .locator(".document-preview__compare")
+        .waitFor({ timeout: 10000 });
+      await wait(1200);
+      await click(
+        page.locator(".document-preview__compare .chip", {
+          hasText: LABELS.before,
+        }),
+        "before",
+        { steps: 14 },
+      );
+      await wait(1500);
+      await click(
+        page.locator(".document-preview__compare .chip", {
+          hasText: LABELS.after,
+        }),
+        "after",
+        { steps: 10 },
+      );
+      await wait(1500);
+      await click(
+        page.getByRole("button", { name: LABELS.compareEnd }),
+        "compareEnd",
+        {
+          steps: 14,
+        },
+      );
+      await wait(600);
+      // 書き出し。書き出し先はホームからの相対で見せる(撮る人のユーザー名を写さない)
+      await click(page.getByRole("button", { name: LABELS.export }), "export");
+      await page
+        .locator(".export-notice .export-notice__title", {
+          hasText: LABELS.exported,
+        })
+        .waitFor({ timeout: 60000 });
+      const home = process.env.HOME ?? "";
+      await page.evaluate((prefix) => {
+        for (const code of document.querySelectorAll(".export-notice__path")) {
+          code.textContent = (code.textContent ?? "").split(prefix).join("~");
+        }
+      }, home);
+      await target("notice", page.locator(".export-notice"));
+      await wait(2000);
+      await click(page.locator(".export-notice__close"), "closeNotice", {
+        steps: 10,
+      });
+      await wait(400);
+      // 共有の依頼をコピー。束(share/)が作られ、ボタンの下に吹き出しが出る
+      await page.addStyleTag({ content: SHARE_POP_LEFT });
+      await click(page.getByRole("button", { name: LABELS.share }), "share");
+      await page.locator(".share-button__tip").waitFor({ timeout: 30000 });
+      await target("tip", page.locator(".share-button__tip"));
+      await wait(2400);
+    },
+  );
 
-// 場面 6: テンプレートの切り替え。窓を開き、Lumen → Podium → Prism と替える
+// 場面 4 の続き: 共有したページをスマホで読む(見た目は Artifact に上げた HTML と同じなので、原寸ページで代える)
+const recordPhone = (browser) =>
+  record(
+    browser,
+    "phone",
+    async ({ page, begin, wait }) => {
+      await page.goto(`${ORIGIN}/api/documents/${args.document}/preview`, {
+        waitUntil: "networkidle",
+      });
+      await wait(800);
+      begin();
+      await wait(1200);
+      const height = await page.evaluate(() => document.body.scrollHeight);
+      const stops = [0.18, 0.4, 0.62].map((ratio) =>
+        Math.round((height - PHONE.height) * ratio),
+      );
+      for (const top of stops) {
+        await page.evaluate(
+          (y) => window.scrollTo({ top: y, behavior: "smooth" }),
+          top,
+        );
+        await wait(1300);
+      }
+      await wait(800);
+    },
+    PHONE,
+  );
+
+// 場面 5 の続き: テンプレートの切り替え。窓を開き、Lumen → Podium → Prism と替える
 const recordSwitch = (browser) =>
   record(browser, "switch", async ({ page, begin, target, click, wait }) => {
     await page.goto(`${ORIGIN}/decks/${args.deck}`, {
@@ -376,7 +478,7 @@ const recordSwitch = (browser) =>
     await wait(1800);
   });
 
-// 場面 7: 書き出し。PDF を押し、書き出した知らせが出るまで
+// 場面 5 の続き: 書き出し。PDF を押し、書き出した知らせが出るまで
 const recordExport = (browser) =>
   record(browser, "export", async ({ page, begin, target, click, wait }) => {
     await page.goto(`${ORIGIN}/decks/${args.deck}`, {
@@ -410,8 +512,9 @@ const recordExport = (browser) =>
 
 const STEP_RUNNERS = {
   sheet: recordSheet,
+  document: recordDocument,
+  phone: recordPhone,
   list: recordList,
-  editor: recordEditor,
   switch: recordSwitch,
   export: recordExport,
 };

@@ -40,17 +40,18 @@ Fill the list with neutral, fictional content so no client material appears. The
   The outlines leave placeholders (`(Proposal title)`, `[[要確認]]`) on the cover, so edit each `decks/<id>/deck.json`: set the cover heading `text` to a one-line title (two lines only for the `talk` outline, whose heading block is tall enough), the `kicker` to the kind of handout, and the two cover `text` blocks to an audience and a date. Change the `chalk` sample's tag from `Sample` to `Study session` so the filter shows four chips (Kickoff, Proposal, Study session, Talk). The `chalk` deck is made from the chalk design sample rather than an outline because the outline covers have no image block and chalk draws an empty frame there.
 - Favorites: `favorites.json` lists two decks (`deck_20260926_002` and the lumen proposal) plus the document and sheet sample.
 - The question sheet with three mock-ups is the 2026-09-26 sample `Choose the look of the study-session page` (`sheet_20260926_002` in both workspaces). Its mock-ups are plain HTML pages drawn at 1200x520 and shot with `ai-handout-studio shot`; they live in the sheet's `assets/`.
+- The HTML document is the 2026-09-26 survey sample `How our team uses AI agents: survey results` (en: `doc_20260926_002`, ja: `社内での AI エージェント利用状況 調査結果`, `doc_20260926_003`), five sections, template `cobalt`. The demo video also uses it, together with a second sheet (`sheet_20261007_001`, en only; see [video/README.md](../video/README.md)).
 
 ## 3. Shoot
 
 `scripts/readme-shots.mjs` takes everything that Playwright can take. It needs the server from step 1 running on the clean workspace.
 
 ```sh
-node scripts/readme-shots.mjs --lang en --deck deck_20260926_002 --sheet sheet_20260926_002 --to lumen
-node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_20260926_002 --to lumen
+node scripts/readme-shots.mjs --lang en --deck deck_20260926_002 --sheet sheet_20260926_002 --document doc_20260926_002 --to lumen
+node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_20260926_002 --document doc_20260926_003 --to lumen
 ```
 
-`--only hero,list,editor,switch,sheet,phone` retakes a subset; `--out` changes the folder (default `docs/images/<lang>`). Desktop shots are 1440x900 at 2x, the phone shot 390x844 at 2x.
+`--only hero,list,editor,document,switch,sheet,phone` retakes a subset; `--out` changes the folder (default `docs/images/<lang>`). Desktop shots are 1440x900 at 2x, the phone shot 390x844 at 2x.
 
 | File | URL and state | What it shows (alt text) |
 | --- | --- | --- |
@@ -58,6 +59,7 @@ node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_2
 | `social-preview.png` | Same covers at 276x155 under the app name, 1280x640 (English only, saved to `docs/images/`) | Social preview: the app name over the seven template covers |
 | `list.png` | `/slides`, nine decks, two of them under Favorites, four tag chips | The deck list: every handout your agents made, with favorites and tag filters |
 | `editor.png` | `/decks/<deck>`, the cover heading selected, Properties tab, text appended in the Heading field | Editing a slide on screen: the heading is selected and its text is being changed in the Properties panel |
+| `document.png` | `/documents/<document>`, Front matter selected in the outline, Properties tab, text appended in the summary's Body field | Editing an HTML document in three columns: the outline on the left, the page in the middle, and the summary text being changed in the Properties panel |
 | `template-switch-01.png` | `/decks/<deck>` before the switch (cobalt) | The editor before switching templates |
 | `template-switch-02.png` | Template button in the top bar clicked: the Choose a template dialog with the current slide drawn in every template | Choosing a template: the current slide previewed in every built-in look |
 | `template-switch-03.png` | `lumen` picked in the dialog (marked In use); the canvas behind already uses it | The deck re-drawn in the chosen template while the dialog is still open |

@@ -17,14 +17,15 @@ export type Clips = Record<ClipName, ClipMeta>;
 
 export const CLIP_NAMES = [
   "sheet",
+  "document",
+  "phone",
   "list",
-  "editor",
   "switch",
   "export",
 ] as const;
 export type ClipName = (typeof CLIP_NAMES)[number];
 
-// 録画をどう使うか: 何秒目から(trim)、何倍速で(rate)。操作の間を人が追える速さに詰める
+// 録画をどう使うか: 何秒目から(trim)、何倍速で(rate)、何秒目まで(end)。操作の間を人が追える速さに詰める
 export type ClipUse = {
   name: ClipName;
   trim: number;
@@ -33,8 +34,9 @@ export type ClipUse = {
 };
 export const CLIP_USE: Record<ClipName, ClipUse> = {
   sheet: { name: "sheet", trim: 0, rate: 1.5 },
-  list: { name: "list", trim: 0, rate: 1.3 },
-  editor: { name: "editor", trim: 0, rate: 1.4 },
+  document: { name: "document", trim: 0, rate: 1.6 },
+  phone: { name: "phone", trim: 0, rate: 1.6 },
+  list: { name: "list", trim: 0, rate: 1.4, end: 4.6 },
   switch: { name: "switch", trim: 0.9, rate: 1.6, end: 11.9 },
   export: { name: "export", trim: 0, rate: 1.2 },
 };
@@ -49,15 +51,38 @@ export const clipFrames = (use: ClipUse, clip: ClipMeta) =>
 export const eventFrame = (use: ClipUse, ms: number) =>
   Math.round(((ms / 1000 - use.trim) / use.rate) * FPS);
 
+// 録画の記録から、操作の時刻をコマに直す(無ければ fallback)
+export const eventAt = (
+  use: ClipUse,
+  clip: ClipMeta,
+  label: string,
+  fallback = 0,
+) => {
+  const event = clip.events.find((item) => item.label === label);
+  return event ? eventFrame(use, event.t) : fallback;
+};
+
+// 場面 4 の続き(ターミナル風の絵とスマホ)の組み立て。録画が終わる前から端末が出て、その 2 秒後にスマホが滑り込む
+export const DOCUMENT_TAIL = { terminalLead: 20, phoneAfter: 60, hold: 10 };
+export const documentTailFrames = (clips: Clips) =>
+  DOCUMENT_TAIL.phoneAfter +
+  clipFrames(CLIP_USE.phone, clips.phone) +
+  DOCUMENT_TAIL.hold -
+  DOCUMENT_TAIL.terminalLead;
+
 export type Scene = { id: keyof Captions; frames: number };
 
-// 8 場面の長さ(コマ)。録画の場面は録画の長さから決め、質問票は貼り戻しの端末ぶんを足す
+// 8 場面の長さ(コマ)。録画の場面は録画の長さから決め、質問票は貼り戻しの端末ぶん、HTML 資料は共有とスマホのぶんを足す
 export const scenes = (clips: Clips): Scene[] => [
   { id: "scatter", frames: 96 },
-  { id: "ask", frames: 108 },
+  { id: "ask", frames: 114 },
   { id: "sheet", frames: clipFrames(CLIP_USE.sheet, clips.sheet) + 66 },
+  {
+    id: "document",
+    frames:
+      clipFrames(CLIP_USE.document, clips.document) + documentTailFrames(clips),
+  },
   { id: "list", frames: clipFrames(CLIP_USE.list, clips.list) },
-  { id: "editor", frames: clipFrames(CLIP_USE.editor, clips.editor) },
   { id: "switch", frames: clipFrames(CLIP_USE.switch, clips.switch) },
   { id: "export", frames: clipFrames(CLIP_USE.export, clips.export) },
   { id: "end", frames: 138 },
@@ -76,7 +101,7 @@ export const sceneStart = (list: Scene[], id: Scene["id"]) =>
     )
     .reduce((sum, scene) => sum + scene.frames - TRANSITION, 0);
 
-// GIF に切り出す 5 秒(場面 6 の、窓を開く直前から)。Prism まで入るよう、動画より速く回す
+// GIF に切り出す 5 秒(テンプレート切替の、窓を開く直前から)。Prism まで入るよう、動画より速く回す
 export const GIF_SECONDS = 5;
 export const GIF_OFFSET = 0.2;
 export const GIF_RATE = 1.9;

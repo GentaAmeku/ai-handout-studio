@@ -41,6 +41,10 @@ Ask from a conversation in any folder; the handout shows up in one list with sea
 
 Double-click text on the canvas, move and resize blocks, reorder slides, check for overflow, and save with a history of the last 30 versions. Bigger changes go back through the conversation (*"shorten slide 3"*): the agent reads the `request.md` the editor writes and returns a `patch.json` you apply on screen. Launching the agent from the editor's AI panel is experimental.
 
+![Editing an HTML document in three columns: the outline on the left, the page in the middle, and the summary text being changed in the Properties panel](docs/images/en/document.png)
+
+An HTML document opens in three columns (outline, page, properties): fix the text, drag sections into a new order, compare any saved version as before / after, export it as a single HTML file, or copy a sharing request and let Claude Code publish it as an Artifact.
+
 ### 15 templates, switched in one click
 
 <img src="docs/images/en/template-switch.gif" alt="Switching templates: the Choose a template dialog opens and the deck is re-drawn as Lumen, Podium and Prism are picked" width="960">

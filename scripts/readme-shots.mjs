@@ -1,5 +1,5 @@
 // README の画像を撮る。手順は docs/screenshots.md
-//   node scripts/readme-shots.mjs --lang en --deck <deckId> --sheet <sheetId> [--only hero,list,...]
+//   node scripts/readme-shots.mjs --lang en --deck <deckId> --sheet <sheetId> --document <docId> [--only hero,list,...]
 // 動いているサーバー(127.0.0.1:5190)が、撮影用の作業場を開いていること
 import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
@@ -22,7 +22,15 @@ const TEMPLATES = [
   "podium",
   "prism",
 ];
-const STEPS = ["hero", "list", "editor", "switch", "sheet", "phone"];
+const STEPS = [
+  "hero",
+  "list",
+  "editor",
+  "document",
+  "switch",
+  "sheet",
+  "phone",
+];
 
 // 画面の文言(言語ごと)。UI の locale と合わせる
 const LABELS = {
@@ -32,6 +40,8 @@ const LABELS = {
     close: "Close",
     closeList: "Close question list",
     edit: ", safely",
+    body: "Body",
+    summary: " Keep it hands-on.",
   },
   ja: {
     properties: "プロパティ",
@@ -39,6 +49,8 @@ const LABELS = {
     close: "閉じる",
     closeList: "質問一覧を閉じる",
     edit: "、安全に",
+    body: "本文",
+    summary: "手を動かす時間を主にする。",
   },
 };
 
@@ -189,6 +201,27 @@ const shootEditor = async (browser) => {
   await page.close();
 };
 
+// HTML 資料の編集画面(3 列)。表紙まわりを選び、要約の本文の末尾に文を足している最中
+const shootDocument = async (browser) => {
+  if (!args.document) throw new Error("--document を指定する");
+  const page = await desktopPage(browser);
+  await page.goto(`${ORIGIN}/documents/${args.document}`, {
+    waitUntil: "networkidle",
+  });
+  await settle(page, 1200);
+  await page.locator(".outline__front").click();
+  await settle(page, 400);
+  const body = page.getByLabel(labels.body, { exact: true }).last();
+  await body.click();
+  await body.evaluate((el) => {
+    el.setSelectionRange(el.value.length, el.value.length);
+  });
+  await page.keyboard.type(labels.summary, { delay: 40 });
+  await settle(page, 400);
+  await shot(page, "document.png");
+  await page.close();
+};
+
 const shootSwitch = async (browser) => {
   const page = await desktopPage(browser);
   await page.goto(`${ORIGIN}/decks/${args.deck}`, { waitUntil: "networkidle" });
@@ -275,6 +308,7 @@ const STEP_RUNNERS = {
   hero: shootHero,
   list: shootList,
   editor: shootEditor,
+  document: shootDocument,
   switch: shootSwitch,
   sheet: shootSheet,
   phone: shootPhone,

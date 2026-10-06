@@ -2,6 +2,7 @@ import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { AbsoluteFill, Audio, staticFile } from "remotion";
 import { Ask } from "./scenes/Ask";
+import { Document } from "./scenes/Document";
 import { End } from "./scenes/End";
 import { Scatter } from "./scenes/Scatter";
 import { Screen } from "./scenes/Screen";
@@ -29,6 +30,14 @@ const SceneView = ({
   if (id === "ask") return <Ask captions={captions.ask} lang={lang} />;
   if (id === "sheet")
     return <Sheet captions={captions.sheet} lang={lang} clip={clips.sheet} />;
+  if (id === "document")
+    return (
+      <Document
+        captions={captions.document}
+        lang={lang}
+        clip={clips.document}
+      />
+    );
   if (id === "list")
     return (
       <Screen
@@ -36,33 +45,6 @@ const SceneView = ({
         lang={lang}
         use={CLIP_USE.list}
         clip={clips.list}
-      />
-    );
-  if (id === "editor")
-    return (
-      <Screen
-        heading={captions.editor.heading}
-        lang={lang}
-        use={CLIP_USE.editor}
-        clip={clips.editor}
-        callouts={[
-          {
-            target: "heading",
-            event: "heading",
-            label: captions.editor.callouts.heading,
-            dx: 120,
-            dy: -60,
-            lead: 20,
-          },
-          {
-            target: "block",
-            event: "block",
-            label: captions.editor.callouts.block,
-            dx: 60,
-            dy: 50,
-            lead: 10,
-          },
-        ]}
       />
     );
   if (id === "switch")

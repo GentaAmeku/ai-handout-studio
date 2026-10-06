@@ -3,7 +3,7 @@
     "heading": "エージェントは資料を書ける。でも、散らばる。",
     "folders": ["~/projects/intranet", "~/notes/2026", "~/Downloads"],
     "files": [
-      "deck.html",
+      "survey.html",
       "report.pptx",
       "slides-v2.pdf",
       "notes.html",
@@ -15,8 +15,8 @@
   "ask": {
     "heading": "どのフォルダからでも頼める。",
     "cwd": "~/projects/intranet",
-    "prompt": "AI エージェントを日々の仕事で使う話のスライドを作って",
-    "saved": "保存した: AI エージェントを日々の仕事で使うには(10 枚、Cobalt)"
+    "prompt": "調査結果を HTML の資料にまとめて",
+    "reply": "先に 2 つ聞かせてください。質問票を開きます…"
   },
   "sheet": {
     "heading": "聞きたいことは 1 枚にまとめて。答えてコピーし、貼り戻す。",
@@ -26,21 +26,35 @@
     },
     "pasteTitle": "会話に貼り付け",
     "paste": [
-      "## Choose the look of the study-session page",
-      "- Which layout for the announcement page?: B: When, who and what to bring as cards",
-      "- What should the button say?: Sign up"
+      "## Before writing the survey results",
+      "- How should the findings be shown?: B: One card per finding",
+      "- Who reads it first?: Department managers"
     ],
-    "reply": "了解。B の配置と「Sign up」のボタンで作ります。"
+    "reply": "了解。結果はカード 1 枚ずつにして資料を書きます。"
+  },
+  "document": {
+    "headings": {
+      "open": "HTML 資料は 3 列の画面で開く。",
+      "edit": "文を直し、セクションを並べ替え、履歴と見比べる。",
+      "share": "1 枚の HTML に書き出すか、Artifact で共有する。"
+    },
+    "callouts": {
+      "summary": "要約を直す",
+      "reorder": "ドラッグで並べ替え",
+      "before": "変更前 / 変更後",
+      "export": "1 枚の HTML",
+      "share": "共有の依頼をコピー"
+    },
+    "pasteTitle": "会話に貼り付け",
+    "paste": [
+      "Publish the bundle in documents/doc_20260926_002/share as an Artifact.",
+      "Keep the content as it is; it starts private."
+    ],
+    "published": "✓ 公開した: https://claude.ai/artifact/…",
+    "phone": "スマホでも読める"
   },
   "list": {
-    "heading": "できた資料は、1 つの一覧に並ぶ。"
-  },
-  "editor": {
-    "heading": "画面で直す。",
-    "callouts": {
-      "heading": "ダブルクリックで編集",
-      "block": "ドラッグで移動"
-    }
+    "heading": "スライドも。できた資料は 1 つの一覧に並ぶ。"
   },
   "switch": {
     "heading": "見た目を替える。中身はそのまま。",

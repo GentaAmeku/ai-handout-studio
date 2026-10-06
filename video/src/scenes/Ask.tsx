@@ -3,7 +3,7 @@ import { Desk, Heading } from "../Desk";
 import { Terminal } from "../Terminal";
 import type { Captions, Lang } from "../timeline";
 
-// 場面 2: ターミナルで頼む。打ち終わると「保存した」の行が出る
+// 場面 2: ターミナルで頼む。打ち終わると、エージェントが先に質問票を開くと返す
 export const Ask = ({
   captions,
   lang,
@@ -37,7 +37,7 @@ export const Ask = ({
           lines={[
             { text: captions.prompt, from: typed, cps, kind: "prompt" },
             { text: "…", from: done + 10, kind: "muted" },
-            { text: `✓ ${captions.saved}`, from: done + 26, kind: "ok" },
+            { text: `→ ${captions.reply}`, from: done + 26, kind: "reply" },
           ]}
         />
       </div>
