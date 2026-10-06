@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import type { OverflowIssue } from "../renderer/overflow.ts";
 import type { KnownBlockType } from "../schema/block.ts";
 import type { DocumentBlockType } from "../schema/document.ts";
 import { en } from "./en.ts";
@@ -90,6 +91,15 @@ export const useLanguage = (): {
   );
   return { lang, t };
 };
+
+// はみ出し検査の結果の文。縦のはみ出しを先に言う
+export const overflowMessage = (
+  issue: Pick<OverflowIssue, "overX" | "overY">,
+  t: (key: MessageKey, vars?: Vars) => string,
+): string =>
+  issue.overY > 0
+    ? t("overflow.vertical", { px: issue.overY })
+    : t("overflow.horizontal", { px: issue.overX });
 
 // パーツの見出しと説明は UI の文言。作られる初期値は資料データなので訳さない
 export const partTextKeys: Record<

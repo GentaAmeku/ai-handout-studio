@@ -2,7 +2,7 @@ import { Download, FileCode, FileImage, Presentation, X } from "lucide-react";
 import { useExportDeck } from "../../api/queries";
 import type { ExportFormat, ExportResult } from "../../api/types";
 import { ExportLocation } from "../../components/ExportLocation";
-import { useLanguage } from "../../i18n/language";
+import { overflowMessage, useLanguage } from "../../i18n/language";
 
 const ExportSummary = ({ result }: { result: ExportResult }) => {
   const { t } = useLanguage();
@@ -24,7 +24,7 @@ const ExportSummary = ({ result }: { result: ExportResult }) => {
           <ul>
             {issues.map((issue) => (
               <li key={`${issue.slideId}-${issue.blockId}`}>
-                {issue.slideId} / {issue.blockId}: {issue.message}
+                {issue.slideId} / {issue.blockId}: {overflowMessage(issue, t)}
               </li>
             ))}
           </ul>
