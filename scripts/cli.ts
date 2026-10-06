@@ -508,7 +508,7 @@ const runShot = async (
     const result = await takeShot(command, process.cwd());
     console.log(`path: ${result.path}`);
     console.log(
-      `size: ${command.width}x${command.full ? "全体" : command.height}`,
+      `size: ${command.width}x${command.full ? "全体" : command.height}${command.scale === 2 ? " (--scale 2: 画素は縦横2倍)" : ""}`,
     );
     console.log(`bytes: ${result.bytes}`);
     result.warnings.forEach((warning) => {

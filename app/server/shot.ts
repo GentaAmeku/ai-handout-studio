@@ -15,6 +15,8 @@ export type ShotOptions = {
   readonly full: boolean;
   // 読み込んだあとに待つ時間(ミリ秒)。動きや書体の読み込みが落ち着くまで
   readonly wait: number;
+  // 画素の倍率(deviceScaleFactor)。2 なら縮めても文字が滲まない。省くと 1
+  readonly scale?: 1 | 2;
 };
 
 // http(s) の URL はそのまま、それ以外は手元のファイルとして file: の URL にする
@@ -41,7 +43,7 @@ export const takeShot = async (
   try {
     const page = await browser.newPage({
       viewport: { width: options.width, height: options.height },
-      deviceScaleFactor: 1,
+      deviceScaleFactor: options.scale ?? 1,
     });
     await page.goto(shotUrl(options.target, cwd), { waitUntil: "load" });
     await page.waitForTimeout(options.wait);
@@ -55,7 +57,7 @@ export const takeShot = async (
       warnings:
         bytes > IMAGE_WARN_BYTES
           ? [
-              "1MB を超えた。資料に載せると重くなるので、--width と --height を小さくするか、--full を外す",
+              "1MB を超えた。資料に載せると重くなるので、--width と --height を小さくするか、--full を外す。--scale 2 で撮っているなら --scale 1 にする",
             ]
           : [],
     };

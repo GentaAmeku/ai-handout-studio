@@ -23,6 +23,8 @@ export const ja = {
 
   "nav.main": "メイン",
   "nav.decks": "資料一覧",
+  "nav.sheets": "資料一覧",
+  "nav.documents": "資料一覧",
   "nav.templates": "テンプレート",
   "nav.help": "使い方",
   "nav.settings": "設定",

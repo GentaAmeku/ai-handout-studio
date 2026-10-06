@@ -62,6 +62,7 @@ describe("parseCli", () => {
         height: 900,
         full: false,
         wait: 500,
+        scale: 1,
       },
     });
     expect(
@@ -80,8 +81,17 @@ describe("parseCli", () => {
       ]),
     ).toMatchObject({
       success: true,
-      command: { width: 960, height: 600, full: true, wait: 0 },
+      command: { width: 960, height: 600, full: true, wait: 0, scale: 1 },
     });
+    // --scale は 1 か 2(画素の倍率)
+    expect(
+      parseCli(["shot", "mock.html", "--out", "a.png", "--scale", "2"]),
+    ).toMatchObject({ success: true, command: { scale: 2 } });
+    for (const scale of ["3", "0", "1.5", "x", ""]) {
+      expect(
+        parseCli(["shot", "mock.html", "--out", "a.png", "--scale", scale]),
+      ).toMatchObject({ success: false });
+    }
     expect(parseCli(["shot", "mock.html"])).toMatchObject({ success: false });
     expect(parseCli(["shot", "mock.html", "--out", "a.jpg"])).toMatchObject({
       success: false,

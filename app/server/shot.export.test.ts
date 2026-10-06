@@ -41,4 +41,26 @@ describe("shot", () => {
     expect([view.getUint32(16), view.getUint32(20)]).toEqual([640, 360]);
     expect(result.warnings).toEqual([]);
   });
+
+  it("--scale 2 は画素が縦横2倍の PNG に撮る", async () => {
+    await writeFile(
+      join(context.dir, "mock.html"),
+      '<!doctype html><meta charset="utf-8"><body style="margin:0"><h1>案A</h1></body>',
+    );
+    const result = await takeShot(
+      {
+        target: "mock.html",
+        out: "out/b.png",
+        width: 640,
+        height: 360,
+        full: false,
+        wait: 0,
+        scale: 2,
+      },
+      context.dir,
+    );
+    const bytes = new Uint8Array(await readFile(result.path));
+    const view = new DataView(bytes.buffer, bytes.byteOffset);
+    expect([view.getUint32(16), view.getUint32(20)]).toEqual([1280, 720]);
+  });
 });

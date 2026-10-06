@@ -48,9 +48,24 @@ const NavItem = ({
 );
 
 const sections = [
-  { key: "slides", icon: Presentation, label: "nav.section.slide" },
-  { key: "sheets", icon: ClipboardList, label: "nav.section.sheet" },
-  { key: "documents", icon: FileText, label: "nav.section.document" },
+  {
+    key: "slides",
+    icon: Presentation,
+    label: "nav.section.slide",
+    list: "nav.decks",
+  },
+  {
+    key: "sheets",
+    icon: ClipboardList,
+    label: "nav.section.sheet",
+    list: "nav.sheets",
+  },
+  {
+    key: "documents",
+    icon: FileText,
+    label: "nav.section.document",
+    list: "nav.documents",
+  },
 ] as const;
 
 export const AppShell = () => {
@@ -63,12 +78,12 @@ export const AppShell = () => {
           <p className="sidebar__brand">AI Handout Studio</p>
           <nav aria-label={t("nav.main")}>
             <ul className="sidebar__nav">
-              {sections.map(({ key, icon, label }) => (
+              {sections.map(({ key, icon, label, list }) => (
                 <li key={key}>
                   <p className="sidebar__section">{t(label)}</p>
                   <ul className="sidebar__nav sidebar__nav--sub">
                     <NavItem to={`/${key}`} icon={icon}>
-                      {t("nav.decks")}
+                      {t(list)}
                     </NavItem>
                     <NavItem
                       to={`/${key}/templates`}
