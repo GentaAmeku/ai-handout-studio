@@ -1,0 +1,65 @@
+{
+  "scatter": {
+    "heading": "Your agent writes decks. Then they scatter.",
+    "folders": ["~/projects/intranet", "~/notes/2026", "~/Downloads"],
+    "files": [
+      "deck.html",
+      "report.pptx",
+      "slides-v2.pdf",
+      "notes.html",
+      "deck-final.pptx",
+      "intro.pdf",
+      "q3-review.html"
+    ]
+  },
+  "ask": {
+    "heading": "Ask from any folder.",
+    "cwd": "~/projects/intranet",
+    "prompt": "make slides about using AI agents in everyday work",
+    "saved": "Saved: Using AI agents in everyday work (10 slides, Cobalt)"
+  },
+  "sheet": {
+    "heading": "It asks once, on one page. Answer, copy, paste back.",
+    "callouts": {
+      "choose B": "Recommended",
+      "copy": "Copy answers"
+    },
+    "pasteTitle": "Pasted into the chat",
+    "paste": [
+      "## Choose the look of the study-session page",
+      "- Which layout for the announcement page?: B: When, who and what to bring as cards",
+      "- What should the button say?: Sign up"
+    ],
+    "reply": "Got it. Writing the page with layout B and a Sign up button."
+  },
+  "list": {
+    "heading": "Every handout lands in one list."
+  },
+  "editor": {
+    "heading": "Fix it on screen.",
+    "callouts": {
+      "heading": "Double-click to edit",
+      "block": "Drag to move"
+    }
+  },
+  "switch": {
+    "heading": "Switch the look. The content stays.",
+    "callouts": {
+      "open": "Template"
+    }
+  },
+  "export": {
+    "heading": "Hand it over as PDF, PPTX or HTML.",
+    "callouts": {
+      "pdf": "One click"
+    }
+  },
+  "end": {
+    "title": "AI Handout Studio",
+    "line": "Two lines to start.",
+    "code": [
+      "git clone https://github.com/GentaAmeku/ai-handout-studio.git && cd ai-handout-studio",
+      "claude   # then type /studio-setup"
+    ]
+  }
+}

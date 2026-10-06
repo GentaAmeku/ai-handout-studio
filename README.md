@@ -43,7 +43,9 @@ Double-click text on the canvas, move and resize blocks, reorder slides, check f
 
 ### 15 templates, switched in one click
 
-![The deck re-drawn in the chosen template while the dialog is still open](docs/images/en/template-switch-03.png)
+<img src="docs/images/en/template-switch.gif" alt="Switching templates: the Choose a template dialog opens and the deck is re-drawn as Lumen, Podium and Prism are picked" width="960">
+
+*Five seconds from the [demo video](video/README.md): the same deck in four looks.*
 
 8 slide looks plus 5 outlines (proposal, study session, self-introduction, kickoff, talk), 3 question-sheet looks and 4 document looks. Name one when you ask (*"make it with Lumen"*) or switch later; the content stays. A template is a `tokens.json` compiled to CSS, so you can add your own — see [design/templates/README.md](design/templates/README.md).
 
