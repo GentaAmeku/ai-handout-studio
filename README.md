@@ -47,7 +47,7 @@ Double-click text on the canvas, move and resize blocks, reorder slides, check f
 
 8 slide looks plus 5 outlines (proposal, study session, self-introduction, kickoff, talk), 3 question-sheet looks and 4 document looks. Name one when you ask (*"make it with Lumen"*) or switch later; the content stays. A template is a `tokens.json` compiled to CSS, so you can add your own — see [design/templates/README.md](design/templates/README.md).
 
-### Question sheets instead of twenty chat turns
+### Question sheets instead of a chat back-and-forth
 
 ![A question sheet comparing three mock-ups side by side, with the recommended one chosen](docs/images/en/sheet.png)
 
