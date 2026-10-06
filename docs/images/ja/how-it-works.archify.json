@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI Handout Studio の仕組み",
+    "quality_profile": "showcase",
+    "viewBox": [1120, 480],
+    "views": [
+      {
+        "id": "authoring",
+        "label": "会話から資料ができるまで",
+        "focus": ["agent", "skills", "cli", "workspace"],
+        "note": "エージェントがスキルに従って JSON を書き、CLI で検査して保存する。"
+      },
+      {
+        "id": "finishing",
+        "label": "仕上げて渡す",
+        "focus": ["workspace", "server", "browser", "exports"],
+        "note": "ローカルサーバーが作業場をブラウザに出し、読む・直す・書き出す。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "AI エージェント",
+      "sublabel": "Claude Code・Codex ほか 6 種",
+      "pos": [38, 70],
+      "size": [180, 72]
+    },
+    {
+      "id": "skills",
+      "type": "frontend",
+      "label": "スキル",
+      "sublabel": "資料と質問票",
+      "pos": [338, 70],
+      "size": [160, 72]
+    },
+    {
+      "id": "cli",
+      "type": "backend",
+      "label": "CLI",
+      "sublabel": "検査して保存",
+      "pos": [618, 70],
+      "size": [160, 72]
+    },
+    {
+      "id": "workspace",
+      "type": "database",
+      "label": "作業場",
+      "sublabel": "deck.json・document.json・質問票",
+      "pos": [878, 70],
+      "size": [220, 72]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "ローカルサーバー",
+      "sublabel": "127.0.0.1:5190",
+      "pos": [618, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "ブラウザ",
+      "sublabel": "一覧・編集・読む・答える",
+      "pos": [338, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "exports",
+      "type": "external",
+      "label": "書き出し",
+      "sublabel": "PDF・PNG・HTML・PPTX",
+      "pos": [38, 330],
+      "size": [180, 72]
+    }
+  ],
+  "connections": [
+    {
+      "id": "agent-to-skills",
+      "from": "agent",
+      "to": "skills",
+      "label": "会話で頼む",
+      "variant": "emphasis"
+    },
+    { "id": "skills-to-cli", "from": "skills", "to": "cli", "label": "JSON" },
+    {
+      "id": "cli-to-workspace",
+      "from": "cli",
+      "to": "workspace",
+      "label": "保存"
+    },
+    {
+      "id": "workspace-to-server",
+      "from": "workspace",
+      "to": "server",
+      "label": "読む"
+    },
+    {
+      "id": "server-to-browser",
+      "from": "server",
+      "to": "browser",
+      "label": "URL",
+      "variant": "emphasis"
+    },
+    {
+      "id": "browser-to-exports",
+      "from": "browser",
+      "to": "exports",
+      "label": "書き出す"
+    },
+    {
+      "id": "browser-to-skills",
+      "from": "browser",
+      "to": "skills",
+      "label": "回答を Markdown で",
+      "variant": "dashed"
+    }
+  ]
+}
