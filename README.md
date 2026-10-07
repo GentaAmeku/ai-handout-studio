@@ -14,7 +14,9 @@ Your agent can already write a deck or a report. Then it is a file in whatever f
 
 *One cover, seven templates. Name one when you ask, or switch on screen later.*
 
-<!-- 172: when the demo video exists, paste its user-attachments URL on its own line here. -->
+https://github.com/user-attachments/assets/fa47cbb9-e781-4434-936a-7c0807ea56cc
+
+<!-- 172: placed 2026-10-07 — when the demo video exists, paste its user-attachments URL on its own line here. -->
 
 ## Start in two lines
 
