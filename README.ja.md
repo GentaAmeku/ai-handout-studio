@@ -14,7 +14,9 @@ Claude Code や Codex との会話を、スライド(1280x720 のデッキ)・HT
 
 *同じ表紙、7 つのテンプレート。頼むときに名前で指定しても、あとで画面で替えてもよい。*
 
-<!-- 172: デモ動画ができたら、user-attachments の URL をこの位置に 1 行で置く -->
+https://github.com/user-attachments/assets/fa47cbb9-e781-4434-936a-7c0807ea56cc
+
+<!-- 172: 2026-10-07 に置いた。 デモ動画ができたら、user-attachments の URL をこの位置に 1 行で置く -->
 
 ## 2 行で始める
 
