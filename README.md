@@ -73,6 +73,8 @@ Export slides to PDF, PNG, HTML or PPTX — text stays text and the notes become
 
 In Claude Code, the bundled mod shows a band above the prompt — *Handouts in this conversation: 3* — with links to read, edit or answer each one.
 
+![The Claude Code mod: a band above the prompt lists the handouts made in this conversation, with links to open or answer each one](docs/images/en/mod.png)
+
 ## How it works
 
 ![How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown](docs/images/en/how-it-works.png)
