@@ -1387,7 +1387,9 @@ code {
 
 /* 「共有の依頼をコピー」。押したボタンのそばに吹き出しで知らせる(質問票の「回答をコピー」の吹き出しと同じ反転の地としっぽ)。
    上の帯は画面のいちばん上にあるので、上に開くと画面の外へはみ出す。書き出しの結果(.export-notice)
-   と同じく下に開き、しっぽは上のボタンを指す。警告・手で写す欄・失敗の理由は吹き出しの下の札に出す */
+   と同じく下に開き、しっぽは上のボタンを指す。警告・手で写す欄・失敗の理由は吹き出しの下の札に出す。
+   ボタンは HTML 資料・質問票のどちらの帯でも右端に並ぶので、右に開くと窓の外へ出て横に流れる。
+   ボタンの右端にそろえて左(窓の内側)へ開く */
 
 .share-button {
   display: inline-flex;
@@ -1404,10 +1406,12 @@ code {
 .share-button__pop {
   position: absolute;
   top: calc(100% + var(--space-sm));
-  left: 0;
+  right: 0;
   z-index: 20;
   display: grid;
-  justify-items: start;
+  /* 列を吹き出しの幅に収める。auto のままだと札が上限を超えて広がり、窓の外へ出る */
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: end;
   gap: var(--space-xs);
   width: max-content;
   max-width: min(360px, calc(100vw - var(--space-gap) * 2));
@@ -1429,13 +1433,15 @@ code {
   content: "";
   position: absolute;
   bottom: 100%;
-  left: var(--space-md);
+  right: var(--space-md);
   border: 6px solid transparent;
   border-bottom-color: var(--color-text);
 }
 
 .share-button__notes {
   position: relative;
+  /* 札は吹き出しの幅いっぱいに広げ、手で写す欄はその中に収める */
+  justify-self: stretch;
   display: grid;
   gap: var(--space-xs);
   padding: var(--space-sm) calc(var(--space-md) + var(--space-gap))
@@ -1457,7 +1463,7 @@ code {
 }
 
 .share-button__fallback {
-  width: min(320px, calc(100vw - var(--space-gap) * 4));
+  width: 100%;
   height: 96px;
   padding: var(--space-xs);
   font-family: inherit;

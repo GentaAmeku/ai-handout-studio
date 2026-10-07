@@ -45,10 +45,6 @@ const LABELS = {
 const HIDE_OVERFLOW = `
 .overflow-panel, .export-notice__warnings { display: none !important; }
 .canvas__hit[data-overflow="true"] { outline: none !important; box-shadow: none !important; }`;
-// 共有の吹き出しは押したボタンの左端から右へ開く。1280 幅ではボタンが右端にあり、吹き出しが画面の外へはみ出て
-// ページが横に動くので、録画では右端に寄せて左へ開く
-const SHARE_POP_LEFT = `
-.share-button__pop { left: auto !important; right: 0 !important; justify-items: end !important; }`;
 
 const parseArgs = (argv) =>
   Object.fromEntries(
@@ -414,7 +410,6 @@ const recordDocument = (browser) =>
       });
       await wait(400);
       // 共有の依頼をコピー。束(share/)が作られ、ボタンの下に吹き出しが出る
-      await page.addStyleTag({ content: SHARE_POP_LEFT });
       await click(page.getByRole("button", { name: LABELS.share }), "share");
       await page.locator(".share-button__tip").waitFor({ timeout: 30000 });
       await target("tip", page.locator(".share-button__tip"));
