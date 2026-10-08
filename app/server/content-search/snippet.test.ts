@@ -63,6 +63,25 @@ describe("snippetOf", () => {
     ).toBe("[毎回読み込]む設定を測って減らした");
   });
 
+  it("英語の語は単語の切れ目でだけ印を付け、the・an のような語は印にしない", () => {
+    expect(
+      marked(
+        snippetOf(
+          "An assistant: the command and the situation",
+          "an assistant the",
+        ),
+      ),
+    ).toBe("An [assistant]: the command and the situation");
+  });
+
+  it("英語は、語がそのまま無いときも単語の途中には印を付けない", () => {
+    expect(
+      marked(
+        snippetOf("Interviews in the development team", "developer intern"),
+      ),
+    ).toBe("Interviews in the development team");
+  });
+
   it("2字だけの重なりには印を付けない", () => {
     expect(marked(snippetOf("読むのは共通指示だけ", "毎回読み込まれる"))).toBe(
       "読むのは共通指示だけ",
