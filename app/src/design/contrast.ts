@@ -38,6 +38,18 @@ export const bodyPairs: readonly (readonly [ColorKey, ColorKey])[] = [
   // ボタンの hover・押した地の上の文字。warningAccent は帯の飾りなのでここに入れない
   ["primaryStrong", "primaryHoverTint"],
   ["onPrimary", "primaryPressed"],
+  // 文書のコードブロック。暗い地の上の字と、構文の色分けの字
+  ["codeText", "codeBg"],
+  ["codeComment", "codeBg"],
+  ["codeKeyword", "codeBg"],
+  ["codeString", "codeBg"],
+  ["codeNumber", "codeBg"],
+  ["codeFunction", "codeBg"],
+  ["codeType", "codeBg"],
+  ["codeLiteral", "codeBg"],
+  ["codeTag", "codeBg"],
+  ["codeAddition", "codeAdditionBg"],
+  ["codeDeletion", "codeDeletionBg"],
 ];
 
 export const knownLowPairs: readonly (readonly [ColorKey, ColorKey])[] = [

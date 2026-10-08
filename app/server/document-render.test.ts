@@ -140,6 +140,17 @@ describe("documentBody のブロック", () => {
     );
   });
 
+  it("コードは lang の言語で色分けした span にする", () => {
+    const code = render({
+      id: "b1",
+      type: "code",
+      props: { text: "const a = 1;", lang: "ts" },
+    });
+    expect(code).toContain(
+      '<pre class="ds-code"><code><span class="ds-hl-keyword">const</span> a = <span class="ds-hl-number">1</span>;</code></pre>',
+    );
+  });
+
   it("図は .ds-figure-frame の中に生成器の出力を置く", () => {
     expect(
       render({

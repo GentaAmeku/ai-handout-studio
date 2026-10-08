@@ -229,15 +229,9 @@
 /* ---------- コード ---------- */
 
 pre.ds-code {
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: var(--space-md) 20px;
   line-height: 1.7;
-}
-
-pre.ds-code code {
-  color: var(--color-heading);
 }
 
 .ds-code-copy {

@@ -108,12 +108,14 @@ export const documentBlockSchema = z.discriminatedUnion("type", [
     "quote",
     z.strictObject({ text: z.string(), source: z.string().optional() }),
   ),
-  // verify は本文の出どころ。check --run のときだけ実物と照合し、描画には出さない
+  // verify は本文の出どころ。check --run のときだけ実物と照合し、描画には出さない。
+  // lang は構文の色分けの言語(ts・bash・diff など)。無ければ描画が自動で見分ける(app/server/code-highlight.ts)
   defineBlock(
     "code",
     z.strictObject({
       text: z.string(),
       caption: z.string().optional(),
+      lang: z.string().min(1, "lang が空").max(40).optional(),
       verify: codeVerify.optional(),
     }),
   ),

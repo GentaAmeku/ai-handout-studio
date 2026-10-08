@@ -58,6 +58,22 @@ const colorTokens = z.strictObject({
   primaryPressed: color.optional(),
   // 注意の帯の飾り。枠は warning のまま
   warningAccent: color.optional(),
+  // 文書のコードブロック(暗い地)と構文の色分け。どのテンプレートも tokens.json の1組を使う。
+  // 字の色はどれも codeBg との明暗差 4.5 以上(contrast.ts)。追加と削除は、それぞれの地の上で測る
+  codeBg: color.optional(),
+  codeText: color.optional(),
+  codeComment: color.optional(),
+  codeKeyword: color.optional(),
+  codeString: color.optional(),
+  codeNumber: color.optional(),
+  codeFunction: color.optional(),
+  codeType: color.optional(),
+  codeLiteral: color.optional(),
+  codeTag: color.optional(),
+  codeAddition: color.optional(),
+  codeAdditionBg: color.optional(),
+  codeDeletion: color.optional(),
+  codeDeletionBg: color.optional(),
 });
 
 const fontStack = z.array(z.string().min(1)).min(1);

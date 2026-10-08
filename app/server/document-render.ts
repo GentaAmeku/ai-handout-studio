@@ -5,6 +5,7 @@ import type {
   DocumentSection,
 } from "../src/schema/document.ts";
 import type { Locale } from "../src/schema/profile.ts";
+import { highlightCode } from "./code-highlight.ts";
 import type { DiffMark } from "./document-diff.ts";
 import { HANDOUT_STRINGS } from "./handout-i18n.ts";
 import { escapeHtml } from "./sheet-render.ts";
@@ -129,9 +130,10 @@ const renderers: { [T in DocumentBlockType]: BlockRender<T> } = {
   open: (props) => `<div class="ds-open">${paragraphs(props.text)}</div>`,
   quote: (props) =>
     `<div class="ds-quote">${paragraphs(props.text)}${props.source ? `<p class="ds-quote-source">${escapeHtml(props.source)}</p>` : ""}</div>`,
-  // コピーのボタンは hidden で描く。資料に埋めたスクリプト(document-client.ts)が動いたときだけ出る
+  // コピーのボタンは hidden で描く。資料に埋めたスクリプト(document-client.ts)が動いたときだけ出る。
+  // 本文は構文の色分けをした <span> の並び(code-highlight.ts)。コピーは字だけを拾う
   code: (props, t) =>
-    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<div class="ds-code-block"><pre class="ds-code"><code>${escapeHtml(props.text)}</code></pre>${copyButtonHtml(t)}</div>`,
+    `${props.caption ? `<p class="ds-label">${escapeHtml(props.caption)}</p>` : ""}<div class="ds-code-block"><pre class="ds-code"><code>${highlightCode(props.text, props.lang)}</code></pre>${copyButtonHtml(t)}</div>`,
   // html は図の生成器の出力。スキーマが checkDocumentBody を通しているので、そのまま置く
   figure: (props) =>
     `<figure class="ds-figure"><div class="ds-figure-frame">${props.html}</div>${props.caption ? `<figcaption>${escapeHtml(props.caption)}</figcaption>` : ""}</figure>`,

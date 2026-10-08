@@ -366,18 +366,109 @@ a.ds-app-action {
 }
 
 /* ---------- コード ---------- */
+/* 暗い地の箱。地と字の色はどのテンプレートも tokens.json の --color-code-* の1組で、
+   テンプレートの template.css は形(枠・角・余白)だけを変える。印刷でも地を残す */
 
 pre.ds-code {
   margin: 0 0 var(--space-gap);
   padding: var(--space-md) var(--space-gap);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  color: var(--color-code-text);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-bg);
   border-radius: var(--radius-sm);
   overflow-x: auto;
+  tab-size: 2;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 pre.ds-code code {
   font-size: var(--fs-ui);
+  color: inherit;
+}
+
+/* 構文の色分け。class は app/server/code-highlight.ts が付ける(highlight.js の分類の頭に ds-hl-) */
+/* 注釈は斜体にしない。日本語の斜体は字を傾けるだけで読みにくい */
+pre.ds-code .ds-hl-comment,
+pre.ds-code .ds-hl-quote {
+  color: var(--color-code-comment);
+}
+
+pre.ds-code .ds-hl-keyword,
+pre.ds-code .ds-hl-doctag,
+pre.ds-code .ds-hl-formula {
+  color: var(--color-code-keyword);
+}
+
+pre.ds-code .ds-hl-section,
+pre.ds-code .ds-hl-name,
+pre.ds-code .ds-hl-selector-tag,
+pre.ds-code .ds-hl-subst,
+pre.ds-code .ds-hl-property {
+  color: var(--color-code-tag);
+}
+
+pre.ds-code .ds-hl-literal,
+pre.ds-code .ds-hl-operator {
+  color: var(--color-code-literal);
+}
+
+pre.ds-code .ds-hl-string,
+pre.ds-code .ds-hl-regexp,
+pre.ds-code .ds-hl-attribute,
+pre.ds-code .ds-hl-meta .ds-hl-string {
+  color: var(--color-code-string);
+}
+
+pre.ds-code .ds-hl-attr,
+pre.ds-code .ds-hl-variable,
+pre.ds-code .ds-hl-template-variable,
+pre.ds-code .ds-hl-type,
+pre.ds-code .ds-hl-selector-class,
+pre.ds-code .ds-hl-selector-attr,
+pre.ds-code .ds-hl-selector-pseudo,
+pre.ds-code .ds-hl-number {
+  color: var(--color-code-number);
+}
+
+pre.ds-code .ds-hl-symbol,
+pre.ds-code .ds-hl-bullet,
+pre.ds-code .ds-hl-link,
+pre.ds-code .ds-hl-meta,
+pre.ds-code .ds-hl-selector-id,
+pre.ds-code .ds-hl-title {
+  color: var(--color-code-function);
+}
+
+pre.ds-code .ds-hl-built_in,
+pre.ds-code .ds-hl-title-class,
+pre.ds-code .ds-hl-class .ds-hl-title {
+  color: var(--color-code-type);
+}
+
+/* 差分の行は、字の色と行の帯の両方で示す。帯は箱の幅いっぱいに伸ばす */
+pre.ds-code .ds-hl-addition,
+pre.ds-code .ds-hl-deletion {
+  display: inline-block;
+  min-width: 100%;
+}
+
+pre.ds-code .ds-hl-addition {
+  color: var(--color-code-addition);
+  background: var(--color-code-addition-bg);
+}
+
+pre.ds-code .ds-hl-deletion {
+  color: var(--color-code-deletion);
+  background: var(--color-code-deletion-bg);
+}
+
+pre.ds-code .ds-hl-emphasis {
+  font-style: italic;
+}
+
+pre.ds-code .ds-hl-strong {
+  font-weight: 700;
 }
 
 /* コードブロックの「コピー」。右上に浮かせたアイコンだけのボタン。ボタンは hidden で描かれ、
@@ -401,9 +492,9 @@ pre.ds-code code {
   font: inherit;
   font-size: var(--fs-ui);
   line-height: 1;
-  color: var(--color-muted);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
+  color: var(--color-code-comment);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-comment);
   border-radius: var(--radius-sm);
   padding: var(--space-xs);
   cursor: pointer;
@@ -424,7 +515,7 @@ pre.ds-code code {
 }
 
 .ds-code-copy[data-state="copied"] {
-  color: var(--color-success);
+  color: var(--color-code-string);
 }
 
 .ds-code-copy[data-state="copied"] .ds-code-copy-icon[data-icon="check"] {
@@ -443,13 +534,13 @@ pre.ds-code code {
 
 @media (hover: hover) {
   .ds-code-copy:not([data-state]):hover {
-    color: var(--color-text);
-    background: var(--color-primary-hover-tint);
+    color: var(--color-code-text);
+    border-color: var(--color-code-text);
   }
 }
 
 .ds-code-copy:focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--color-code-text);
   outline-offset: 2px;
 }
 
