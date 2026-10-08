@@ -620,6 +620,9 @@ export const en: Record<MessageKey, string> = {
   "doc.field.noticeLabelHint": "Left empty, the kind is used.",
   "doc.field.source": "Source",
   "doc.field.code": "Code",
+  "doc.field.codeLang": "Language",
+  "doc.field.codeLangHint":
+    "Language for syntax colors (ts, bash, json, diff…). Leave empty to detect it.",
   "doc.field.figureHtml": "Figure contents",
   "doc.field.figureHtmlHint":
     "Output of the figure generator. Only ds- classes are allowed.",

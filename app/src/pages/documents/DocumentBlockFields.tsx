@@ -371,6 +371,20 @@ const CodeFields = ({ block, onChange }: FieldsProps<"code">) => {
           })
         }
       />
+      <TextField
+        label={t("doc.field.codeLang")}
+        hint={t("doc.field.codeLangHint")}
+        value={block.props.lang ?? ""}
+        onCommit={(lang) =>
+          onChange({
+            ...block,
+            props: {
+              ...block.props,
+              lang: lang.trim() === "" ? undefined : lang.trim().slice(0, 40),
+            },
+          })
+        }
+      />
     </>
   );
 };

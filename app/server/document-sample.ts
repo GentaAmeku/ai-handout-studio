@@ -344,7 +344,10 @@ const documentOf = (figure: FigureInput, lang: Locale): DocumentFile => ({
         {
           id: "other-code-body",
           type: "code",
-          props: { text: "pnpm design:build" },
+          props: {
+            lang: "ts",
+            text: "// Scale a size and round it to 0.1px\nexport const scaled = (px: number, scale = 1): number =>\n\tMath.round(px * scale * 10) / 10;",
+          },
         },
       ],
     },

@@ -617,6 +617,9 @@ export const ja = {
   "doc.field.noticeLabelHint": "空なら種類の名前が出ます。",
   "doc.field.source": "出典",
   "doc.field.code": "コード",
+  "doc.field.codeLang": "言語",
+  "doc.field.codeLangHint":
+    "色分けの言語(ts・bash・json・diff など)。空なら自動で見分けます。",
   "doc.field.figureHtml": "図の中身",
   "doc.field.figureHtmlHint":
     "図の生成器が出した中身です。class は ds- で始まるものだけ使えます。",
