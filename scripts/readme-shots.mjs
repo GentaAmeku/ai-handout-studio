@@ -30,6 +30,7 @@ const STEPS = [
   "switch",
   "sheet",
   "phone",
+  "search",
 ];
 
 // 画面の文言(言語ごと)。UI の locale と合わせる
@@ -42,6 +43,8 @@ const LABELS = {
     edit: ", safely",
     body: "Body",
     summary: " Keep it hands-on.",
+    // 調査結果の資料と言い方を変えた問い(資料は "Why first-timers have not started")
+    query: "why colleagues haven't tried the assistant yet",
   },
   ja: {
     properties: "プロパティ",
@@ -51,6 +54,7 @@ const LABELS = {
     edit: "、安全に",
     body: "本文",
     summary: "手を動かす時間を主にする。",
+    query: "使ったことがない人が手を出さない理由",
   },
 };
 
@@ -304,6 +308,19 @@ const shootPhone = async (browser) => {
   await page.close();
 };
 
+// 検索の窓。ベクトル検索の印が出るまで待つ(窓を開くとベクトルを作り始める。Ollama と embeddinggemma-2 が要る)
+const shootSearch = async (browser) => {
+  const page = await desktopPage(browser);
+  await page.goto(`${ORIGIN}/slides`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Search", exact: true }).click();
+  await page.locator(".search-dialog__input").fill(labels.query);
+  await page.waitForSelector(".search-dialog__vector", { timeout: 120_000 });
+  await settle(page, 600);
+  await page.mouse.move(0, 0);
+  await shot(page, "search.png");
+  await page.close();
+};
+
 const STEP_RUNNERS = {
   hero: shootHero,
   list: shootList,
@@ -312,6 +329,7 @@ const STEP_RUNNERS = {
   switch: shootSwitch,
   sheet: shootSheet,
   phone: shootPhone,
+  search: shootSearch,
 };
 
 const main = async () => {

@@ -51,7 +51,7 @@ node scripts/readme-shots.mjs --lang en --deck deck_20260926_002 --sheet sheet_2
 node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_20260926_002 --document doc_20260926_003 --to lumen
 ```
 
-`--only hero,list,editor,document,switch,sheet,phone` retakes a subset; `--out` changes the folder (default `docs/images/<lang>`). Desktop shots are 1440x900 at 2x, the phone shot 390x844 at 2x.
+`--only hero,list,editor,document,switch,sheet,phone,search` retakes a subset; `--out` changes the folder (default `docs/images/<lang>`). Desktop shots are 1440x900 at 2x, the phone shot 390x844 at 2x.
 
 | File | URL and state | What it shows (alt text) |
 | --- | --- | --- |
@@ -67,6 +67,7 @@ node scripts/readme-shots.mjs --lang ja --deck deck_20260926_003 --sheet sheet_2
 | `sheet.png` | `/api/sheets/<sheet>/preview`, question 1 with option B chosen, scrolled so the three mock-ups and the answer sit in view | A question sheet comparing three mock-ups side by side, with the recommended one chosen |
 | `sheet-answers.png` | Last question answered; the Copy answers button replaces Next question | The last question of a sheet: every answer is in and Copy answers turns them into Markdown for the chat |
 | `phone.png` | Same sheet at 390x844 with the question list closed, scrolled to the mock-ups | The same question sheet read on a phone |
+| `search.png` | `/slides`, the Search button, the query typed (en: `why colleagues haven't tried the assistant yet`, which the survey puts as "Why first-timers have not started"; ja: `使ったことがない人が手を出さない理由`); the survey document is first under In content and the footer shows Vector search. Needs Ollama 0.40.0+ with `embeddinggemma-2:270m`; opening the window builds the vectors for the shots workspace, and the script waits for the mark | The search window: a query worded differently from every handout still finds the survey results first under In content, with Vector search on |
 
 The template-switch frames double as the key frames of the 5-second GIF. The GIF itself and the demo video are recorded from the same workspace by `scripts/demo-record.mjs` and composed in `video/`; see [video/README.md](../video/README.md).
 
@@ -80,7 +81,7 @@ ai-handout-studio diagram architecture docs/images/en/how-it-works.archify.json 
 sips --resampleWidth 2440 docs/images/en/how-it-works.png
 ```
 
-Alt text: How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown.
+Alt text: How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown; for search, the server can ask a local Ollama for vectors.
 
 ## 5. Shots only the owner can take
 

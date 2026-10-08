@@ -4,7 +4,7 @@
   "meta": {
     "title": "How AI Handout Studio works",
     "quality_profile": "showcase",
-    "viewBox": [1120, 480],
+    "viewBox": [1120, 640],
     "views": [
       {
         "id": "authoring",
@@ -76,6 +76,14 @@
       "sublabel": "PDF, PNG, HTML, PPTX",
       "pos": [38, 330],
       "size": [160, 72]
+    },
+    {
+      "id": "ollama",
+      "type": "external",
+      "label": "Ollama (optional)",
+      "sublabel": "embeddinggemma-2",
+      "pos": [578, 520],
+      "size": [200, 72]
     }
   ],
   "connections": [
@@ -86,7 +94,12 @@
       "label": "ask in chat",
       "variant": "emphasis"
     },
-    { "id": "skills-to-cli", "from": "skills", "to": "cli", "label": "JSON" },
+    {
+      "id": "skills-to-cli",
+      "from": "skills",
+      "to": "cli",
+      "label": "JSON"
+    },
     {
       "id": "cli-to-workspace",
       "from": "cli",
@@ -118,6 +131,14 @@
       "to": "skills",
       "label": "answers as Markdown",
       "variant": "dashed"
+    },
+    {
+      "id": "server-to-ollama",
+      "from": "server",
+      "to": "ollama",
+      "label": "vectors for search",
+      "variant": "dashed",
+      "labelAt": [678, 461]
     }
   ]
 }

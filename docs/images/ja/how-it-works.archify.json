@@ -4,7 +4,7 @@
   "meta": {
     "title": "AI Handout Studio の仕組み",
     "quality_profile": "showcase",
-    "viewBox": [1120, 480],
+    "viewBox": [1120, 640],
     "views": [
       {
         "id": "authoring",
@@ -76,6 +76,14 @@
       "sublabel": "PDF・PNG・HTML・PPTX",
       "pos": [38, 330],
       "size": [180, 72]
+    },
+    {
+      "id": "ollama",
+      "type": "external",
+      "label": "Ollama(任意)",
+      "sublabel": "embeddinggemma-2",
+      "pos": [598, 520],
+      "size": [200, 72]
     }
   ],
   "connections": [
@@ -86,7 +94,12 @@
       "label": "会話で頼む",
       "variant": "emphasis"
     },
-    { "id": "skills-to-cli", "from": "skills", "to": "cli", "label": "JSON" },
+    {
+      "id": "skills-to-cli",
+      "from": "skills",
+      "to": "cli",
+      "label": "JSON"
+    },
     {
       "id": "cli-to-workspace",
       "from": "cli",
@@ -118,6 +131,14 @@
       "to": "skills",
       "label": "回答を Markdown で",
       "variant": "dashed"
+    },
+    {
+      "id": "server-to-ollama",
+      "from": "server",
+      "to": "ollama",
+      "label": "検索用のベクトル",
+      "variant": "dashed",
+      "labelAt": [698, 461]
     }
   ]
 }
