@@ -75,13 +75,16 @@ const prefixSubScopes = (html: string): string =>
         .join("")}"`,
   );
 
+// 差分の頭の形。中身がコードなので自動の見分けはその言語を選んでしまい、追加と削除の帯が出ない
+const DIFF_HEAD = /^(?:diff --git |@@ -\d|--- \S[^\n]*\n\+\+\+ )/;
+
 // 自動で見分けた結果を採る下限。短い出力や日本語の文は当たりが弱く、誤った色を付けるより素のまま出す
 const AUTO_MIN_RELEVANCE = 5;
 
 export const isKnownCodeLanguage = (lang: string): boolean =>
   highlighter.getLanguage(lang.trim().toLowerCase()) !== undefined;
 
-// 色分けした HTML。lang があればその言語、無ければ自動で見分け、どちらも外れたら字のまま逃がす
+// 色分けした HTML。lang があればその言語、無ければ差分の頭か自動で見分け、どれも外れたら字のまま逃がす
 export const highlightCode = (text: string, lang?: string): string => {
   const name = lang?.trim().toLowerCase();
   if (name && isKnownCodeLanguage(name))
@@ -90,6 +93,7 @@ export const highlightCode = (text: string, lang?: string): string => {
         .value,
     );
   if (name) return escapeHtml(text);
+  if (DIFF_HEAD.test(text.trimStart())) return highlightCode(text, "diff");
   const auto = highlighter.highlightAuto(text);
   return auto.relevance >= AUTO_MIN_RELEVANCE
     ? prefixSubScopes(auto.value)

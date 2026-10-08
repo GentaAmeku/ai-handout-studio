@@ -75,6 +75,17 @@ describe("コードの色分け", () => {
     expect(html).toContain('<span class="ds-hl-addition">+const a = 2;</span>');
   });
 
+  it("lang が無くても、差分の頭(@@・diff --git)があれば差分として出す", () => {
+    const html = highlightCode(
+      "@@ -476,2 +476,2 @@\n \t`\\n## ${q.title}`,\n-\tconst a = response.answers.find((item) => item.id === q.id);\n+\tconst a = byId.get(q.id);",
+    );
+    expect(html).toContain('class="ds-hl-deletion"');
+    expect(html).toContain('class="ds-hl-addition"');
+    expect(highlightCode("diff --git a/x.ts b/x.ts\n+const a = 1;")).toContain(
+      'class="ds-hl-addition"',
+    );
+  });
+
   it("見分けの弱い短い出力や日本語の文は、色を付けずに出す", () => {
     expect(highlightCode("$ pnpm test\n✓ 128 passed")).toBe(
       "$ pnpm test\n✓ 128 passed",

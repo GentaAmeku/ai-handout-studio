@@ -388,10 +388,10 @@ pre.ds-code code {
 }
 
 /* 構文の色分け。class は app/server/code-highlight.ts が付ける(highlight.js の分類の頭に ds-hl-) */
+/* 注釈は斜体にしない。日本語の斜体は字を傾けるだけで読みにくい */
 pre.ds-code .ds-hl-comment,
 pre.ds-code .ds-hl-quote {
   color: var(--color-code-comment);
-  font-style: italic;
 }
 
 pre.ds-code .ds-hl-keyword,
