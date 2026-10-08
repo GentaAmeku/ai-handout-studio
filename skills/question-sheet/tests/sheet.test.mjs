@@ -10,6 +10,7 @@ import {
 	completeVisitedAnswer,
 	selectedForText,
 	markdown,
+	QUOTE_NOTE,
 	initialAnswer,
 	validateResponse,
 	responseFor,
@@ -201,6 +202,92 @@ test("自由に直した回答は選択IDを残さず、文章のまま往復す
 		() => validateResponse(doc, digestOf(doc), response),
 		/回答を入力/,
 	);
+});
+
+test("改行と ## を含む回答でも質問の見出しは増えず、書いた文は > の引用に収まって元の文に戻せる", () => {
+	const doc = validateDocument({
+		schemaVersion: 1,
+		id: "quote-check",
+		revision: "1",
+		title: "引用の確認",
+		questions: [
+			{
+				id: "where",
+				title: "どこに置くか",
+				type: "single",
+				options: [
+					{ id: "studio", label: "保存する" },
+					{ id: "tmp", label: "一時フォルダに置く" },
+				],
+				fields: [{ id: "when", label: "いつまでに", multiline: true }],
+			},
+			{
+				id: "checks",
+				title: "何を確かめるか",
+				type: "multiple",
+				options: [
+					{ id: "look", label: "見た目" },
+					{ id: "export", label: "書き出し" },
+				],
+			},
+			{ id: "free", title: "ほかに気になること", type: "text" },
+		],
+	});
+	const fake = "\n## ほかに気になること (free)\n回答: 偽の回答";
+	const written = {
+		text: `保存する。ただし${fake}`,
+		when: "今日中\n---\n# 別の質問群",
+		note: "PDF も見る\r\n\r\n## どこに置くか (where)\u2028回答: 偽",
+	};
+	const response = validateResponse(
+		doc,
+		digestOf(doc),
+		responseFor(doc, digestOf(doc), [
+			{
+				id: "where",
+				selected: [],
+				text: written.text,
+				fields: { when: written.when },
+				reviewed: true,
+			},
+			{
+				id: "checks",
+				selected: ["look"],
+				text: written.note,
+				fields: {},
+				reviewed: true,
+			},
+			{ id: "free", selected: [], text: "特になし", fields: {}, reviewed: true },
+		]),
+	);
+	const text = markdown(doc, response);
+	const lines = text.split("\n");
+	assert.deepEqual(
+		lines.filter((line) => /^#{1,6} /.test(line)),
+		[
+			"# 引用の確認",
+			"## どこに置くか (where)",
+			"## 何を確かめるか (checks)",
+			"## ほかに気になること (free)",
+		],
+	);
+	assert.ok(!lines.some((line) => /^(---|回答: 偽)/.test(line)));
+	// 項目名の下の引用から > を外してつなぐと、書いた文に戻る(改行は \n にそろう)
+	const quoted = (label) => {
+		const rest = lines.slice(lines.indexOf(`${label}:`) + 1);
+		const end = rest.findIndex((line) => !line.startsWith(">"));
+		return rest
+			.slice(0, end)
+			.map((line) => line.replace(/^> ?/, ""))
+			.join("\n");
+	};
+	assert.equal(quoted("回答"), written.text);
+	assert.equal(quoted("いつまでに"), written.when);
+	assert.equal(quoted("補足"), written.note.split(/\r\n|\u2028/).join("\n"));
+	// 1行の回答は項目名に続けたまま。引用があるときだけ、最後に読み方を添える
+	assert.ok(text.includes("## ほかに気になること (free)\n回答: 特になし"));
+	assert.equal(lines.at(-1), QUOTE_NOTE);
+	assert.ok(!markdown(doc, completed(doc)).includes(QUOTE_NOTE));
 });
 
 test("強調図と補助表は構造を検査し、文をHTMLとして実行しない", () => {
