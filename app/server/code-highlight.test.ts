@@ -77,7 +77,7 @@ describe("コードの色分け", () => {
 
   it("lang が無くても、差分の頭(@@・diff --git)があれば差分として出す", () => {
     const html = highlightCode(
-      "@@ -476,2 +476,2 @@\n \t`\\n## ${q.title}`,\n-\tconst a = response.answers.find((item) => item.id === q.id);\n+\tconst a = byId.get(q.id);",
+      "@@ -476,2 +476,2 @@\n \tconst title = q.title;\n-\tconst a = response.answers.find((item) => item.id === q.id);\n+\tconst a = byId.get(q.id);",
     );
     expect(html).toContain('class="ds-hl-deletion"');
     expect(html).toContain('class="ds-hl-addition"');
