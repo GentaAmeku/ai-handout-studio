@@ -118,3 +118,38 @@ describe("displayText", () => {
     ).toBe("どこに出しますか");
   });
 });
+
+describe("rankContent(ベクトル検索あり、180)", () => {
+  const near = (entries: [string, number, number][]) =>
+    new Map(entries.map(([key, score, chunk]) => [key, { score, chunk }]));
+
+  it("語を全部含む資料を先に、残りは重なりとベクトルの順位を足した順。4割の切りは使わない", () => {
+    const hits = rankContent(sources, "メモリ", {
+      excludeTitleHits: false,
+      semantic: near([
+        ["sheet:sheet_005", 0.9, 1],
+        ["sheet:sheet_003", 0.2, 1],
+        ["sheet:sheet_001", 0.5, 1],
+        ["sheet:sheet_002", 0.4, 1],
+        ["sheet:sheet_004", 0.1, 1],
+      ]),
+    });
+    // 語を含む2件のあとに、重なりは無いがベクトルの近い献立(sheet_005)が来る
+    expect(ids(hits).slice(0, 3)).toEqual([
+      "sheet_001",
+      "sheet_002",
+      "sheet_005",
+    ]);
+  });
+
+  it("語を含まない資料の2行目は、ベクトルがいちばん近い区切り", () => {
+    const hits = rankContent(sources, "夕食", {
+      excludeTitleHits: false,
+      semantic: near([["sheet:sheet_005", 0.9, 1]]),
+    });
+    expect(hits[0]).toMatchObject({
+      id: "sheet_005",
+      place: { type: "question", number: 1 },
+    });
+  });
+});

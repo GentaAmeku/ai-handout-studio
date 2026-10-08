@@ -265,6 +265,28 @@ describe("parseCli", () => {
         ],
       },
     });
+    // ベクトル検索(180): 機能の切り替えと、セットアップで断ったことの記録
+    expect(
+      parseCli([
+        "settings",
+        "--set",
+        "features.vectorSearch=false",
+        "--set",
+        "vectorSearch=declined",
+      ]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "settings",
+        updates: [
+          { key: "features.vectorSearch", value: false },
+          { key: "vectorSearch", value: "declined" },
+        ],
+      },
+    });
+    expect(parseCli(["settings", "--set", "vectorSearch=yes"]).success).toBe(
+      false,
+    );
     expect(parseCli(["settings", "--set", "locale=fr"]).success).toBe(false);
     expect(parseCli(["settings", "--set", "features.lan=yes"]).success).toBe(
       false,
@@ -626,10 +648,16 @@ describe("formatSettings / applySettingsUpdates", () => {
     const settings = {
       orgName: "",
       locale: "ja" as const,
-      features: { lan: false, imageGeneration: false, share: false },
+      features: {
+        lan: false,
+        imageGeneration: false,
+        share: false,
+        vectorSearch: true,
+      },
       agentInstructions: "ask" as const,
       archify: "declined" as const,
       mods: { claude: "ask" as const },
+      vectorSearch: "ask" as const,
     };
     expect(formatSettings(settings)).toBe(
       [
@@ -638,9 +666,11 @@ describe("formatSettings / applySettingsUpdates", () => {
         "features.lan: false",
         "features.imageGeneration: false",
         "features.share: false",
+        "features.vectorSearch: true",
         "agentInstructions: ask",
         "archify: declined",
         "mods.claude: ask",
+        "vectorSearch: ask",
       ].join("\n"),
     );
   });

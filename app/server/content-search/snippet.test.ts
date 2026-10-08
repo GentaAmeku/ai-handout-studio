@@ -36,7 +36,9 @@ describe("bm25", () => {
 
 describe("flatten", () => {
   it("見出しの印・表の縦線・改行をまとめて1行にする", () => {
-    expect(flatten("## 結果\n| 方式 | 点 |\n`code`")).toBe("結果 方式 点 code");
+    expect(flatten("## 結果\n| 方式 | 点 |\n| --- | --- |\n`code`")).toBe(
+      "結果 方式 点 code",
+    );
   });
 });
 

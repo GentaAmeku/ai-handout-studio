@@ -25,7 +25,7 @@ import {
   LOCAL_ONLY_MESSAGE,
   SIDE_EFFECT_GET_PATHS,
 } from "./request-guard.ts";
-import { copyDesignWithDefaultSelection } from "./test-fixtures.ts";
+import { copyDesignWithDefaultSelection, NO_OLLAMA } from "./test-fixtures.ts";
 
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -294,6 +294,7 @@ const WRITE_ROUTES = [
   "POST /api/documents/:id/exports",
   "POST /api/documents/:id/share",
   "POST /api/documents/:id/versions/:versionId/restore",
+  "POST /api/search/index",
   "POST /api/sheets",
   "POST /api/sheets/:id/exports",
   "POST /api/sheets/:id/share",
@@ -334,6 +335,7 @@ const READ_ROUTES = [
   "GET /api/documents/:id/versions/:versionId/preview",
   "GET /api/profile",
   "GET /api/search",
+  "GET /api/search/status",
   "GET /api/sheets",
   "GET /api/sheets/:id",
   "GET /api/sheets/:id/preview",
@@ -470,6 +472,7 @@ describe("本物のサーバーで", () => {
         repoRoot,
         workspaceRoot: context.workspaceRoot,
         designDir: context.designDir,
+        ollama: NO_OLLAMA,
       }).fetch,
     );
     const server = createServer((req, res) =>

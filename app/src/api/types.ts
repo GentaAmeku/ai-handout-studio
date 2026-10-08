@@ -271,4 +271,26 @@ export type ContentHit = {
   snippet: SnippetSegment[];
 };
 
-export type ContentSearchResult = { hits: ContentHit[] };
+// vector はベクトル検索の近さも足した並びか(180)
+export type ContentSearchResult = { hits: ContentHit[]; vector: boolean };
+
+// ベクトル検索の状態(180)。設定の画面と検索の窓が出す。
+// off は設定で止めている、no-ollama は Ollama が動いていない、outdated は Ollama が古い、
+// no-model は埋め込みのモデルが無い、indexing は区切りのベクトルを作っている途中、ready は有効
+export type VectorStatus =
+  | { state: "off" }
+  | { state: "no-ollama"; minVersion: string; pull: string }
+  | {
+      state: "outdated";
+      ollamaVersion: string;
+      minVersion: string;
+      pull: string;
+    }
+  | { state: "no-model"; ollamaVersion: string; pull: string }
+  | {
+      state: "indexing" | "ready";
+      ollamaVersion: string;
+      model: string;
+      indexed: number;
+      total: number;
+    };

@@ -29,6 +29,10 @@ const SKILLS = ["ai-handout-studio", "question-sheet"];
 const MOD = "handout-watch";
 // mod が正式に動く Claude Code の版
 const MOD_CLAUDE_VERSION = "2.1.287";
+// ベクトル検索(180)。app/server/content-search/ollama.ts の MIN_OLLAMA_VERSION・VECTOR_MODEL_PULL とそろえる
+const MIN_OLLAMA_VERSION = "0.40.0";
+const VECTOR_MODEL_PREFIX = "embeddinggemma-2";
+const VECTOR_MODEL_PULL = "embeddinggemma-2:270m";
 const FEATURES = [
   ["lan", "feature-lan"],
   ["imageGeneration", "feature-image-generation"],
@@ -730,6 +734,62 @@ const archifyCheck = (ctx, t, profile) => {
   );
 };
 
+// 節9: ベクトル検索(180)。Ollama(0.40.0 以降)に埋め込みモデル embeddinggemma-2 があれば、サイト内検索に重ねる。
+// Ollama 本体は利用者に入れてもらい、モデルはエージェントが落とす。入れるか断るまでは missing にして、あとから流したセットアップでも聞く
+const vectorSearchCheck = (ctx, t, profile) => {
+  const ask = (ja, en) =>
+    isDeclined(profile, ["vectorSearch"])
+      ? check(
+          "vector-search",
+          9,
+          "skipped",
+          t(
+            "ベクトル検索は断られている(vectorSearch: declined)",
+            "vector search was declined (vectorSearch: declined)",
+          ),
+        )
+      : check(
+          "vector-search",
+          9,
+          "missing",
+          t(
+            `${ja}ベクトル検索(埋め込みモデルで言い方の違う資料も探す)を使うか利用者に聞く。使うなら Ollama(${MIN_OLLAMA_VERSION} 以降)を ollama.com から入れて起動してもらい、ollama pull ${VECTOR_MODEL_PULL}(378MB)を実行する。断られたら: ai-handout-studio settings --set vectorSearch=declined`,
+            `${en}Ask the user whether to use vector search (an embedding model that also finds handouts worded differently). If yes, have them install Ollama (${MIN_OLLAMA_VERSION} or later) from ollama.com and start it, then run: ollama pull ${VECTOR_MODEL_PULL} (378 MB). If declined: ai-handout-studio settings --set vectorSearch=declined`,
+          ),
+        );
+  if (!ctx.findOnPath("ollama")) {
+    return ask("Ollama が入っていない。", "Ollama is not installed. ");
+  }
+  const versionRun = ctx.run("ollama", ["--version"]);
+  const version = versionRun ? versionOf(versionRun.stdout) : undefined;
+  if (version !== undefined && isOlderThan(version, MIN_OLLAMA_VERSION)) {
+    return ask(
+      `Ollama ${version} は古い(${MIN_OLLAMA_VERSION} 以降でないと ${VECTOR_MODEL_PREFIX} を落とせない)。`,
+      `Ollama ${version} is too old (${VECTOR_MODEL_PREFIX} needs ${MIN_OLLAMA_VERSION} or later). `,
+    );
+  }
+  const list = ctx.run("ollama", ["list"]);
+  if (list?.status !== 0) {
+    return ask("Ollama が起動していない。", "Ollama is not running. ");
+  }
+  const model = list.stdout
+    .split("\n")
+    .map((line) => line.trim().split(/\s+/)[0] ?? "")
+    .find((name) => name.startsWith(VECTOR_MODEL_PREFIX));
+  if (model) {
+    return check(
+      "vector-search",
+      9,
+      "ok",
+      `${model}(Ollama ${version ?? "?"})`,
+    );
+  }
+  return ask(
+    `埋め込みモデル ${VECTOR_MODEL_PREFIX} が無い。`,
+    `The embedding model ${VECTOR_MODEL_PREFIX} is not installed. `,
+  );
+};
+
 // 節9: Claude Code の mod(その会話で作った資料を入力欄の上に出す)。
 // 入れるかは利用者が決める。入れるか断るまでは missing にして、あとから流したセットアップでも聞く。
 // Claude Code が無ければ聞かない(skipped)
@@ -945,6 +1005,7 @@ export const runDoctor = async (context = defaultContext()) => {
     ...featureChecks(context, t, harnesses, profile),
     archifyCheck(context, t, profile),
     modCheck(context, t, harnesses, profile),
+    vectorSearchCheck(context, t, profile),
   ];
   const server = await serverCheck(context, t);
   return {
@@ -1279,6 +1340,40 @@ const uninstallArchifyCheck = (ctx, t) => {
       );
 };
 
+// 節6: ベクトル検索の埋め込みモデル(180。セットアップの節9でエージェントが落としたもの)。
+// Ollama 本体は利用者が入れたもので外さない。モデルも外すかは利用者が決めるので止めない(warn)
+const uninstallVectorModelCheck = (ctx, t) => {
+  const list = ctx.findOnPath("ollama")
+    ? ctx.run("ollama", ["list"])
+    : undefined;
+  const models =
+    list?.status === 0
+      ? list.stdout
+          .split("\n")
+          .map((line) => line.trim().split(/\s+/)[0] ?? "")
+          .filter((name) => name.startsWith(VECTOR_MODEL_PREFIX))
+      : [];
+  return models.length > 0
+    ? check(
+        "vector-model",
+        6,
+        "warn",
+        t(
+          `ベクトル検索の埋め込みモデルが Ollama に入っている(${models.join("・")})。外すと決めたら: ${models.map((name) => `ollama rm ${name}`).join(" && ")}`,
+          `The vector search embedding model is in Ollama (${models.join(", ")}). If the user chose to remove it: ${models.map((name) => `ollama rm ${name}`).join(" && ")}`,
+        ),
+      )
+    : check(
+        "vector-model",
+        6,
+        "ok",
+        t(
+          "ベクトル検索の埋め込みモデルは無い(または Ollama が動いていない)",
+          "no vector search embedding model (or Ollama is not running)",
+        ),
+      );
+};
+
 const countDirs = (path) => {
   try {
     return readdirSync(path, { withFileTypes: true }).filter((entry) =>
@@ -1334,6 +1429,7 @@ export const runUninstallDoctor = async (context = defaultContext()) => {
     ...uninstallSkillChecks(context, t),
     uninstallCommandCheck(context, t),
     uninstallArchifyCheck(context, t),
+    uninstallVectorModelCheck(context, t),
     uninstallWorkspaceCheck(context, t),
   ];
   return {

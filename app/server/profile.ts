@@ -64,6 +64,7 @@ const DEFAULT_FEATURES: Required<Features> = {
   lan: false,
   imageGeneration: false,
   share: false,
+  vectorSearch: true,
 };
 
 export const resolveSettings = (
@@ -75,6 +76,7 @@ export const resolveSettings = (
   agentInstructions: profile?.agentInstructions ?? "ask",
   archify: profile?.archify ?? "ask",
   mods: { claude: profile?.mods?.claude ?? "ask" },
+  vectorSearch: profile?.vectorSearch ?? "ask",
 });
 
 // profile.json が読めない(JSON でない・形が合わない)ときの知らせ。値を1つでも黙って捨てないよう、直すまで止める

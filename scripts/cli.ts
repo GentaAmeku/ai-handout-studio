@@ -7,6 +7,8 @@ import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { formatContentHits } from "../app/server/content-search/format.ts";
 import { createContentIndex } from "../app/server/content-search/index.ts";
+import { createOllama } from "../app/server/content-search/ollama.ts";
+import { createVectorIndex } from "../app/server/content-search/vectors.ts";
 import {
   applySettingsUpdates,
   type CliCommand,
@@ -608,15 +610,23 @@ const runExamples = async (lang: Locale | undefined): Promise<number> => {
   return 0;
 };
 
-// 中身の当たりだけを返す(題名で当たった資料も外さない)。--json は API と同じ形
+// 中身の当たりだけを返す(題名で当たった資料も外さない)。--json は API と同じ形。
+// ベクトルの控えがそろっていれば、ベクトル検索も足して並べる(控えを作るのは画面だけ)
 const runSearch = async (query: string, json: boolean): Promise<number> => {
-  const hits = await createContentIndex(workspaceRoot).search(query, {
+  const content = createContentIndex(workspaceRoot);
+  const vectors = createVectorIndex({
+    root: workspaceRoot,
+    ollama: createOllama(),
+    sources: content.sources,
+  });
+  const result = await content.search(query, {
     excludeTitleHits: false,
+    semanticOf: (sources) => vectors.scores(query, sources),
   });
   console.log(
     json
-      ? JSON.stringify({ query, hits }, null, 2)
-      : formatContentHits(query, hits),
+      ? JSON.stringify({ query, ...result }, null, 2)
+      : formatContentHits(query, result),
   );
   return 0;
 };

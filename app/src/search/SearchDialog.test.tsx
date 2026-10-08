@@ -114,21 +114,41 @@ const contentHits: Record<string, ContentHit[]> = {
 
 const SEARCH_PATH = "/api/search?q=";
 
-const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-  const url = String(input);
-  const body = url.startsWith(SEARCH_PATH)
-    ? {
-        hits:
-          contentHits[decodeURIComponent(url.slice(SEARCH_PATH.length))] ?? [],
-      }
-    : lists[url];
-  return body === undefined
-    ? new Response(JSON.stringify({ error: "無い" }), { status: 404 })
-    : new Response(JSON.stringify(body), {
-        status: 200,
-        headers: { "content-type": "application/json" },
-      });
-});
+// ベクトル検索の状態(180)。既定は Ollama が無い手元。有効の試験だけ ready にする
+const NO_OLLAMA = {
+  state: "no-ollama",
+  minVersion: "0.40.0",
+  pull: "embeddinggemma-2:270m",
+};
+const READY = {
+  state: "ready",
+  ollamaVersion: "0.40.1",
+  model: "embeddinggemma-2:270m",
+  indexed: 3,
+  total: 3,
+};
+const vectorStatus = { current: NO_OLLAMA as unknown };
+
+const fetchMock = vi.fn(
+  async (input: RequestInfo | URL, _init?: RequestInit) => {
+    const url = String(input);
+    const body = url.startsWith(SEARCH_PATH)
+      ? {
+          hits:
+            contentHits[decodeURIComponent(url.slice(SEARCH_PATH.length))] ??
+            [],
+        }
+      : url === "/api/search/status" || url === "/api/search/index"
+        ? vectorStatus.current
+        : lists[url];
+    return body === undefined
+      ? new Response(JSON.stringify({ error: "無い" }), { status: 404 })
+      : new Response(JSON.stringify(body), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        });
+  },
+);
 
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function showModal() {
@@ -139,6 +159,7 @@ beforeEach(() => {
     this.dispatchEvent(new Event("close"));
   };
   fetchMock.mockClear();
+  vectorStatus.current = NO_OLLAMA;
   vi.stubGlobal("fetch", fetchMock);
 });
 
@@ -336,6 +357,38 @@ describe("サイト内検索", () => {
       expect(router.state.location.pathname).toBe("/decks/deck_001"),
     );
     expect(router.state.location.search).toEqual({ slide: "s3" });
+  });
+
+  it("ベクトル検索が有効なら、下端の右に印を出す。無効なら出さない", async () => {
+    renderApp();
+    const input = await openSearch();
+    fireEvent.change(input, { target: { value: "資料" } });
+    await waitFor(() => expect(rows()).toHaveLength(4));
+    expect(document.querySelector(".search-dialog__vector")).toBeNull();
+    cleanup();
+
+    vectorStatus.current = READY;
+    renderApp();
+    const ready = await openSearch();
+    fireEvent.change(ready, { target: { value: "資料" } });
+    await waitFor(() =>
+      expect(
+        document.querySelector(".search-dialog__vector")?.textContent,
+      ).toBe("ベクトル検索"),
+    );
+  });
+
+  it("開いたときに、足りない区切りのベクトル作りを頼む", async () => {
+    renderApp();
+    await openSearch();
+    await waitFor(() =>
+      expect(
+        fetchMock.mock.calls.some(
+          ([request, init]) =>
+            String(request) === "/api/search/index" && init?.method === "POST",
+        ),
+      ).toBe(true),
+    );
   });
 
   it("1字では中身を問い合わせない", async () => {

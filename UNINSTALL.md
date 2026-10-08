@@ -18,6 +18,7 @@ Like [SETUP.md](SETUP.md), it is a game book. `doctor --uninstall` checks what i
 3. Ask these together, once:
    - May you remove everything on the list? Say that only the ai-handout-studio block is deleted from the agent instructions, and no other line changes.
    - If `archify` is `warn` (installed): should archify go too? It is another author's skill, and the user may have installed it for something else.
+   - If `vector-model` is `warn` (Ollama has the vector search embedding model): should the model go too? The user may use it for something else. Ollama itself is the user's and stays.
    - What should happen to the handouts and the clone? The `workspace` detail has the handouts' location and counts. Offer: "delete the clone, handouts included", "move the handouts to another folder, then delete the clone" (ask where), or "keep the clone (remove only what lives outside it)".
 
 If the user says no to removing, stop without changing anything.
@@ -94,10 +95,11 @@ Do this once doctor reports `ok: true`. It uses `node_modules` inside the clone,
 
 1. **Chromium:** run `pnpm exec playwright uninstall`. It unregisters the browsers this repository installed and deletes only those no other project uses. Do not add `--all` (it deletes other projects' browsers too). Remove it even when the clone stays (setup section 4 installs it again if needed). If `node_modules` is missing (a fresh clone without `pnpm install`), skip this and tell the user where the browsers live (`~/Library/Caches/ms-playwright` on macOS, `~/.cache/ms-playwright` on Linux). Other projects use them too, so the user decides whether to delete them.
 2. **archify:** only if the user said to remove it, run `npx skills remove archify archify-review -g -y` (installing archify also installs archify-review).
-3. **warn:** tell the user about any other `warn` item (such as a server whose repository could not be determined).
-4. **Handouts and clone:** follow the answer from before you started.
+3. **Vector search model:** only if the user said to remove it, run the command in the `vector-model` detail (such as `ollama rm embeddinggemma-2:270m`). Do not remove Ollama itself. The stored vectors (`workspace/search/`) go with the handouts.
+4. **warn:** tell the user about any other `warn` item (such as a server whose repository could not be determined).
+5. **Handouts and clone:** follow the answer from before you started.
    - **Delete the clone:** show the user the path to delete (the clone's absolute path) and confirm, then move outside the clone (to its parent folder) and run `rm -rf <absolute path of the clone>`.
    - **Move the handouts, then delete:** `mv` the folder at the `workspace` detail's location to the destination the user gave. Confirm it arrived, then delete the clone as above.
    - **Keep the clone:** stop here.
    - If the `workspace` detail's location is outside the clone (set with `AI_HANDOUT_STUDIO_WORKSPACE`), deleting the clone does not delete the handouts. Say so, and let the user decide whether to delete them too.
-5. Summarize what was removed and what was kept (`skipped` items, what the user chose to keep, the shared tools). If you deleted the clone, add that the agent session running inside it can be closed, since its working folder is gone.
+6. Summarize what was removed and what was kept (`skipped` items, what the user chose to keep, the shared tools). If you deleted the clone, add that the agent session running inside it can be closed, since its working folder is gone.

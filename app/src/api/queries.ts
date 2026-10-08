@@ -34,6 +34,7 @@ import type {
   HandoutSummary,
   ProfileDetail,
   ShareApiResult,
+  VectorStatus,
   VersionDetail,
   VersionSummary,
   WithFavorite,
@@ -49,6 +50,22 @@ export const contentSearchQuery = (query: string) =>
       ),
     staleTime: 10_000,
   });
+
+// ベクトル検索の状態(180)。インデックス作成中は2秒ごとに読み直す
+export const vectorStatusQuery = queryOptions({
+  queryKey: ["vector-status"],
+  queryFn: () => requestJson<VectorStatus>("/api/search/status"),
+  refetchInterval: (query) =>
+    query.state.data?.state === "indexing" ? 2000 : false,
+  staleTime: 10_000,
+});
+
+// 足りない区切りのベクトルを作り始める(180)。検索の窓と設定の画面を開いたときに頼む。
+// 同じ Wi-Fi の端末からは書き込みの口が断るので、失敗は黙って捨てる(状態は今の控えのまま)
+export const startVectorIndex = (): Promise<VectorStatus | undefined> =>
+  requestJson<VectorStatus>("/api/search/index", { method: "POST" }).catch(
+    () => undefined,
+  );
 
 // 手元の PATH にあるエージェントだけ。画面の選択肢とコピー用のコマンドの元
 export const agentsQuery = queryOptions({

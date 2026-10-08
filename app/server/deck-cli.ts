@@ -67,7 +67,7 @@ export const USAGE = [
   "  ai-handout-studio design build",
   "  ai-handout-studio settings",
   "  ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]",
-  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share(true|false)・agentInstructions・archify・mods.claude(ask|declined)",
+  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・archify・mods.claude・vectorSearch(ask|declined)",
   "  ai-handout-studio examples [--lang ja|en]",
   "  ai-handout-studio doctor [--uninstall] [--json|--checklist]",
 ].join("\n");
@@ -115,9 +115,11 @@ export type SettingsUpdate =
   | { key: "features.lan"; value: boolean }
   | { key: "features.imageGeneration"; value: boolean }
   | { key: "features.share"; value: boolean }
+  | { key: "features.vectorSearch"; value: boolean }
   | { key: "agentInstructions"; value: Offer }
   | { key: "archify"; value: Offer }
-  | { key: "mods.claude"; value: Offer };
+  | { key: "mods.claude"; value: Offer }
+  | { key: "vectorSearch"; value: Offer };
 
 export type ParsedCli =
   | { success: true; command: CliCommand }
@@ -409,12 +411,14 @@ const SETTINGS_OFFER_KEYS = [
   "agentInstructions",
   "archify",
   "mods.claude",
+  "vectorSearch",
 ] as const;
 
 const SETTINGS_BOOLEAN_KEYS = [
   "features.lan",
   "features.imageGeneration",
   "features.share",
+  "features.vectorSearch",
 ] as const;
 
 // --set <キー>=<値> を1つ検証する。キーと値をここで確定し、あとの層は素通しする
@@ -751,15 +755,18 @@ export const formatSettings = (settings: ResolvedSettings): string =>
     `features.lan: ${settings.features.lan}`,
     `features.imageGeneration: ${settings.features.imageGeneration}`,
     `features.share: ${settings.features.share}`,
+    `features.vectorSearch: ${settings.features.vectorSearch}`,
     `agentInstructions: ${settings.agentInstructions}`,
     `archify: ${settings.archify}`,
     `mods.claude: ${settings.mods.claude}`,
+    `vectorSearch: ${settings.vectorSearch}`,
   ].join("\n");
 
 const FEATURE_OF = {
   "features.lan": "lan",
   "features.imageGeneration": "imageGeneration",
   "features.share": "share",
+  "features.vectorSearch": "vectorSearch",
 } as const;
 
 const applySettingsUpdate = (
@@ -774,6 +781,9 @@ const applySettingsUpdate = (
   if (update.key === "archify") return { ...profile, archify: update.value };
   if (update.key === "mods.claude") {
     return { ...profile, mods: { ...profile.mods, claude: update.value } };
+  }
+  if (update.key === "vectorSearch") {
+    return { ...profile, vectorSearch: update.value };
   }
   return {
     ...profile,

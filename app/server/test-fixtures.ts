@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { cp, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Ollama } from "./content-search/ollama.ts";
 
 // テストが使う資料。スライドのテンプレートの中身の見本(design/templates/slide/<名前>/sample.json)から組む
 
@@ -66,4 +67,11 @@ export const copyDesignWithDefaultSelection = async (): Promise<string> => {
     `${JSON.stringify(DEFAULT_SELECTION, null, 2)}\n`,
   );
   return dir;
+};
+
+// Ollama が動いていない手元(180)。API のテストが手元の本物の Ollama に問い合わせないように渡す
+export const NO_OLLAMA: Ollama = {
+  version: async () => undefined,
+  models: async () => undefined,
+  embed: async () => undefined,
 };

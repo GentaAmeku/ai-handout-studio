@@ -148,7 +148,7 @@ To be asked again later: `ai-handout-studio settings --set agentInstructions=ask
 
 ## 9. Optional features
 
-doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks archify (a skill by another author) and, when Claude Code is set up, this repository's Claude Code mod (`mod-claude`): each is `ok` when installed, `skipped` when the user declined it, and `missing` until then. A setup run again after an update comes back here when a newer version adds an item.
+doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks archify (a skill by another author), this repository's Claude Code mod (`mod-claude`) when Claude Code is set up, and vector search (`vector-search`: Ollama and an embedding model): each is `ok` when installed, `skipped` when the user declined it, and `missing` until then. A setup run again after an update comes back here when a newer version adds an item.
 
 Ask about every item in this section that doctor reports as `missing`, at once with a question sheet, and leave out the ones already decided (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
 
@@ -167,7 +167,7 @@ ai-handout-studio settings --set features.lan=false --set features.imageGenerati
 Record what the user declined, so that doctor stops asking (to be asked again later, set it back to `ask`):
 
 ```bash
-ai-handout-studio settings --set archify=declined --set mods.claude=declined
+ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
 ```
 
 With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw architecture, sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; diagrams fall back to tables, text and the bundled flow figures. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, record `archify=declined`.
@@ -184,6 +184,12 @@ ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
 
 If `mod-claude` is `outdated`, the mod was installed before and its link points to another clone or to nothing: replace it with the same commands without asking. If it is `warn` because a folder, not a link, is in its place, ask the user before replacing it.
+
+With the embedding model embeddinggemma-2 in a local Ollama, site search layers vector search on top of BM25 full-text search under "In content" (hybrid search, combined by RRF), so handouts worded differently still turn up. Without it, full-text search still looks inside handouts. Ask only when `vector-search` is `missing` (its detail says whether Ollama is missing, too old, not running, or without the model). In the question, say what changes and what gets installed (Ollama itself is an app and also installs a background service; the model is 378 MB), and that the vectors are made by the local Ollama and nothing is sent out. The agent does not install Ollama itself. If the user says yes and Ollama is missing, older than 0.40.0 or not running, ask them to install or update it from ollama.com or start it, then run the command below. If they decline, record `vectorSearch=declined`. Afterwards, Settings shows its status under Vector search; indexing starts when the search window or Settings opens (about a minute for 100 handouts).
+
+```bash
+ollama pull embeddinggemma-2:270m
+```
 
 ## 10. Start and check
 

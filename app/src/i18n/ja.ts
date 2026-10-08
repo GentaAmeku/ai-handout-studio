@@ -90,6 +90,7 @@ export const ja = {
   "search.contentGroup": "資料の中身",
   "search.place.overview": "概要",
   "search.place.slide": "スライド {number}",
+  "search.vector": "ベクトル検索",
 
   "deckCard.delete": "削除する",
   "deckCard.editNamed": "{title}を編集",
@@ -287,7 +288,7 @@ export const ja = {
     "☆ を押すとお気に入りになり、一覧の上の「お気に入り」に分かれて並びます。資料を開いた画面の上の帯の ☆ でも付け外しできます。",
   "help.list3": "スライドの資料一覧は、タグで絞り込めます。",
   "help.list4":
-    "見出しの右端の虫めがねで、検索の窓が開きます。3区分の資料の題名とテンプレートの名前をまとめて探し、その下の「資料の中身」には、題名に無くても中身に書いた言葉で見つかった資料が、当たった場所と前後の文つきで並びます。↑↓ で選んで Enter で開きます。Esc で閉じます。",
+    "見出しの右端の虫めがねで、検索の窓が開きます。3区分の資料の題名とテンプレートの名前をまとめて探し、その下の「資料の中身」には、題名に無くても中身に書いた言葉で見つかった資料が、当たった場所と前後の文つきで並びます(BM25 の全文検索)。手元の Ollama に埋め込みモデル embeddinggemma-2 を入れると、ベクトル検索も重ねて言い方の違う資料も見つかります。状態と入れ方は設定の画面の「ベクトル検索」にあります。↑↓ で選んで Enter で開きます。Esc で閉じます。",
 
   "help.phoneTitle": "スマートフォンで読む",
   "help.phoneLead":
@@ -314,13 +315,37 @@ export const ja = {
     "組織名を入れます。スライドの表紙と締め、HTML 資料と質問票の題名の上に出し、資料ごとには持たせません。画面の言語は設定の `locale` で決まります。変えるときは `ai-handout-studio settings --set locale=en` のあと、画面を開き直します。",
 
   "profile.title": "設定",
-  "profile.lead": "資料に出す組織名です。資料ごとには持たせません。",
+  "profile.lead":
+    "資料に出す組織名と、サイト内検索の設定です。組織名は資料ごとには持たせません。",
   "profile.orgName": "組織名",
   "profile.orgHint":
     "スライドの表紙と締め、HTML 資料と質問票の題名の上に小さく出ます。空なら出しません。",
   "profile.saved": "保存しました。資料を開くと反映されます。",
   "profile.saving": "保存中…",
   "profile.save": "保存",
+  // ベクトル検索(180)。言い回しは技術寄り(本人の決め)
+  "vector.title": "ベクトル検索",
+  "vector.optional": "任意",
+  "vector.lead":
+    "埋め込みモデル(embeddinggemma-2)で資料の区切りをベクトルにし、BM25 の全文検索と RRF で組み合わせます(ハイブリッド検索)。言い方が違っても近い資料が「資料の中身」に出ます。手元の Ollama で動かし、外へは送りません。",
+  "vector.state.ready": "有効",
+  "vector.state.indexing": "インデックス作成中",
+  "vector.state.noModel": "モデル未導入",
+  "vector.state.outdated": "Ollama が古い",
+  "vector.state.noOllama": "Ollama 未起動",
+  "vector.state.off": "無効(設定で停止中)",
+  "vector.ready.detail": "{indexed} 区切りをインデックス済みです。",
+  "vector.indexing.detail":
+    "{indexed} / {total} 区切り。終わるまでは BM25 だけで並べます。",
+  "vector.noModel.detail":
+    "Ollama {version} は起動しています。次のコマンドでモデルを取得すると有効になります(378MB)。",
+  "vector.outdated.detail":
+    "Ollama {version} では embeddinggemma-2 を取得できません。{min} 以降に更新してから、次のコマンドでモデルを取得します。",
+  "vector.noOllama.detail":
+    "Ollama({min} 以降)を ollama.com から入れて起動し、次のコマンドでモデルを取得すると有効になります(378MB)。",
+  "vector.off.detail":
+    "features.vectorSearch=false で止めています。次のコマンドで戻せます。",
+  "vector.fallback": "無効のときも、BM25 の全文検索で資料の中身は探せます。",
 
   "design.new.noLabel": "表示名を入れます",
   "design.new.label": "表示名",

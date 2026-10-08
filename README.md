@@ -37,6 +37,8 @@ The setup is a game book: it opens with a checklist, your agent runs `doctor`, r
 
 Ask from a conversation in any folder; the handout shows up in one list with search, favorites and tags, next to every handout you made before.
 
+Search looks inside handouts too: BM25 full-text search over every section, question and slide, with where it matched and the words around it. With the embedding model embeddinggemma-2 in your local [Ollama](https://ollama.com) (0.40.0 or later), vector search is layered on top (hybrid search, combined by RRF), so handouts worded differently still turn up. `ai-handout-studio search <query> --json` gives an agent the same results, so it can serve as the retriever when an agent builds RAG over your handouts.
+
 ### Fix it on screen
 
 ![Editing a slide on screen: the heading is selected and its text is being changed in the Properties panel](docs/images/en/editor.png)
@@ -94,8 +96,8 @@ Other tools also let an agent write JSON that an app renders into slides. This o
 ## What it touches
 
 - Runs on your machine. No hosted service, no account, and nothing is sent anywhere unless you turn on an optional feature: `share` publishes a sheet or document as a Claude Artifact, `lan` lets devices on your Wi-Fi read, and `imageGeneration` calls an image CLI you already have.
-- Your handouts live in `workspace/` inside the clone.
-- Outside the clone, setup writes only links — the command in `~/.local/bin`, the two skills in `~/.agents/skills` or `~/.claude/skills`, and the mod in `~/.claude/skills` — plus one `ai-handout-studio` block in your agent's shared instructions, and a `PATH` line in your shell configuration if `~/.local/bin` is not on it. It asks before writing the last two.
+- Your handouts live in `workspace/` inside the clone. Vector search, when you opt in, runs on your local Ollama only and keeps the vectors in `workspace/search/`.
+- Outside the clone, setup writes only links — the command in `~/.local/bin`, the two skills in `~/.agents/skills` or `~/.claude/skills`, and the mod in `~/.claude/skills` — plus one `ai-handout-studio` block in your agent's shared instructions, and a `PATH` line in your shell configuration if `~/.local/bin` is not on it. It asks before writing the last two. If you opt into vector search, it also pulls the embedding model (378 MB) into your Ollama; Ollama itself is yours to install.
 - In LAN mode, a request from another device can only read; saving, deleting and agent runs stay on this computer. Details in [SECURITY.md](SECURITY.md).
 
 ## Install
@@ -138,7 +140,7 @@ ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <s
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <key>=<value> [--set <key>=<value> ...]
-  keys: orgName, locale (ja|en), features.lan, features.imageGeneration, features.share (true|false), agentInstructions, archify, mods.claude (ask|declined)
+  keys: orgName, locale (ja|en), features.lan, features.imageGeneration, features.share, features.vectorSearch (true|false), agentInstructions, archify, mods.claude, vectorSearch (ask|declined)
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```

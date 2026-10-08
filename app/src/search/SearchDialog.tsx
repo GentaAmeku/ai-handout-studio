@@ -25,6 +25,7 @@ import {
   decksQuery,
   designTemplatesQuery,
   handoutsQuery,
+  vectorStatusQuery,
 } from "../api/queries";
 import type { ContentPlace } from "../api/types";
 import type { MessageKey } from "../i18n/ja";
@@ -112,6 +113,8 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
     ...contentSearchQuery(contentQuery),
     enabled: contentEnabled,
   });
+  // 有効のときだけ下端に印を出す(180。無効のときは何も出さない)
+  const vectorReady = useQuery(vectorStatusQuery).data?.state === "ready";
 
   const terms = termsOf(query);
   const byKind = templates.data?.templates;
@@ -365,6 +368,12 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
             <kbd>Esc</kbd>
             {t("search.hintClose")}
           </span>
+          {vectorReady && (
+            <span className="search-dialog__vector">
+              <span className="status-dot status-dot--ok" aria-hidden />
+              {t("search.vector")}
+            </span>
+          )}
         </p>
       )}
     </div>
