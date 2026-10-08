@@ -523,6 +523,47 @@ code {
   font-size: var(--fs-small);
 }
 
+/* 中身の当たりの行(179)。1行目は題名、2行目に場所の札と前後の文(2行まで) */
+.search-dialog__row--content {
+  align-items: start;
+}
+
+.search-dialog__icon--top {
+  margin-top: 2px;
+}
+
+.search-dialog__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.search-dialog__snippet {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* 長い見出しは札の中で … にする */
+.search-dialog__place {
+  display: inline-block;
+  max-width: 20em;
+  margin-right: var(--space-xs);
+  padding: 0 6px;
+  overflow: hidden;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
 /* 当たった所は太い青 */
 .search-dialog mark {
   background: none;

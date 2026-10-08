@@ -100,32 +100,58 @@ const blockText = (block: DocumentBlock, labels: Labels): string => {
   return toText(block.props, labels);
 };
 
-export const documentText = (doc: DocumentFile): string => {
+const labelsOf = (doc: DocumentFile): Labels => {
   const lang = doc.lang ?? "ja";
-  const labels: Labels = {
-    ...HANDOUT_STRINGS[lang].document,
-    ...TEXT_LABELS[lang],
-  };
-  const parts = [
-    `# ${doc.head.title}`,
-    ...(doc.head.lede ? [doc.head.lede] : []),
-    ...(doc.summary
-      ? [`${doc.summary.label ?? labels.summaryLabel}: ${doc.summary.text}`]
-      : []),
-    ...doc.sections.flatMap((section) => [
-      `${section.level === 3 ? "###" : "##"} ${section.heading}`,
-      ...section.blocks
+  return { ...HANDOUT_STRINGS[lang].document, ...TEXT_LABELS[lang] };
+};
+
+// 本文の1かたまり。heading が無いのは頭(導入と要約)
+export type DocumentPart = { heading?: string; level?: 2 | 3; texts: string[] };
+
+// 読む順のかたまり。頭(導入と要約)・節ごと・用語集。document export --text とサイト内検索の区切りが使う
+export const documentParts = (doc: DocumentFile): DocumentPart[] => {
+  const labels = labelsOf(doc);
+  return [
+    {
+      texts: [
+        ...(doc.head.lede ? [doc.head.lede] : []),
+        ...(doc.summary
+          ? [`${doc.summary.label ?? labels.summaryLabel}: ${doc.summary.text}`]
+          : []),
+      ],
+    },
+    ...doc.sections.map((section) => ({
+      heading: section.heading,
+      level: section.level === 3 ? (3 as const) : (2 as const),
+      texts: section.blocks
         .map((block) => blockText(block, labels))
         .filter((text) => text.trim() !== ""),
-    ]),
+    })),
     ...(doc.aside && doc.aside.glossary.length > 0
       ? [
-          `## ${doc.aside.label}`,
-          doc.aside.glossary
-            .map((entry) => `- ${entry.term}: ${entry.description}`)
-            .join("\n"),
+          {
+            heading: doc.aside.label,
+            level: 2 as const,
+            texts: [
+              doc.aside.glossary
+                .map((entry) => `- ${entry.term}: ${entry.description}`)
+                .join("\n"),
+            ],
+          },
         ]
       : []),
+  ];
+};
+
+export const documentText = (doc: DocumentFile): string => {
+  const parts = [
+    `# ${doc.head.title}`,
+    ...documentParts(doc).flatMap((part) => [
+      ...(part.heading === undefined
+        ? []
+        : [`${part.level === 3 ? "###" : "##"} ${part.heading}`]),
+      ...part.texts,
+    ]),
   ];
   return `${parts.join("\n\n")}\n`;
 };

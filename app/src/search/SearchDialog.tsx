@@ -21,24 +21,28 @@ import {
   useState,
 } from "react";
 import {
+  contentSearchQuery,
   decksQuery,
   designTemplatesQuery,
   handoutsQuery,
 } from "../api/queries";
+import type { ContentPlace } from "../api/types";
 import type { MessageKey } from "../i18n/ja";
 import { useLanguage } from "../i18n/language";
 import {
+  contentRows,
   deckEntries,
   handoutEntries,
-  type SearchEntry,
   type SearchKind,
+  type SearchTarget,
   searchGroups,
   templateEntries,
 } from "./entries";
-import { highlight, termsOf } from "./match";
+import { canSearchContent, highlight, termsOf } from "./match";
 
 // サイト内検索の窓。
 // 打つと6区分ごとに当たったものの行を全部並べ、1件目を選んだ状態で始める。↑↓ で移り、Enter かマウスで開く。
+// その下に「資料の中身」の区分を足す(179)。中身は打つのが少し止まってから問い合わせ、届いたら並べる。
 // 閉じるのは Esc・×・外の暗い所。開き直すと欄は空(中身は開いている間だけ描く)。
 // 画面読み上げソフト向けの作り込みはしない(利用者の回答)
 
@@ -60,9 +64,12 @@ const KIND_LABEL: Record<SearchKind, MessageKey> = {
   documentTemplate: "templates.title.document",
 };
 
+// 打つのがこれだけ止まったら中身を問い合わせる(1字ごとに問い合わせない)
+const CONTENT_DELAY = 150;
+
 // 行き先は区分ごとに経路の型が違うので、Link と navigate の型へいったん unknown を通してゆるめる
-const linkProps = (entry: SearchEntry) =>
-  entry.target as unknown as ComponentProps<typeof Link>;
+const linkProps = (target: SearchTarget) =>
+  target as unknown as ComponentProps<typeof Link>;
 
 const Marked = ({ text, terms }: { text: string; terms: readonly string[] }) =>
   highlight(text, terms).map((segment, index) =>
@@ -75,16 +82,36 @@ const Marked = ({ text, terms }: { text: string; terms: readonly string[] }) =>
     ),
   );
 
+const placeText = (
+  place: ContentPlace,
+  t: ReturnType<typeof useLanguage>["t"],
+): string => {
+  if (place.type === "overview") return t("search.place.overview");
+  if (place.type === "section") return place.heading;
+  if (place.type === "question") return `Q${place.number}`;
+  return t("search.place.slide", { number: place.number });
+};
+
 const SearchPanel = ({ onClose }: { onClose: () => void }) => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  // 中身を問い合わせる文。打つのが CONTENT_DELAY 止まったら query に追いつく
+  const [contentQuery, setContentQuery] = useState("");
   const [active, setActive] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
+  const contentTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const decks = useQuery(decksQuery);
   const sheets = useQuery(handoutsQuery("sheet"));
   const documents = useQuery(handoutsQuery("document"));
   const templates = useQuery(designTemplatesQuery);
+  const contentEnabled = canSearchContent(contentQuery);
+  const content = useQuery({
+    ...contentSearchQuery(contentQuery),
+    enabled: contentEnabled,
+  });
 
   const terms = termsOf(query);
   const byKind = templates.data?.templates;
@@ -99,9 +126,20 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
     },
     terms,
   );
-  const flat = groups.flatMap((group) => group.entries);
+  // 打ち途中の古い当たりは出さない(打った文に追いついた問い合わせの当たりだけ)
+  const settled = contentQuery === query;
+  const rows =
+    settled && contentEnabled ? contentRows(content.data?.hits ?? []) : [];
+  const titleCount = groups.reduce(
+    (sum, group) => sum + group.entries.length,
+    0,
+  );
+  const targets = [
+    ...groups.flatMap((group) => group.entries.map((entry) => entry.target)),
+    ...rows.map((row) => row.target),
+  ];
   // 読み込みが後から届いて件数が減っても、選んだ行が並びの外へ出ないようにする
-  const current = Math.min(active, flat.length - 1);
+  const current = Math.min(active, targets.length - 1);
   const offsets = groups.map((_group, index) =>
     groups
       .slice(0, index)
@@ -113,14 +151,22 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
     { query: documents, label: t("nav.section.document") },
     { query: templates, label: t("nav.templates") },
   ];
-  const loading = sources.some((source) => source.query.isPending);
-  const failed = sources
-    .filter((source) => source.query.isError)
-    .map((source) => source.label);
+  // 中身の当たりを待っている間(打ち途中か、問い合わせ中)
+  const contentWaiting =
+    canSearchContent(query) && (!settled || content.isFetching);
+  const loading =
+    sources.some((source) => source.query.isPending) || contentWaiting;
+  const failed = [
+    ...sources
+      .filter((source) => source.query.isError)
+      .map((source) => source.label),
+    ...(settled && content.isError ? [t("search.contentGroup")] : []),
+  ];
+  const empty = groups.length === 0 && rows.length === 0;
 
-  const openEntry = (entry: SearchEntry) => {
+  const openTarget = (target: SearchTarget) => {
     onClose();
-    navigate(entry.target as unknown as NavigateOptions);
+    navigate(target as unknown as NavigateOptions);
   };
 
   const move = (next: number) => {
@@ -132,10 +178,10 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     // 日本語の変換を確定する Enter と、変換中の ↑↓ は窓では使わない
-    if (event.nativeEvent.isComposing || flat.length === 0) return;
+    if (event.nativeEvent.isComposing || targets.length === 0) return;
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      move(Math.min(current + 1, flat.length - 1));
+      move(Math.min(current + 1, targets.length - 1));
       return;
     }
     if (event.key === "ArrowUp") {
@@ -143,10 +189,10 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
       move(Math.max(current - 1, 0));
       return;
     }
-    const entry = flat[current];
-    if (event.key === "Enter" && entry) {
+    const target = targets[current];
+    if (event.key === "Enter" && target) {
       event.preventDefault();
-      openEntry(entry);
+      openTarget(target);
     }
   };
 
@@ -163,8 +209,14 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
           spellCheck={false}
           value={query}
           onChange={(event) => {
-            setQuery(event.target.value);
+            const next = event.target.value;
+            setQuery(next);
             setActive(0);
+            clearTimeout(contentTimer.current);
+            contentTimer.current = setTimeout(
+              () => setContentQuery(next),
+              CONTENT_DELAY,
+            );
           }}
           onKeyDown={onKeyDown}
         />
@@ -198,7 +250,7 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
                   return (
                     <Link
                       key={entry.key}
-                      {...linkProps(entry)}
+                      {...linkProps(entry.target)}
                       className={
                         index === current
                           ? "search-dialog__row is-active"
@@ -228,7 +280,65 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
               </section>
             );
           })}
-          {groups.length === 0 && (
+          {rows.length > 0 && (
+            <section
+              className="search-dialog__group"
+              aria-label={t("search.contentGroup")}
+            >
+              <h2 className="search-dialog__label">
+                {t("search.contentGroup")}
+                <span className="search-dialog__count">{rows.length}</span>
+              </h2>
+              {rows.map((row, rowIndex) => {
+                const index = titleCount + rowIndex;
+                const Icon = KIND_ICON[row.hit.kind];
+                return (
+                  <Link
+                    key={row.key}
+                    {...linkProps(row.target)}
+                    className={
+                      index === current
+                        ? "search-dialog__row search-dialog__row--content is-active"
+                        : "search-dialog__row search-dialog__row--content"
+                    }
+                    data-index={index}
+                    onMouseMove={() => {
+                      if (index !== current) setActive(index);
+                    }}
+                    onClick={onClose}
+                  >
+                    <Icon
+                      className="search-dialog__icon search-dialog__icon--top"
+                      size={20}
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                    <span className="search-dialog__lines">
+                      <span className="search-dialog__title">
+                        <Marked text={row.hit.title} terms={terms} />
+                      </span>
+                      <span className="search-dialog__snippet">
+                        <span className="search-dialog__place">
+                          {placeText(row.hit.place, t)}
+                        </span>
+                        {row.hit.snippet.map((segment, segmentIndex) =>
+                          segment.hit ? (
+                            // biome-ignore lint/suspicious/noArrayIndexKey: 字の切れ目は id を持たず、並び順で区別する
+                            <mark key={segmentIndex}>{segment.text}</mark>
+                          ) : (
+                            // biome-ignore lint/suspicious/noArrayIndexKey: 字の切れ目は id を持たず、並び順で区別する
+                            <span key={segmentIndex}>{segment.text}</span>
+                          ),
+                        )}
+                      </span>
+                    </span>
+                    <span className="search-dialog__meta">{row.hit.id}</span>
+                  </Link>
+                );
+              })}
+            </section>
+          )}
+          {empty && (
             <p className="search-dialog__state">
               {t(loading ? "common.loading" : "search.noMatch")}
             </p>
@@ -240,7 +350,7 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
           )}
         </div>
       )}
-      {groups.length > 0 && (
+      {!empty && (
         <p className="search-dialog__foot">
           <span>
             <kbd>↑</kbd>

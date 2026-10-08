@@ -179,6 +179,15 @@ describe("parseCli", () => {
       success: true,
       command: { name: "templates", kind: "slide" },
     });
+    // search は残りの引数をつないで探す文にする
+    expect(parseCli(["search", "メモリ", "棚卸し"])).toEqual({
+      success: true,
+      command: { name: "search", query: "メモリ 棚卸し", json: false },
+    });
+    expect(parseCli(["search", "--json", "共有の方式"])).toEqual({
+      success: true,
+      command: { name: "search", query: "共有の方式", json: true },
+    });
     // share は質問票・HTML 資料・スライドのどの id でも受ける
     expect(parseCli(["share", "sheet_20260920_001"])).toEqual({
       success: true,
@@ -327,6 +336,10 @@ describe("parseCli", () => {
     expect(parseCli(["build"]).success).toBe(false);
     expect(parseCli(["templates", "--kind", "poster"]).success).toBe(false);
     expect(parseCli(["templates", "extra"]).success).toBe(false);
+    expect(parseCli(["search"]).success).toBe(false);
+    expect(parseCli(["search", "--json"]).success).toBe(false);
+    expect(parseCli(["search", "メ"]).success).toBe(false);
+    expect(parseCli(["search", "メモリ", "--limit", "3"]).success).toBe(false);
     expect(parseCli(["share"]).success).toBe(false);
     expect(parseCli(["share", "../etc"]).success).toBe(false);
     expect(parseCli(["share", "doc_20260920_001", "extra"]).success).toBe(

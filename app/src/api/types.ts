@@ -249,3 +249,26 @@ export type ShareApiResult = {
 
 // code はサーバーの守りが断ったときだけ付く。画面はこれを見て文言を訳す
 export type ApiErrorBody = { error: string; code?: string };
+
+// サイト内検索の中身の当たり(179。方式は docs/plans/content-search.md)。
+// 場所は行の2行目の札。スライドは当たったスライドを開くため slideId も持つ
+export type ContentKind = "slide" | "sheet" | "document";
+
+export type ContentPlace =
+  | { type: "overview" }
+  | { type: "section"; heading: string }
+  | { type: "question"; number: number }
+  | { type: "slide"; number: number; slideId: string };
+
+// 前後の文。hit は当たった字(太い青で出す)
+export type SnippetSegment = { text: string; hit: boolean };
+
+export type ContentHit = {
+  kind: ContentKind;
+  id: string;
+  title: string;
+  place: ContentPlace;
+  snippet: SnippetSegment[];
+};
+
+export type ContentSearchResult = { hits: ContentHit[] };

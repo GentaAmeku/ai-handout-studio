@@ -15,6 +15,7 @@ import {
   type ResolvedSettings,
 } from "../src/schema/profile.ts";
 import { isShareUrl, SHARE_URL_PREFIX } from "../src/schema/share.ts";
+import { bigramsOf } from "./content-search/score.ts";
 import { readSelection, readTemplates, templateNames } from "./design.ts";
 import {
   DIAGRAM_TYPES,
@@ -57,6 +58,7 @@ export const USAGE = [
   "  ai-handout-studio open [<id>] [--lan|--no-lan]",
   "  ai-handout-studio restart [<id>] [--lan|--no-lan]",
   "  ai-handout-studio templates [--kind slide|sheet|document]",
+  "  ai-handout-studio search <探す文> [--json]",
   ...HANDOUT_USAGE,
   "  ai-handout-studio share <id>",
   "  ai-handout-studio share <id> --url <公開した Artifact の URL>",
@@ -81,6 +83,8 @@ export type CliCommand =
   | { name: "restart"; id?: string; lan?: boolean }
   // テンプレートの一覧。区分を省くと3区分とも出す
   | { name: "templates"; kind?: Surface }
+  // 資料の中身から近い資料を探す(サイト内検索の「資料の中身」と同じ並び。題名の当たりも外さない)
+  | { name: "search"; query: string; json: boolean }
   // 共有用の束を作って依頼文を出す。--url は公開した URL を share.json に残す
   | { name: "share"; id: string; url?: string }
   // 資料に載せるスクリーンショット。Web の画面か手元の HTML(モック)を PNG に撮る
@@ -216,6 +220,32 @@ const parseTemplates = (args: readonly string[]): ParsedCli => {
     return fail(`--kind は ${surfaceNames.join("・")} のどれか`);
   }
   return { success: true, command: { name: "templates", kind: kind.data } };
+};
+
+const parseSearchOptions = (args: readonly string[]) => {
+  try {
+    return parseArgs({
+      args: [...args],
+      options: { json: { type: "boolean" } },
+      allowPositionals: true,
+    });
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+};
+
+// 探す文は空白を含んでよい(引用符で囲まなくても、残りの引数をつなぐ)
+const parseSearch = (args: readonly string[]): ParsedCli => {
+  const parsed = parseSearchOptions(args);
+  if (parsed instanceof Error) return fail(parsed.message);
+  const query = parsed.positionals.join(" ").trim();
+  if (query === "") return fail("search <探す文> [--json] の形で渡す");
+  // 2字ずつ重ねて切った片で比べるので、1字では探せない
+  if (bigramsOf(query).length === 0) return fail("2字以上の文で探す");
+  return {
+    success: true,
+    command: { name: "search", query, json: parsed.values.json ?? false },
+  };
 };
 
 const parseShareOptions = (args: readonly string[]) => {
@@ -496,6 +526,7 @@ export const parseCli = (argv: readonly string[]): ParsedCli => {
     };
   }
   if (name === "templates") return parseTemplates(rest);
+  if (name === "search") return parseSearch(rest);
   if (name === "share") return parseShare(rest);
   if (name === "shot") return parseShot(rest);
   if (name === "diagram") return parseDiagram(rest);

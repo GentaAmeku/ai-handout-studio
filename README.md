@@ -122,6 +122,7 @@ ai-handout-studio check <file> [--minutes <n>] [--run]
 ai-handout-studio open [<id>] [--lan|--no-lan]
 ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]
+ai-handout-studio search <query> [--json]
 ai-handout-studio sheet new --questions <questions.json> [--title <title>] [--template <template>] [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --questions <questions.json> [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --layout <focus|overview|all|print>

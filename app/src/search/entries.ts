@@ -1,4 +1,5 @@
 import type {
+  ContentHit,
   DeckSummary,
   DesignTemplateSummary,
   HandoutKind,
@@ -27,6 +28,7 @@ export type SearchKind = (typeof SEARCH_KINDS)[number];
 export type SearchTarget = {
   to: string;
   params: Readonly<Record<string, string>>;
+  search?: Readonly<Record<string, string>>;
 };
 
 export type SearchEntry = {
@@ -102,3 +104,26 @@ export const searchGroups = (
       matchesAll(terms, entry.fields),
     ),
   })).filter((group) => group.entries.length > 0);
+
+// 中身の当たりの行(179)。開く先は資料。スライドだけは当たったスライドを開く(編集画面の ?slide=)
+export type ContentRow = { key: string; hit: ContentHit; target: SearchTarget };
+
+const contentTarget = (hit: ContentHit): SearchTarget => {
+  if (hit.kind !== "slide") {
+    return { to: sectionDetailPath[hit.kind], params: { id: hit.id } };
+  }
+  return {
+    to: "/decks/$deckId",
+    params: { deckId: hit.id },
+    ...(hit.place.type === "slide"
+      ? { search: { slide: hit.place.slideId } }
+      : {}),
+  };
+};
+
+export const contentRows = (hits: readonly ContentHit[]): ContentRow[] =>
+  hits.map((hit) => ({
+    key: `content:${hit.kind}:${hit.id}`,
+    hit,
+    target: contentTarget(hit),
+  }));

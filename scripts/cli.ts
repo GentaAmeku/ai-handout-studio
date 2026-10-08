@@ -5,6 +5,8 @@ import { homedir, networkInterfaces, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import { formatContentHits } from "../app/server/content-search/format.ts";
+import { createContentIndex } from "../app/server/content-search/index.ts";
 import {
   applySettingsUpdates,
   type CliCommand,
@@ -606,6 +608,19 @@ const runExamples = async (lang: Locale | undefined): Promise<number> => {
   return 0;
 };
 
+// 中身の当たりだけを返す(題名で当たった資料も外さない)。--json は API と同じ形
+const runSearch = async (query: string, json: boolean): Promise<number> => {
+  const hits = await createContentIndex(workspaceRoot).search(query, {
+    excludeTitleHits: false,
+  });
+  console.log(
+    json
+      ? JSON.stringify({ query, hits }, null, 2)
+      : formatContentHits(query, hits),
+  );
+  return 0;
+};
+
 const HANDOUT_COMMANDS = [
   "handout-new",
   "handout-update",
@@ -639,6 +654,7 @@ const run = async (argv: readonly string[]): Promise<number> => {
     return runRestart(command.id, await lanOf(command.lan));
   }
   if (command.name === "templates") return runTemplates(command.kind);
+  if (command.name === "search") return runSearch(command.query, command.json);
   if (command.name === "share") return runShare(command.id, command.url);
   if (command.name === "shot") return runShot(command);
   if (command.name === "diagram") return runDiagram(command);
