@@ -1,6 +1,6 @@
 ---
 name: ai-handout-studio
-description: ai-handout-studio の資料を作る・直す。1280x720 のスライドは deck.json、設計書・要求要件・調査結果の HTML 資料は document.json で組む。どのフォルダの会話でも「資料を作って」「スライドを直して」「設計書を HTML にして」「調査結果を人に渡す形にして」「登壇資料を作って」「LT のスライドを作って」と頼まれたとき、またはアプリの request.md から patch.json を作るときに使う。
+description: ai-handout-studio の資料を作る・直す。1280x720 のスライドは deck.json、設計書・変更計画・要求要件・調査結果の HTML 資料は document.json で組む。どのフォルダの会話でも「資料を作って」「スライドを直して」「設計書を HTML にして」「変更計画を作って」「調査結果を人に渡す形にして」「登壇資料を作って」「LT のスライドを作って」と頼まれたとき、またはアプリの request.md から patch.json を作るときに使う。
 ---
 
 # ai-handout-studio の資料づくり
@@ -11,7 +11,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | --- | --- |
 | スライド(1280x720 の資料) | このファイル。`deck.json` を書く |
 | 登壇スライド(登壇・LT・講義) | [references/talk.md](references/talk.md)。作る前の聞き取りに登壇の項目(告知ページ・持ち時間・伝えたいこと)を足して質問票で聞く。見た目は登壇用テンプレートの Podium(`--template podium`)。`deck.json` の書き方はこのファイル |
-| HTML 資料(設計書・要求要件・調査結果) | [references/document.md](references/document.md)。`document.json` を書く |
+| HTML 資料(設計書・変更計画・要求要件・調査結果) | [references/document.md](references/document.md)。`document.json` を書く |
 | 質問票 | 同じリポジトリの question-sheet スキル([skills/question-sheet/](../question-sheet/SKILL.md))。保存は同じ `ai-handout-studio sheet new` コマンド。並べ方(レイアウト)は `--layout <focus\|overview\|all\|print>` で選べる。省略するとテンプレートの既定のまま。直すときは `ai-handout-studio sheet update <id> --layout <…>` |
 
 以下はスライドの作り方。資料は `deck.json` 1つ。JSON は文章・構造・配置だけを持ち、色・フォント・余白の見た目はアプリのテンプレートが持つ。形の正はこのスキルと同じフォルダの `deck.schema.json`。
@@ -222,7 +222,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 ## HTML 資料を作る
 
-設計書・要求要件・調査結果は、スライドではなく HTML 資料にする。`document.json` にセクションとブロック(部品)で書き、資料として保存する。JSON は文章と構造だけを持ち、色・寸法・class は書かない。DOM とテンプレートを当てて1枚の HTML にするのはアプリの仕事。形の正は同じフォルダの `document.schema.json`。
+設計書・変更計画・要求要件・調査結果は、スライドではなく HTML 資料にする。`document.json` にセクションとブロック(部品)で書き、資料として保存する。JSON は文章と構造だけを持ち、色・寸法・class は書かない。DOM とテンプレートを当てて1枚の HTML にするのはアプリの仕事。形の正は同じフォルダの `document.schema.json`。
 
 ```bash
 ai-handout-studio check <document.json>
@@ -232,4 +232,4 @@ ai-handout-studio document export <id> --out <保存先.html>
 ai-handout-studio document export <id> --text --out <保存先.txt>
 ```
 
-手順(読者を1人決める・型を選ぶ・見本を読む・画像を用意する・組む・保存する・読者テスト・渡す)と部品・図・コードの照合の決まりは [references/document.md](references/document.md)。設計書・要求要件・調査結果・PR 説明・ADR のセクションの型は [references/document-templates.md](references/document-templates.md)。
+手順(読者を1人決める・型を選ぶ・見本を読む・画像を用意する・組む・保存する・読者テスト・渡す)と部品・図・コードの照合の決まりは [references/document.md](references/document.md)。設計書・変更計画・要求要件・調査結果・PR 説明・ADR のセクションの型は [references/document-templates.md](references/document-templates.md)。
