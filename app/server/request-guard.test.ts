@@ -333,6 +333,7 @@ const READ_ROUTES = [
   "GET /api/documents/:id/versions/:versionId",
   "GET /api/documents/:id/versions/:versionId/preview",
   "GET /api/profile",
+  "GET /api/search",
   "GET /api/sheets",
   "GET /api/sheets/:id",
   "GET /api/sheets/:id/preview",

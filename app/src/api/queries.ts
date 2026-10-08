@@ -16,6 +16,7 @@ import type {
   AgentRunStatus,
   AiPatchStatus,
   AiRequestDetail,
+  ContentSearchResult,
   DeckDetail,
   DeckSummary,
   DesignBuildResult,
@@ -37,6 +38,17 @@ import type {
   VersionSummary,
   WithFavorite,
 } from "./types";
+
+// サイト内検索の中身の当たり(179)。打った文をキーにし、窓を開き直して同じ文を打てば控えから出す
+export const contentSearchQuery = (query: string) =>
+  queryOptions({
+    queryKey: ["search", query],
+    queryFn: () =>
+      requestJson<ContentSearchResult>(
+        `/api/search?q=${encodeURIComponent(query)}`,
+      ),
+    staleTime: 10_000,
+  });
 
 // 手元の PATH にあるエージェントだけ。画面の選択肢とコピー用のコマンドの元
 export const agentsQuery = queryOptions({

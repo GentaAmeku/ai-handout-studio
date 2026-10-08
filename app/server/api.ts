@@ -15,6 +15,10 @@ import { isTemplateName } from "../src/schema/design.ts";
 import type { AgentRunner } from "./agent-runs.ts";
 import { installedAgents, isAgentId } from "./agent-table.ts";
 import { createAiRequest, readAiPatch } from "./ai-requests.ts";
+import {
+  createContentIndex,
+  registerContentSearchRoutes,
+} from "./content-search/index.ts";
 import { type DesignBuilder, registerDesignRoutes } from "./design-api.ts";
 import type { Exporter } from "./exporter.ts";
 import {
@@ -429,6 +433,7 @@ export const createApi = ({
     async () => (await readSettings(workspaceRoot)).locale,
   );
   registerHandoutRoutes(app, { repoRoot, workspaceRoot, designDir, now });
+  registerContentSearchRoutes(app, createContentIndex(workspaceRoot));
 
   return app;
 };

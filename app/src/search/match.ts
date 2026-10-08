@@ -9,6 +9,10 @@ export const normalize = (text: string): string =>
 export const termsOf = (query: string): string[] =>
   normalize(query).split(/\s+/).filter(Boolean);
 
+// 中身を探せるか。中身は2字ずつ重ねて切った片で比べるので、空白を除いて2字以上要る
+export const canSearchContent = (query: string): boolean =>
+  [...normalize(query).replace(/\s+/g, "")].length >= 2;
+
 // 見るところのどれかに、語が1つずつ全部入っているか
 export const matchesAll = (
   terms: readonly string[],

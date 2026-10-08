@@ -85,6 +85,9 @@ export const en: Record<MessageKey, string> = {
   "search.hintMove": "Select",
   "search.hintOpen": "Open",
   "search.hintClose": "Close",
+  "search.contentGroup": "In content",
+  "search.place.overview": "Overview",
+  "search.place.slide": "Slide {number}",
 
   "deckCard.delete": "Delete",
   "deckCard.editNamed": "Edit {title}",
@@ -285,7 +288,7 @@ export const en: Record<MessageKey, string> = {
     "Press ☆ to add a favorite; favorites are listed separately under Favorites at the top. You can also use the ☆ in the bar at the top of an opened handout.",
   "help.list3": "The slide list can be filtered by tag.",
   "help.list4":
-    "The magnifying glass at the right end of the header opens search. It looks through the titles of all three kinds and template names at once. Pick with ↑↓ and open with Enter; Esc closes it.",
+    'The magnifying glass at the right end of the header opens search. It looks through the titles of all three kinds and template names at once, and below them "In content" lists handouts whose text matches even when the title does not, with where it matched and the words around it. Pick with ↑↓ and open with Enter; Esc closes it.',
 
   "help.phoneTitle": "Reading on a phone",
   "help.phoneLead":

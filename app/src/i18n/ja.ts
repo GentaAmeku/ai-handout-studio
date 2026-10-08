@@ -86,6 +86,10 @@ export const ja = {
   "search.hintMove": "選ぶ",
   "search.hintOpen": "開く",
   "search.hintClose": "閉じる",
+  // 中身の当たり(179)。区分の見出しと、行の2行目の場所の札
+  "search.contentGroup": "資料の中身",
+  "search.place.overview": "概要",
+  "search.place.slide": "スライド {number}",
 
   "deckCard.delete": "削除する",
   "deckCard.editNamed": "{title}を編集",
@@ -283,7 +287,7 @@ export const ja = {
     "☆ を押すとお気に入りになり、一覧の上の「お気に入り」に分かれて並びます。資料を開いた画面の上の帯の ☆ でも付け外しできます。",
   "help.list3": "スライドの資料一覧は、タグで絞り込めます。",
   "help.list4":
-    "見出しの右端の虫めがねで、検索の窓が開きます。3区分の資料の題名とテンプレートの名前をまとめて探し、↑↓ で選んで Enter で開きます。Esc で閉じます。",
+    "見出しの右端の虫めがねで、検索の窓が開きます。3区分の資料の題名とテンプレートの名前をまとめて探し、その下の「資料の中身」には、題名に無くても中身に書いた言葉で見つかった資料が、当たった場所と前後の文つきで並びます。↑↓ で選んで Enter で開きます。Esc で閉じます。",
 
   "help.phoneTitle": "スマートフォンで読む",
   "help.phoneLead":
