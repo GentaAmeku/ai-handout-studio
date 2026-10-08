@@ -26,6 +26,8 @@ workspace/favorites.json
 workspace/examples.json
 # 利用者ごとの設定(組織名・言語・任意の機能)。無ければ既定値で読む
 workspace/profile.json
+# ベクトル検索の控え(資料の区切りのベクトル)。資料から作り直せ、中身は資料の写しなので git に入れない
+workspace/search/
 
 # Claude Code が mod を読み込んだときに書く型(中にも .gitignore を置くが、念のため)
 mods/*/.claude-plugin/types/

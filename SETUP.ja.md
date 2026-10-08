@@ -148,7 +148,7 @@ ai-handout-studio settings --set agentInstructions=declined
 
 ## 9. 任意の機能
 
-doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)と、Claude Code が入っていればこのリポジトリの Claude Code の mod(`mod-claude`)も見る。どちらも、入っていれば `ok`、利用者が断っていれば `skipped`、そのどちらでもないうちは `missing`。更新のあとに流し直したセットアップは、新しい版で項目が増えるとこの節に戻る。
+doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)と、Claude Code が入っていればこのリポジトリの Claude Code の mod(`mod-claude`)、ベクトル検索(`vector-search`。Ollama と埋め込みモデル)も見る。どれも、入っていれば `ok`、利用者が断っていれば `skipped`、そのどちらでもないうちは `missing`。更新のあとに流し直したセットアップは、新しい版で項目が増えるとこの節に戻る。
 
 この節で doctor が `missing` と返した項目を、1枚の質問票でまとめて聞く。決まっている項目は聞き直さない(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
 
@@ -167,7 +167,7 @@ ai-handout-studio settings --set features.lan=false --set features.imageGenerati
 利用者が断ったものは記録し、doctor がもう聞かないようにする(あとでまた聞いてほしくなったら `ask` に戻す)。
 
 ```bash
-ai-handout-studio settings --set archify=declined --set mods.claude=declined
+ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
 ```
 
 archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントが構成図・シーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、図は表や文、同梱の流れの図で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら `archify=declined` を記録する。
@@ -184,6 +184,12 @@ ln -sfn "$PWD/mods/handout-watch" ~/.claude/skills/handout-watch
 ```
 
 `mod-claude` が `outdated` なら、前に入れた mod のリンクが別の clone を指すか、指す先が無い。聞かずに同じコマンドで張り直す。置き場にリンクではなくフォルダがあって `warn` のときは、置き換えるかを利用者に聞く。
+
+ベクトル検索は、手元の Ollama に埋め込みモデル embeddinggemma-2 を入れると、サイト内検索の「資料の中身」で、BM25 の全文検索にベクトル検索を RRF で重ねる(ハイブリッド検索)。言い方の違う資料も見つかる。入れなくても、全文検索で中身は探せる。`vector-search` が `missing` のときだけ聞く(detail に、Ollama が無い・古い・起動していない・モデルが無いのどれかが書いてある)。質問では、何が変わるかと、何が入るか(Ollama 本体はアプリで、常に動くサービスも入る。モデルは 378MB)、資料のベクトルは手元の Ollama で作り、外へは送らないことを書く。Ollama 本体はエージェントが入れない。使うと答えたら、Ollama が無い・0.40.0 より古い・起動していないときは、ollama.com から入れる(更新する)か起動するよう利用者に頼み、終わってから次を実行する。断られたら `vectorSearch=declined` を記録する。入れたあとは、設定の画面の「ベクトル検索」に状態が出る。インデックスは検索の窓か設定の画面を開いたときに作り始める(資料 100 件ほどで約1分)。
+
+```bash
+ollama pull embeddinggemma-2:270m
+```
 
 ## 10. 起動と確かめ
 

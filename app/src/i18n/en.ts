@@ -88,6 +88,7 @@ export const en: Record<MessageKey, string> = {
   "search.contentGroup": "In content",
   "search.place.overview": "Overview",
   "search.place.slide": "Slide {number}",
+  "search.vector": "Vector search",
 
   "deckCard.delete": "Delete",
   "deckCard.editNamed": "Edit {title}",
@@ -288,7 +289,7 @@ export const en: Record<MessageKey, string> = {
     "Press ☆ to add a favorite; favorites are listed separately under Favorites at the top. You can also use the ☆ in the bar at the top of an opened handout.",
   "help.list3": "The slide list can be filtered by tag.",
   "help.list4":
-    'The magnifying glass at the right end of the header opens search. It looks through the titles of all three kinds and template names at once, and below them "In content" lists handouts whose text matches even when the title does not, with where it matched and the words around it. Pick with ↑↓ and open with Enter; Esc closes it.',
+    'The magnifying glass at the right end of the header opens search. It looks through the titles of all three kinds and template names at once, and below them "In content" lists handouts whose text matches even when the title does not, with where it matched and the words around it (BM25 full-text search). With the embedding model embeddinggemma-2 in your local Ollama, vector search is layered on top and finds handouts worded differently; see Vector search in Settings for its status and setup. Pick with ↑↓ and open with Enter; Esc closes it.',
 
   "help.phoneTitle": "Reading on a phone",
   "help.phoneLead":
@@ -316,13 +317,36 @@ export const en: Record<MessageKey, string> = {
 
   "profile.title": "Settings",
   "profile.lead":
-    "The organization name shown in handouts. Not stored per handout.",
+    "The organization name shown in handouts (not stored per handout) and site search.",
   "profile.orgName": "Organization",
   "profile.orgHint":
     "Shown small on cover and closing slides and above the title of HTML documents and question sheets. Hidden when empty.",
   "profile.saved": "Saved. Open a deck to see the changes.",
   "profile.saving": "Saving…",
   "profile.save": "Save",
+  "vector.title": "Vector search",
+  "vector.optional": "Optional",
+  "vector.lead":
+    "Embeds each chunk of your handouts with an embedding model (embeddinggemma-2) and combines it with BM25 full-text search by RRF (hybrid search), so handouts worded differently still show up under In content. It runs on your local Ollama and sends nothing out.",
+  "vector.state.ready": "Enabled",
+  "vector.state.indexing": "Indexing",
+  "vector.state.noModel": "Model not installed",
+  "vector.state.outdated": "Ollama is too old",
+  "vector.state.noOllama": "Ollama is not running",
+  "vector.state.off": "Disabled in settings",
+  "vector.ready.detail": "{indexed} chunks indexed.",
+  "vector.indexing.detail":
+    "{indexed} / {total} chunks. Until it finishes, results are ranked by BM25 only.",
+  "vector.noModel.detail":
+    "Ollama {version} is running. Pull the model with the command below to enable it (378 MB).",
+  "vector.outdated.detail":
+    "Ollama {version} cannot pull embeddinggemma-2. Update to {min} or later, then pull the model with the command below.",
+  "vector.noOllama.detail":
+    "Install Ollama ({min} or later) from ollama.com, start it, and pull the model with the command below to enable it (378 MB).",
+  "vector.off.detail":
+    "Stopped with features.vectorSearch=false. Turn it back on with the command below.",
+  "vector.fallback":
+    "Without it, BM25 full-text search still searches inside handouts.",
 
   "design.new.noLabel": "Enter a display name",
   "design.new.label": "Display name",

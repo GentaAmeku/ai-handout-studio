@@ -88,13 +88,14 @@ const writeProfile = (profile: object): void => {
 const instructionsBlock = (): string =>
   readFileSync(join(realRepo, "setup", "agent-instructions.en.md"), "utf8");
 
-// 選ぶところを全部決めた profile。archify と mod は断ったことにする(入れる形は各テストで作る)
+// 選ぶところを全部決めた profile。archify・mod・ベクトル検索は断ったことにする(入れる形は各テストで作る)
 const DECIDED = {
   orgName: "",
   locale: "en",
   features: { lan: false, imageGeneration: false, share: false },
   archify: "declined",
   mods: { claude: "declined" },
+  vectorSearch: "declined",
 };
 
 // mod が加わる前に済ませたセットアップの profile(archify と mod を決めていない)
@@ -392,6 +393,78 @@ describe("doctor の各項目", () => {
     expect(statusOf(result, "feature-lan")).toBe("ok");
     expect(statusOf(result, "feature-share")).toBe("missing");
     expect(result.next?.section).toBe(9);
+  });
+
+  it("ベクトル検索は、Ollama とモデルがそろうか断るまで節9の missing。無い・古い・起動していない・モデルが無いを書き分ける", async () => {
+    makeReady();
+    const { vectorSearch: _vectorSearch, ...undecided } = DECIDED;
+    writeProfile(undecided);
+    // Ollama の出方を差し替える。version は ollama --version、list は ollama list の結果(undefined は動かない)
+    const withOllama = (
+      version: string | undefined,
+      list: { status: number; stdout: string } | undefined,
+    ) => {
+      const base = context();
+      return context({
+        findOnPath: (name) =>
+          name === "ollama" && version !== undefined
+            ? "/usr/local/bin/ollama"
+            : base.findOnPath(name),
+        run: (command, args) =>
+          command !== "ollama"
+            ? base.run(command, args)
+            : args[0] === "--version"
+              ? { status: 0, stdout: `ollama version is ${version}` }
+              : list,
+      });
+    };
+    const detailOf = async (ctx: DoctorContext) => {
+      const report = await runDoctor(ctx);
+      const item = report.checks.find((check) => check.id === "vector-search");
+      return { status: item?.status, detail: item?.detail ?? "", report };
+    };
+
+    const none = await detailOf(withOllama(undefined, undefined));
+    expect(none.status).toBe("missing");
+    expect(none.detail).toContain("Ollama is not installed");
+    expect(none.detail).toContain("ollama pull embeddinggemma-2:270m");
+    expect(none.detail).toContain("settings --set vectorSearch=declined");
+    expect(none.report.next?.section).toBe(9);
+
+    const old = await detailOf(withOllama("0.30.7", { status: 0, stdout: "" }));
+    expect(old.status).toBe("missing");
+    expect(old.detail).toContain("Ollama 0.30.7 is too old");
+
+    const down = await detailOf(
+      withOllama("0.40.1", { status: 1, stdout: "" }),
+    );
+    expect(down.detail).toContain("Ollama is not running");
+
+    const noModel = await detailOf(
+      withOllama("0.40.1", {
+        status: 0,
+        stdout:
+          "NAME    ID    SIZE    MODIFIED\ngemma4:latest  abc  9.6 GB  2 days ago",
+      }),
+    );
+    expect(noModel.detail).toContain(
+      "embedding model embeddinggemma-2 is not installed",
+    );
+
+    const ready = await detailOf(
+      withOllama("0.40.1", {
+        status: 0,
+        stdout:
+          "NAME    ID    SIZE    MODIFIED\nembeddinggemma-2:270m  9e1df58d197e  378 MB  1 hour ago",
+      }),
+    );
+    expect(ready.status).toBe("ok");
+    expect(ready.detail).toBe("embeddinggemma-2:270m(Ollama 0.40.1)");
+
+    writeProfile(DECIDED);
+    const declined = await detailOf(withOllama(undefined, undefined));
+    expect(declined.status).toBe("skipped");
+    expect(declined.report.ok).toBe(true);
   });
 
   it("archify は入れるか断るまで節9の missing で入れ方と断り方を出し、断れば skipped、あれば ok", async () => {
@@ -955,6 +1028,33 @@ describe("doctor --uninstall", () => {
     const otherClone = await runUninstallDoctor(down());
     expect(statusOf(otherClone, "command")).toBe("skipped");
     expect(otherClone.ok).toBe(true);
+  });
+
+  it("--uninstall: ベクトル検索の埋め込みモデルが Ollama にあれば節6の warn で外し方を出し、無ければ ok", async () => {
+    makeBase();
+    const base = context();
+    const withModel = context({
+      findOnPath: (name) =>
+        name === "ollama" ? "/usr/local/bin/ollama" : base.findOnPath(name),
+      run: (command, args) =>
+        command === "ollama"
+          ? {
+              status: 0,
+              stdout:
+                "NAME    ID    SIZE    MODIFIED\nembeddinggemma-2:270m  9e1df58d197e  378 MB  1 hour ago",
+            }
+          : base.run(command, args),
+    });
+    const found = (await runUninstallDoctor(withModel)).checks.find(
+      (item) => item.id === "vector-model",
+    );
+    expect(found?.status).toBe("warn");
+    expect(found?.section).toBe(6);
+    expect(found?.detail).toContain("ollama rm embeddinggemma-2:270m");
+    const none = (await runUninstallDoctor(base)).checks.find(
+      (item) => item.id === "vector-model",
+    );
+    expect(none?.status).toBe("ok");
   });
 
   it("clone の外に何も無ければ ok。archify と資料は warn で伝え、止めない", async () => {

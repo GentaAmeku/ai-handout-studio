@@ -19,6 +19,8 @@ import {
   createContentIndex,
   registerContentSearchRoutes,
 } from "./content-search/index.ts";
+import { createOllama, type Ollama } from "./content-search/ollama.ts";
+import { createVectorIndex } from "./content-search/vectors.ts";
 import { type DesignBuilder, registerDesignRoutes } from "./design-api.ts";
 import type { Exporter } from "./exporter.ts";
 import {
@@ -64,6 +66,8 @@ export type ApiOptions = {
   agentRunner?: AgentRunner;
   // 手元に入っているエージェント。既定は PATH を調べる(テストは差し替える)
   installedAgents?: () => AgentInfo[];
+  // ベクトル検索に使う Ollama(180)。既定は手元の 127.0.0.1:11434(テストは差し替える)
+  ollama?: Ollama;
 };
 
 const createDeckBody = z.strictObject({
@@ -119,6 +123,7 @@ export const createApi = ({
   exporter,
   agentRunner,
   installedAgents: listInstalledAgents = () => installedAgents(),
+  ollama = createOllama(),
 }: ApiOptions) => {
   const app = new Hono().basePath("/api");
 
@@ -433,7 +438,15 @@ export const createApi = ({
     async () => (await readSettings(workspaceRoot)).locale,
   );
   registerHandoutRoutes(app, { repoRoot, workspaceRoot, designDir, now });
-  registerContentSearchRoutes(app, createContentIndex(workspaceRoot));
+  const content = createContentIndex(workspaceRoot);
+  registerContentSearchRoutes(app, {
+    content,
+    vectors: createVectorIndex({
+      root: workspaceRoot,
+      ollama,
+      sources: content.sources,
+    }),
+  });
 
   return app;
 };

@@ -37,6 +37,8 @@ claude   # 起動したら /studio-setup と打つ(Codex CLI は codex を起動
 
 どのフォルダの会話から頼んでも、できた資料は 1 つの一覧に並ぶ。検索・お気に入り・タグがあり、前に作った資料の隣に収まる。
 
+検索は資料の中身も探す。章・質問・スライドごとの BM25 全文検索で、当たった場所と前後の文も出る。手元の [Ollama](https://ollama.com)(0.40.0 以降)に埋め込みモデル embeddinggemma-2 を入れると、ベクトル検索を RRF で重ねたハイブリッド検索になり、言い方の違う資料も見つかる。`ai-handout-studio search <探す文> --json` で同じ結果をエージェントにも渡せるので、資料を使った RAG を組むときの検索部分(Retriever)にも使える。
+
 ### 画面で直す
 
 ![画面で直している最中:見出しを選び、プロパティで文言を書き換えている](docs/images/ja/editor.png)
@@ -94,8 +96,8 @@ Claude Code では、同梱の mod が入力欄の上に帯を出す。*この�
 ## 手元で何が動くか
 
 - 自分の PC で動く。ホストされたサービスもアカウントも無く、任意の機能をオンにしない限り外へは何も送らない。`share` は質問票・HTML 資料を Claude の Artifact として公開し、`lan` は同じ Wi-Fi の端末に読ませ、`imageGeneration` は手元にある画像生成の CLI を呼ぶ。
-- 資料は clone の中の `workspace/` に置かれる。
-- clone の外に書くのはリンクだけ。コマンドを `~/.local/bin` に、2 つのスキルを `~/.agents/skills` か `~/.claude/skills` に、mod を `~/.claude/skills` に置く。ほかには、エージェントの共通指示に `ai-handout-studio` の段落を 1 つ、`~/.local/bin` が `PATH` に無ければシェルの設定に 1 行。この 2 つは同意を取ってから書く。
+- 資料は clone の中の `workspace/` に置かれる。ベクトル検索を使うときも手元の Ollama だけで動き、ベクトルは `workspace/search/` に控える。
+- clone の外に書くのはリンクだけ。コマンドを `~/.local/bin` に、2 つのスキルを `~/.agents/skills` か `~/.claude/skills` に、mod を `~/.claude/skills` に置く。ほかには、エージェントの共通指示に `ai-handout-studio` の段落を 1 つ、`~/.local/bin` が `PATH` に無ければシェルの設定に 1 行。この 2 つは同意を取ってから書く。ベクトル検索を使うと答えたときは、埋め込みモデル(378MB)を Ollama に落とす。Ollama 本体は自分で入れる。
 - LAN モードでも、ほかの端末からの要求は読むだけ。保存・削除・エージェントの起動はこの PC からしかできない。詳しくは [SECURITY.md](SECURITY.md)。
 
 ## 入れ方
@@ -138,7 +140,7 @@ ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <s
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]
-  キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share(true|false)・agentInstructions・archify・mods.claude(ask|declined)
+  キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・archify・mods.claude・vectorSearch(ask|declined)
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```

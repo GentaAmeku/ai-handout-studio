@@ -4,6 +4,7 @@ import { profileQuery, useSaveProfile } from "../../api/queries";
 import { useLanguage } from "../../i18n/language";
 import type { Profile } from "../../schema/profile";
 import { SearchButton } from "../../search/SearchButton";
+import { VectorSearchSection } from "./VectorSearchSection";
 
 // プロフィールが無いときの出発点
 const DEFAULT_PROFILE: Profile = {
@@ -89,6 +90,7 @@ export const ProfilePage = () => {
       {profile.isSuccess && (
         <ProfileForm profile={profile.data.profile ?? DEFAULT_PROFILE} />
       )}
+      <VectorSearchSection />
     </div>
   );
 };

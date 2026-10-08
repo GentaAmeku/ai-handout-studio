@@ -1,7 +1,7 @@
 import { stat } from "node:fs/promises";
 import { join } from "node:path";
 import type { Hono } from "hono";
-import type { ContentHit, ContentSearchResult } from "../../src/api/types.ts";
+import type { ContentSearchResult, VectorStatus } from "../../src/api/types.ts";
 import {
   bodyPathOf,
   documentPathOf,
@@ -29,8 +29,10 @@ import {
   indexSource,
   type RankOptions,
   rankContent,
+  type SemanticScores,
 } from "./rank.ts";
 import { bigramsOf } from "./score.ts";
+import type { VectorIndex } from "./vectors.ts";
 
 // サイト内検索の中身の索引。資料を区切って片を数えたものを記憶に持ち、
 // 探すたびに資料のファイルの更新時刻と大きさを見て、変わった資料だけ読み直す。
@@ -126,8 +128,19 @@ const stampOf = async (files: readonly string[]): Promise<string> =>
 
 type Cached = { stamp: string; source: IndexedSource | undefined };
 
+export type SearchOptions = Omit<RankOptions, "semantic"> & {
+  // ベクトルの近さを返す(180)。返せないとき(止まっている・そろっていない)は undefined で、文字の重なりだけで並べる
+  semanticOf?: (
+    sources: readonly IndexedSource[],
+  ) => Promise<SemanticScores | undefined>;
+};
+
 export type ContentIndex = {
-  search: (query: string, options: RankOptions) => Promise<ContentHit[]>;
+  sources: () => Promise<IndexedSource[]>;
+  search: (
+    query: string,
+    options: SearchOptions,
+  ) => Promise<ContentSearchResult>;
 };
 
 export const createContentIndex = (root: string): ContentIndex => {
@@ -158,24 +171,43 @@ export const createContentIndex = (root: string): ContentIndex => {
   };
 
   return {
+    sources: load,
     // 1字だけ・空なら読みに行かない(片が作れず、中身は探さない)
-    search: async (query, options) =>
-      bigramsOf(query).length === 0
-        ? []
-        : rankContent(await load(), query, options),
+    search: async (query, { semanticOf, ...options }) => {
+      if (bigramsOf(query).length === 0) return { hits: [], vector: false };
+      const sources = await load();
+      const semantic = await semanticOf?.(sources);
+      return {
+        hits: rankContent(sources, query, { ...options, semantic }),
+        vector: semantic !== undefined,
+      };
+    },
   };
 };
 
 export const registerContentSearchRoutes = (
   app: Hono,
-  index: ContentIndex,
+  { content, vectors }: { content: ContentIndex; vectors: VectorIndex },
 ): void => {
-  // 窓の「資料の中身」。題名で当たった資料は題名の区分に出ているので外す
-  app.get("/search", async (c) =>
-    c.json({
-      hits: await index.search(c.req.query("q") ?? "", {
+  // 窓の「資料の中身」。題名で当たった資料は題名の区分に出ているので外す。
+  // ベクトルは控えを読んで打った文と比べるだけで、ファイルは書かない(読むだけの GET)
+  app.get("/search", async (c) => {
+    const query = c.req.query("q") ?? "";
+    return c.json(
+      (await content.search(query, {
         excludeTitleHits: true,
-      }),
-    } satisfies ContentSearchResult),
+        semanticOf: (sources) => vectors.scores(query, sources),
+      })) satisfies ContentSearchResult,
+    );
+  });
+
+  // ベクトル検索の状態(設定の画面と検索の窓)。読むだけ
+  app.get("/search/status", async (c) =>
+    c.json((await vectors.status()) satisfies VectorStatus),
+  );
+
+  // 足りない区切りのベクトルを裏で作り始める。控えを書くので書き込みの口(この PC の画面からだけ)
+  app.post("/search/index", async (c) =>
+    c.json((await vectors.start()) satisfies VectorStatus),
   );
 };

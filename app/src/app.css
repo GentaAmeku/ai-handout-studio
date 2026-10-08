@@ -598,6 +598,11 @@ code {
   gap: 6px;
 }
 
+/* ベクトル検索が有効のときだけ、下端の右に出す印(180) */
+.search-dialog__vector {
+  margin-left: auto;
+}
+
 .search-dialog kbd {
   display: inline-grid;
   place-items: center;
@@ -1336,6 +1341,51 @@ code {
 
 .prose-section li + li {
   margin-top: var(--space-xs);
+}
+
+/* 設定の画面の「ベクトル検索」(180) */
+.vector-search__optional {
+  margin-left: var(--space-sm);
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+  font-weight: 400;
+}
+
+.prose-section .vector-search__state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: var(--space-md) 0 var(--space-xs);
+  font-weight: 700;
+}
+
+.prose-section .vector-search__fallback {
+  margin: var(--space-md) 0 0;
+}
+
+/* 状態の丸(180)。有効は緑、作成中は青、案内が要るときは橙、止めているときは灰。色だけに頼らず字も並べる */
+.status-dot {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot--ok {
+  background: var(--color-success);
+}
+
+.status-dot--busy {
+  background: var(--color-primary);
+}
+
+.status-dot--warn {
+  background: var(--color-warning);
+}
+
+.status-dot--off {
+  background: var(--color-muted);
 }
 
 /* 使い方の頭の目次 */

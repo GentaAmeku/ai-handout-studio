@@ -5,11 +5,12 @@ import { themeName } from "./design.ts";
 export const localeName = z.enum(["ja", "en"]);
 export type Locale = z.infer<typeof localeName>;
 
-// 任意の機能。無ければ全部 false
+// 任意の機能。無ければ false。ベクトル検索だけは無ければ true(Ollama にモデルがあれば使う。180)
 export const featuresSchema = z.strictObject({
   lan: z.boolean().optional(),
   imageGeneration: z.boolean().optional(),
   share: z.boolean().optional(),
+  vectorSearch: z.boolean().optional(),
 });
 export type Features = z.infer<typeof featuresSchema>;
 
@@ -34,6 +35,8 @@ export const profileSchema = z.strictObject({
   // archify(別の作者のスキル)を入れるか
   archify: offerName.optional(),
   mods: modsSchema.optional(),
+  // ベクトル検索(Ollama と埋め込みのモデル)を入れるか(180)
+  vectorSearch: offerName.optional(),
 });
 
 export type Profile = z.infer<typeof profileSchema>;
@@ -46,6 +49,7 @@ export type ResolvedSettings = {
   agentInstructions: Offer;
   archify: Offer;
   mods: Required<Mods>;
+  vectorSearch: Offer;
 };
 
 const hexColor = z

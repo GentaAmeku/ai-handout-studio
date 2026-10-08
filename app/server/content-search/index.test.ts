@@ -9,6 +9,7 @@ import type {
   HandoutSummary,
 } from "../../src/api/types.ts";
 import { createApi } from "../api.ts";
+import { NO_OLLAMA } from "../test-fixtures.ts";
 import { createContentIndex } from "./index.ts";
 
 // 索引は workspace の資料を読み、変わった資料だけ読み直す。窓は GET /api/search で引く
@@ -26,7 +27,14 @@ afterEach(async () => {
   await rm(context.workspaceRoot, { recursive: true, force: true });
 });
 
-const api = () => createApi({ repoRoot, workspaceRoot: context.workspaceRoot });
+// Ollama が動いていない手元(段1だけで並ぶ)。ベクトル検索の試験は vectors.test.ts
+
+const api = () =>
+  createApi({
+    repoRoot,
+    workspaceRoot: context.workspaceRoot,
+    ollama: NO_OLLAMA,
+  });
 
 const send = (
   app: ReturnType<typeof api>,
@@ -94,13 +102,13 @@ describe("GET /api/search", () => {
     const app = api();
     await createSheet(app, "共有のフォルダに置く");
     const empty = await send(app, "GET", "/api/search");
-    expect(await empty.json()).toEqual({ hits: [] });
+    expect(await empty.json()).toEqual({ hits: [], vector: false });
     const one = await send(
       app,
       "GET",
       `/api/search?q=${encodeURIComponent("共")}`,
     );
-    expect(await one.json()).toEqual({ hits: [] });
+    expect(await one.json()).toEqual({ hits: [], vector: false });
   });
 });
 
@@ -110,18 +118,18 @@ describe("createContentIndex", () => {
     const index = createContentIndex(context.workspaceRoot);
     const id = await createSheet(app, "共有のフォルダに置く");
     expect(
-      await index.search("共有のフォルダ", { excludeTitleHits: false }),
+      (await index.search("共有のフォルダ", { excludeTitleHits: false })).hits,
     ).toHaveLength(1);
     await send(app, "PUT", `/api/sheets/${id}`, {
       questions: { ...questions("手元の外付けの円盤に置く"), revision: "2" },
     });
     expect(
-      await index.search("共有のフォルダ", { excludeTitleHits: false }),
+      (await index.search("共有のフォルダ", { excludeTitleHits: false })).hits,
     ).toEqual([]);
     expect(
-      (await index.search("外付けの円盤", { excludeTitleHits: false })).map(
-        (hit) => hit.id,
-      ),
+      (
+        await index.search("外付けの円盤", { excludeTitleHits: false })
+      ).hits.map((hit) => hit.id),
     ).toEqual([id]);
   });
 
@@ -130,11 +138,11 @@ describe("createContentIndex", () => {
     const index = createContentIndex(context.workspaceRoot);
     const id = await createSheet(app, "共有のフォルダに置く");
     expect(
-      await index.search("共有のフォルダ", { excludeTitleHits: false }),
+      (await index.search("共有のフォルダ", { excludeTitleHits: false })).hits,
     ).toHaveLength(1);
     await send(app, "DELETE", `/api/sheets/${id}`);
     expect(
-      await index.search("共有のフォルダ", { excludeTitleHits: false }),
+      (await index.search("共有のフォルダ", { excludeTitleHits: false })).hits,
     ).toEqual([]);
   });
 });

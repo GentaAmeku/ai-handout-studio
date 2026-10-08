@@ -125,17 +125,23 @@ describe("プロフィール", () => {
 });
 
 describe("設定(言語と任意の機能。141)", () => {
-  it("未設定なら LANG から locale を決め、features は全部 false", async () => {
+  it("未設定なら LANG から locale を決め、features はベクトル検索だけ true(ほかは false)", async () => {
     const original = process.env.LANG;
     process.env.LANG = "en_US.UTF-8";
     try {
       expect(await readSettings(context.workspaceRoot)).toEqual({
         orgName: "",
         locale: "en",
-        features: { lan: false, imageGeneration: false, share: false },
+        features: {
+          lan: false,
+          imageGeneration: false,
+          share: false,
+          vectorSearch: true,
+        },
         agentInstructions: "ask",
         archify: "ask",
         mods: { claude: "ask" },
+        vectorSearch: "ask",
       });
       expect(await readLocale(context.workspaceRoot)).toBe("en");
     } finally {
@@ -190,6 +196,7 @@ describe("設定(言語と任意の機能。141)", () => {
       lan: true,
       imageGeneration: false,
       share: false,
+      vectorSearch: true,
     });
   });
 
@@ -212,10 +219,16 @@ describe("設定(言語と任意の機能。141)", () => {
     expect(await readSettings(context.workspaceRoot)).toEqual({
       orgName: "新",
       locale: "en",
-      features: { lan: true, imageGeneration: true, share: false },
+      features: {
+        lan: true,
+        imageGeneration: true,
+        share: false,
+        vectorSearch: true,
+      },
       agentInstructions: "ask",
       archify: "ask",
       mods: { claude: "ask" },
+      vectorSearch: "ask",
     });
   });
 });
@@ -269,6 +282,7 @@ describe("壊れた profile.json", () => {
       lan: false,
       imageGeneration: false,
       share: false,
+      vectorSearch: true,
     });
   });
 

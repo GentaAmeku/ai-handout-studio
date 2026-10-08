@@ -9,11 +9,12 @@ const WIDTH = 70;
 const LEAD = 18;
 const MIN_RUN = 3;
 
-// 表の縦線・見出しの印・コードの囲みは読む邪魔なので空白にし、改行もまとめて1行にする
+// 表の縦線と区切り線(---)・見出しの印・コードの囲みは読む邪魔なので空白にし、改行もまとめて1行にする
 export const flatten = (text: string): string =>
   text
     .replace(/^#{1,3} /gm, "")
     .replace(/[|`]+/g, " ")
+    .replace(/-{3,}/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
