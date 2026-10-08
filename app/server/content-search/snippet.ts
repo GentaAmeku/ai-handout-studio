@@ -33,16 +33,57 @@ const piecesOf = (chars: readonly string[]) => {
   return { pieces, starts, joined: pieces.join("") };
 };
 
+// 英語の、どこにでも出る短い語。印にすると「comm[an]d」のように本文じゅうに散るので付けない
+const ENGLISH_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "by",
+  "for",
+  "from",
+  "i",
+  "in",
+  "is",
+  "it",
+  "of",
+  "on",
+  "or",
+  "our",
+  "that",
+  "the",
+  "this",
+  "to",
+  "we",
+  "with",
+  "you",
+  "your",
+]);
+
+// 英字と数字だけの語は、単語の切れ目でだけ当てる(「it」を「situation」の中で当てない)。
+// 日本語の語は切れ目が無いので、どこでも当てる
+const termPattern = (term: string): RegExp | undefined => {
+  if (!/^[\x20-\x7e]+$/.test(term)) return new RegExp(escapeRegExp(term), "g");
+  if (ENGLISH_STOP_WORDS.has(term)) return undefined;
+  return new RegExp(`(?<![a-z0-9])${escapeRegExp(term)}(?![a-z0-9])`, "g");
+};
+
 const exactHits = (
   chars: readonly string[],
   terms: readonly string[],
 ): boolean[] => {
   const { pieces, starts, joined } = piecesOf(chars);
-  const ranges = terms.flatMap((term) =>
-    [...joined.matchAll(new RegExp(escapeRegExp(term), "g"))].map(
-      (match) => [match.index, match.index + term.length] as const,
-    ),
-  );
+  const ranges = terms.flatMap((term) => {
+    const pattern = termPattern(term);
+    return pattern
+      ? [...joined.matchAll(pattern)].map(
+          (match) => [match.index, match.index + term.length] as const,
+        )
+      : [];
+  });
   return chars.map((_char, index) => {
     const start = starts[index] ?? 0;
     const end = start + (pieces[index]?.length ?? 0);
@@ -68,11 +109,15 @@ const runHits = (chars: readonly string[], query: string): boolean[] => {
       const stop = covered.indexOf(false, start);
       return { start, end: stop === -1 ? covered.length : stop };
     });
+  // 2文字の片の重なりは日本語のための決まり。英字と数字だけの重なりは印にしない
+  // (英語は、打った語とまったく同じ単語のときだけ exactHits が印を付ける)
+  const isAscii = (run: { start: number; end: number }): boolean =>
+    chars.slice(run.start, run.end).every((char) => /^[\x20-\x7e]$/.test(char));
+  const kept = runs.filter(
+    (run) => run.end - run.start >= MIN_RUN && !isAscii(run),
+  );
   return chars.map((_char, index) =>
-    runs.some(
-      (run) =>
-        run.start <= index && index < run.end && run.end - run.start >= MIN_RUN,
-    ),
+    kept.some((run) => run.start <= index && index < run.end),
   );
 };
 

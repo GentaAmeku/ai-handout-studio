@@ -8,7 +8,7 @@ Turn a conversation with Claude Code or Codex into slides (a 1280x720 deck), HTM
 
 English | [日本語](README.ja.md)
 
-Your agent can already write a deck or a report. Then it is a file in whatever folder the conversation ran in, you cannot fix one line without asking again, and the next one looks nothing like the last. AI Handout Studio is for people who make handouts with Claude Code or Codex every week: every handout lands in one local list, you fix it on screen, switch the look in one click, and hand it over as PDF, PPTX or HTML.
+Your agent can already write a deck or a report. Then it is a file in whatever folder the conversation ran in, you cannot fix one line without asking again, and the next one looks nothing like the last. AI Handout Studio is for people who make handouts with Claude Code or Codex every week: every handout lands in one local list where you can find it again by what it said, you fix it on screen, switch the look in one click, and hand it over as PDF, PPTX or HTML.
 
 ![The same cover drawn by the seven built-in templates: one deck, seven looks](docs/images/en/hero-templates.png)
 
@@ -37,7 +37,13 @@ The setup is a game book: it opens with a checklist, your agent runs `doctor`, r
 
 Ask from a conversation in any folder; the handout shows up in one list with search, favorites and tags, next to every handout you made before.
 
-Search looks inside handouts too: BM25 full-text search over every section, question and slide, with where it matched and the words around it. With the embedding model embeddinggemma-2 in your local [Ollama](https://ollama.com) (0.40.0 or later), vector search is layered on top (hybrid search, combined by RRF), so handouts worded differently still turn up. `ai-handout-studio search <query> --json` gives an agent the same results, so it can serve as the retriever when an agent builds RAG over your handouts.
+### Find it by what it said, not what it was called
+
+![The search window: a query worded differently from every handout still finds the survey results first under In content, with Vector search on](docs/images/en/search.png)
+
+A month later you remember what a handout said, not what it was called. Search reads every section, question (your answers too) and slide, and shows where it matched with the words around it. On its own it is BM25 full-text search. Add the embedding model embeddinggemma-2 to your local [Ollama](https://ollama.com) (0.40.0 or later) and it becomes hybrid search, so a handout worded differently from your query still comes up: above, *"why colleagues haven't tried the assistant yet"* finds the survey results, which say *"Why first-timers have not started"*. On the author's own 99 handouts, 12 of 14 queries phrased differently from the handout found it first, against 7 with full-text search alone.
+
+It all stays on your machine: the model runs in Ollama, the vectors are one file in `workspace/search/`, and nothing is sent to a hosted service. Setup asks whether to turn it on ([SETUP.md](SETUP.md#9-optional-features), section 9), and Settings shows whether vector search is on and what to run if it is not. `ai-handout-studio search <query> --json` returns the same results to an agent, so it can serve as the retriever when an agent builds RAG over your handouts.
 
 ### Fix it on screen
 
@@ -79,9 +85,11 @@ In Claude Code, the bundled mod shows a band above the prompt — *Handouts in t
 
 ## How it works
 
-![How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown](docs/images/en/how-it-works.png)
+![How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown; for search, the server can ask a local Ollama for vectors](docs/images/en/how-it-works.png)
 
 The agent never writes a slide. It writes JSON (`deck.json`, `document.json` or a questions file) with the bundled skill, and a template turns design tokens into CSS, so the agent decides content and the template decides the look. A local server renders that JSON in your browser for the list, the editor and the reader, and every export comes from the same rendering: the PPTX is rebuilt from measured positions into shapes and text, not a screenshot. What makes the result something you can trust: the agent runs `check` until it passes and the editor flags text that overflows its box; a number, date or name without a source stays `[[要確認]]` (to confirm) instead of being invented; and an HTML document goes through a reader test — someone without the context reads it — before it is handed over.
+
+Search lives in the same local server. Each handout is split into sections, questions and slides. Full-text search scores two-character pieces with BM25, which needs no dictionary for Japanese. When Ollama has embeddinggemma-2, each piece is also embedded once into 768 numbers and kept in `workspace/search/`; a query is embedded the same way, and the two rankings are merged by reciprocal rank fusion (RRF), with handouts that contain every typed word first. If Ollama is missing or slow, search quietly falls back to full-text search.
 
 ## How it differs
 
@@ -90,6 +98,7 @@ Your agent probably already has a skill for PPTX or DOCX files, or an artifact t
 - **A list that does not disappear.** Every handout from every conversation is in one place, with search, favorites and tags, instead of a file in the folder you happened to be in.
 - **Editing on screen.** Fix wording, move a block, switch the template or check overflow without another round of prompting — and still send bigger changes back through the conversation.
 - **Question sheets with comparison tables, and answers that come back as Markdown.** The decisions the agent needs from you are gathered on one page, with the material to decide, and recorded with the handout.
+- **Search that reads the handouts, on your machine.** Find a handout by what it said, even in other words: full-text search plus vector search through a local Ollama, with nothing sent to a hosted service.
 
 Other tools also let an agent write JSON that an app renders into slides. This one covers the whole exchange around the deck — the questions before, the list and editor after, and HTML documents and question sheets alongside slides — rather than slide generation alone.
 

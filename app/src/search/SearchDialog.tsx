@@ -317,8 +317,9 @@ const SearchPanel = ({ onClose }: { onClose: () => void }) => {
                       aria-hidden
                     />
                     <span className="search-dialog__lines">
+                      {/* 中身で当たった行の題名は、語の一致で選んだものではないので印を付けない */}
                       <span className="search-dialog__title">
-                        <Marked text={row.hit.title} terms={terms} />
+                        {row.hit.title}
                       </span>
                       <span className="search-dialog__snippet">
                         <span className="search-dialog__place">
