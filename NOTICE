@@ -7,6 +7,8 @@ The "Cobalt" template's design values (color steps, type scale, border widths,
 corner radius, spacing) are copied and adapted from the CSS of the Digital
 Agency of Japan's Design System example components:
 https://github.com/digital-go-jp/design-system-example-components-html
+(release v20260909). The primitive color steps used by `template recolor`
+(app/server/template-recolor.ts) are copied from the same CSS.
 
 This project is not produced or endorsed by the Digital Agency of Japan. The
 values were adapted to fit this project's slide/document/question-sheet

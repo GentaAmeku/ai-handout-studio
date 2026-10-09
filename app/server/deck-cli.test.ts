@@ -179,6 +179,37 @@ describe("parseCli", () => {
       success: true,
       command: { name: "templates", kind: "slide" },
     });
+    // template recolor は元を省くと cobalt から作る
+    expect(
+      parseCli(["template", "recolor", "verde", "--key", "green"]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "template-recolor",
+        templateName: "verde",
+        hue: "green",
+        from: "cobalt",
+      },
+    });
+    expect(
+      parseCli([
+        "template",
+        "recolor",
+        "verde",
+        "--key",
+        "orange",
+        "--from",
+        "mine",
+      ]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "template-recolor",
+        templateName: "verde",
+        hue: "orange",
+        from: "mine",
+      },
+    });
     // search は残りの引数をつないで探す文にする
     expect(parseCli(["search", "メモリ", "棚卸し"])).toEqual({
       success: true,
@@ -358,6 +389,21 @@ describe("parseCli", () => {
     expect(parseCli(["build"]).success).toBe(false);
     expect(parseCli(["templates", "--kind", "poster"]).success).toBe(false);
     expect(parseCli(["templates", "extra"]).success).toBe(false);
+    expect(parseCli(["template", "recolor", "verde"]).success).toBe(false);
+    expect(parseCli(["template", "recolor", "--key", "green"]).success).toBe(
+      false,
+    );
+    // 青は元の色、白黒と黄・赤は選べる色相に無い
+    expect(
+      parseCli(["template", "recolor", "verde", "--key", "blue"]).success,
+    ).toBe(false);
+    expect(
+      parseCli(["template", "recolor", "verde", "--key", "red"]).success,
+    ).toBe(false);
+    expect(
+      parseCli(["template", "recolor", "a", "b", "--key", "green"]).success,
+    ).toBe(false);
+    expect(parseCli(["template", "copy", "verde"]).success).toBe(false);
     expect(parseCli(["search"]).success).toBe(false);
     expect(parseCli(["search", "--json"]).success).toBe(false);
     expect(parseCli(["search", "メ"]).success).toBe(false);

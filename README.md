@@ -61,7 +61,7 @@ An HTML document opens in three columns (outline, page, properties): fix the tex
 
 *Five seconds from the [demo video](video/README.md): the same deck in four looks.*
 
-8 slide looks plus 5 outlines (proposal, study session, self-introduction, kickoff, talk), 3 question-sheet looks and 4 document looks. Name one when you ask (*"make it with Lumen"*) or switch later; the content stays. A template is a `tokens.json` compiled to CSS, so you can add your own — see [design/templates/README.md](design/templates/README.md).
+8 slide looks plus 5 outlines (proposal, study session, self-introduction, kickoff, talk), 3 question-sheet looks and 4 document looks. Name one when you ask (*"make it with Lumen"*) or switch later; the content stays. A template is a `tokens.json` compiled to CSS, so you can add your own — see [design/templates/README.md](design/templates/README.md). To give Cobalt your organization's color, ask for it (*"Cobalt in green"*): `template recolor` swaps its blue for green, light blue, cyan, orange or purple across slides, sheets and documents, and keeps the focus and status colors.
 
 ### Question sheets instead of a chat back-and-forth
 
@@ -133,6 +133,7 @@ ai-handout-studio check <file> [--minutes <n>] [--run]
 ai-handout-studio open [<id>] [--lan|--no-lan]
 ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]
+ai-handout-studio template recolor <name> --key <lightblue|cyan|green|orange|purple> [--from cobalt]
 ai-handout-studio search <query> [--json]
 ai-handout-studio sheet new --questions <questions.json> [--title <title>] [--template <template>] [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --questions <questions.json> [--layout <focus|overview|all|print>]
