@@ -22,6 +22,7 @@ export const ja = {
   "unit.questions": "{n} 問",
 
   "nav.main": "メイン",
+  "nav.menu": "メニュー",
   "nav.decks": "資料一覧",
   "nav.sheets": "資料一覧",
   "nav.documents": "資料一覧",
