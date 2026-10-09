@@ -61,7 +61,7 @@ HTML 資料は 3 列(構成・ページ・プロパティ)で開く。文を直�
 
 *[デモ動画](video/README.md)の 5 秒。同じ資料を 4 つの見た目で。*
 
-スライドの見た目 8 種と構成 5 種(提案・勉強会・自己紹介・キックオフ・登壇)、質問票 3 種、HTML 資料 4 種。頼むときに名前で指定しても(*「Lumen で作って」*)、あとで替えてもよく、中身はそのまま。テンプレートは `tokens.json` から CSS を生むので、自分の見た目も足せる([design/templates/README.md](design/templates/README.md))。
+スライドの見た目 8 種と構成 5 種(提案・勉強会・自己紹介・キックオフ・登壇)、質問票 3 種、HTML 資料 4 種。頼むときに名前で指定しても(*「Lumen で作って」*)、あとで替えてもよく、中身はそのまま。テンプレートは `tokens.json` から CSS を生むので、自分の見た目も足せる([design/templates/README.md](design/templates/README.md))。Cobalt を組織の色にしたいときは頼むだけでよい(*「Cobalt を緑で」*)。`template recolor` が青を緑・ライトブルー・シアン・オレンジ・紫に替え、スライド・質問票・HTML 資料をそろえて作る。フォーカスと状態の色はそのまま残る。
 
 ### 会話の往復の代わりに質問票
 
@@ -133,6 +133,7 @@ ai-handout-studio check <ファイル> [--minutes <分>] [--run]
 ai-handout-studio open [<id>] [--lan|--no-lan]
 ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]
+ai-handout-studio template recolor <名前> --key <lightblue|cyan|green|orange|purple> [--from cobalt]
 ai-handout-studio search <探す文> [--json]
 ai-handout-studio sheet new --questions <質問JSON> [--title <題名>] [--template <テンプレート>] [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --questions <質問JSON> [--layout <focus|overview|all|print>]

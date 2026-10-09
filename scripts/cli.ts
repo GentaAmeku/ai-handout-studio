@@ -18,6 +18,7 @@ import {
   formatExamples,
   formatNewDeck,
   formatOpen,
+  formatRecolor,
   formatSettings,
   formatTemplates,
   parseCli,
@@ -70,6 +71,7 @@ import {
   writeShareState,
 } from "../app/server/share.ts";
 import { takeShot } from "../app/server/shot.ts";
+import { recolorTemplate } from "../app/server/template-recolor.ts";
 import { deckDir } from "../app/server/workspace.ts";
 import type { Surface } from "../app/src/schema/design.ts";
 import type { Locale } from "../app/src/schema/profile.ts";
@@ -324,6 +326,24 @@ const runTemplates = async (kind: Surface | undefined): Promise<number> => {
   }
   console.log(result.text);
   return 0;
+};
+
+const runTemplateRecolor = async (
+  command: Extract<CliCommand, { name: "template-recolor" }>,
+): Promise<number> => {
+  const result = await recolorTemplate({
+    designDir,
+    from: command.from,
+    name: command.templateName,
+    hue: command.hue,
+  });
+  if (!result.success) {
+    console.error(result.message);
+    return 1;
+  }
+  console.log(formatRecolor(command.templateName, command.hue, result));
+  // 画面とエージェントがすぐ使えるよう、作ったテンプレートの CSS と見本も作る
+  return runDesignBuild();
 };
 
 const runDesignBuild = async (): Promise<number> => {
@@ -668,6 +688,7 @@ const run = async (argv: readonly string[]): Promise<number> => {
   if (command.name === "share") return runShare(command.id, command.url);
   if (command.name === "shot") return runShot(command);
   if (command.name === "diagram") return runDiagram(command);
+  if (command.name === "template-recolor") return runTemplateRecolor(command);
   if (command.name === "design-build") return runDesignBuild();
   if (command.name === "settings") return runSettings(command.updates);
   if (command.name === "examples") return runExamples(command.lang);

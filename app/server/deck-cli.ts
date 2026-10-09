@@ -35,6 +35,13 @@ import { handoutKindOf } from "./handouts.ts";
 import { readLocale } from "./profile.ts";
 import { isShotTarget } from "./shot.ts";
 import {
+  isKeyHue,
+  KEY_HUE_NAMES,
+  KEY_HUES,
+  type KeyHue,
+  type RecolorResult,
+} from "./template-recolor.ts";
+import {
   claimDeckDir,
   copyTemplateAssets,
   createDeckFromOutline,
@@ -58,6 +65,7 @@ export const USAGE = [
   "  ai-handout-studio open [<id>] [--lan|--no-lan]",
   "  ai-handout-studio restart [<id>] [--lan|--no-lan]",
   "  ai-handout-studio templates [--kind slide|sheet|document]",
+  `  ai-handout-studio template recolor <名前> --key <${KEY_HUE_NAMES.join("|")}> [--from cobalt]`,
   "  ai-handout-studio search <探す文> [--json]",
   ...HANDOUT_USAGE,
   "  ai-handout-studio share <id>",
@@ -83,6 +91,13 @@ export type CliCommand =
   | { name: "restart"; id?: string; lan?: boolean }
   // テンプレートの一覧。区分を省くと3区分とも出す
   | { name: "templates"; kind?: Surface }
+  // 主色を青の段で持つテンプレート(既定は cobalt)の青を別の色相に替え、3区分そろえて新しい名前で作る
+  | {
+      name: "template-recolor";
+      templateName: string;
+      hue: KeyHue;
+      from: string;
+    }
   // 資料の中身から近い資料を探す(サイト内検索の「資料の中身」と同じ並び。題名の当たりも外さない)
   | { name: "search"; query: string; json: boolean }
   // 共有用の束を作って依頼文を出す。--url は公開した URL を share.json に残す
@@ -222,6 +237,44 @@ const parseTemplates = (args: readonly string[]): ParsedCli => {
     return fail(`--kind は ${surfaceNames.join("・")} のどれか`);
   }
   return { success: true, command: { name: "templates", kind: kind.data } };
+};
+
+const parseRecolorOptions = (args: readonly string[]) => {
+  try {
+    return parseArgs({
+      args: [...args],
+      options: { key: { type: "string" }, from: { type: "string" } },
+      allowPositionals: true,
+    });
+  } catch (error) {
+    return error instanceof Error ? error : new Error(String(error));
+  }
+};
+
+const RECOLOR_FORM = `template recolor <名前> --key <${KEY_HUE_NAMES.join("|")}> [--from cobalt] の形で渡す`;
+
+const parseTemplate = (args: readonly string[]): ParsedCli => {
+  const [sub, ...rest] = args;
+  if (sub !== "recolor") return fail(RECOLOR_FORM);
+  const parsed = parseRecolorOptions(rest);
+  if (parsed instanceof Error) return fail(parsed.message);
+  const { values, positionals } = parsed;
+  const [templateName, ...extra] = positionals;
+  if (!templateName || extra.length > 0 || values.key === undefined) {
+    return fail(RECOLOR_FORM);
+  }
+  if (!isKeyHue(values.key)) {
+    return fail(`--key は ${KEY_HUE_NAMES.join("・")} のどれか`);
+  }
+  return {
+    success: true,
+    command: {
+      name: "template-recolor",
+      templateName,
+      hue: values.key,
+      from: values.from ?? "cobalt",
+    },
+  };
 };
 
 const parseSearchOptions = (args: readonly string[]) => {
@@ -530,6 +583,7 @@ export const parseCli = (argv: readonly string[]): ParsedCli => {
     };
   }
   if (name === "templates") return parseTemplates(rest);
+  if (name === "template") return parseTemplate(rest);
   if (name === "search") return parseSearch(rest);
   if (name === "share") return parseShare(rest);
   if (name === "shot") return parseShot(rest);
@@ -740,6 +794,27 @@ export const formatTemplates = async (
       .join("\n\n"),
   };
 };
+
+// template recolor の結果。作った場所と、資料で使うときの指定を出す
+export const formatRecolor = (
+  name: string,
+  hue: KeyHue,
+  result: Extract<RecolorResult, { success: true }>,
+): string =>
+  [
+    ...result.surfaces.map(
+      (surface) => `作った: design/templates/${surface}/${name}/`,
+    ),
+    ...(result.primary
+      ? [
+          `主色(${KEY_HUES[hue].label}): ${result.primary.from} → ${result.primary.to}`,
+        ]
+      : []),
+    ...(result.moved.length > 0
+      ? [`明暗差のために段を動かした色: ${result.moved.join("、")}`]
+      : []),
+    `使うとき: new・sheet new・document new に --template ${name} を付ける(既定にするなら画面のテンプレート一覧で選ぶ)`,
+  ].join("\n");
 
 // open・restart が LAN に開くかどうか。--lan / --no-lan があればそれに、無ければ設定(features.lan)に従う
 export const resolveLan = (

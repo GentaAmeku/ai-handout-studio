@@ -28,6 +28,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | `ai-handout-studio restart [<id>] [--lan\|--no-lan]` | 動いているアプリを止めて起こし直す。LAN に開くかは `open` と同じ決め方 |
 | `ai-handout-studio settings` | 今の設定(言語 `locale`・任意の機能 `features.*`)を出す |
 | `ai-handout-studio templates [--kind slide\|sheet\|document]` | いまあるテンプレートの識別子・表示名・説明・既定を一覧で返す。テンプレートは利用者に聞かないが、利用者が名前(表示名でもよい)を挙げたときに識別子へ直して `--template` に渡すために使う |
+| `ai-handout-studio template recolor <名前> --key <lightblue\|cyan\|green\|orange\|purple> [--from cobalt]` | Cobalt の主色の青を選んだ色相に替えたテンプレートを、スライド・質問票・HTML 資料の3区分そろえて `<名前>` で作り、見た目の CSS も作り直す。フォーカス・成功や警告の色・作りは Cobalt のまま。明暗差が足りない色は同じ色相の薄い段へ寄せ、寄せた色を出す。使う場面は「見た目とテンプレート」 |
 | `ai-handout-studio search <探す文> [--json]` | 資料の中身(スライド・質問票・HTML 資料。題名も含む)から近い資料を探し、近い順に10件まで、区分・ID・題名・当たった場所(章・質問・スライド)・前後の文を返す。`--json` は同じ中身を JSON で返す。ベクトル検索(Ollama の埋め込みモデル embeddinggemma-2)が有効なら、言い方の違う資料も近い順に出る(見出しに「ベクトル検索あり」、JSON は `vector: true`)。作る前に、同じ主題の資料が前に無いかを探すのに使う(「作る前の聞き取り」)。利用者の資料を使って答えるとき(RAG の検索部分)にも使える |
 | `ai-handout-studio share <id>` | 質問票・HTML 資料を、Claude の Artifact に配れる束(`share/index.html` と画像のファイルだけ)にする。束の場所・ファイルの一覧・Claude Code への依頼文を返す。スライドはまだ使えない |
 | `ai-handout-studio share <id> --url <URL>` | 公開した Artifact の URL を資料に残す。次の `share <id>` は同じ URL を更新する依頼文になる |
@@ -162,6 +163,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 - 色・書体・飾り(表紙のウェーブ、本文の帯、見出しの線など)はテンプレートが決める。飾りを図形や色付きのブロックで描かず、ブロックに色を書かない
 - 見た目のテンプレートは英語一語の固有名(`default`=Default、`cobalt`=Cobalt、`lumen`=Lumen など)。名前と説明は `ai-handout-studio templates --kind slide` で調べる。利用者が選んだときは `deck.json` の `template` に識別子を書く。中身の構成(`proposal` など)はテンプレートではなく、`template` には書かない。どちらも ai-handout-studio の `design/templates/slide/` にある
 - テンプレートの飾りは基本配置(見出し `y48`、本文 `y176` から)に合わせてある。見出しは基本配置に置く
+- 利用者が「Cobalt を緑で」「組織の色の Cobalt を」のように Cobalt の色を替えたいと言ったときは、先に `ai-handout-studio templates` で同じ色相の版(説明が「Cobalt の主色の青を緑に替えたもの」など)を探し、あればそれを使う。無ければ `ai-handout-studio template recolor <名前> --key <色相>` で作る。どちらもその資料の `--template` に `<名前>` を渡す。名前は英小文字一語で、利用者が挙げなければ色相から決める(`verde` など)。選べる色相は lightblue・cyan・green・orange・purple だけで、それ以外の色(ブランドの色そのもの、赤・黄など)は作れないと伝え、近い色相を勧める。オレンジは質問票の「情報」の印が警告の色に近くなる
 - テンプレートそのものの見た目(変数では表せない帯や見出しの作り)を直す・作るときは、ai-handout-studio リポジトリで `design/templates/<区分>/<名前>/template.css` に書く。書き方は `design/templates/README.md`
 
 ## スライドの `layout`
