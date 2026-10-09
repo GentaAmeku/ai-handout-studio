@@ -65,7 +65,9 @@ const cellClass = (
       ? ' class="ds-num"'
       : "";
 
-// data-col-resize は、読む人が列の幅を変える取っ手の名前(document-client.ts が読んで取っ手を置く)
+// data-col-resize は、読む人が列の幅を変える取っ手の名前(document-client.ts が読んで取っ手を置く)。
+// セルの data-label はその列の見出し。狭い画面で3列以上の表を1行ずつ積むとき、
+// design/document.css が中身の前に添える(見出しの行はそのとき隠れる)
 const tableHtml = (props: PropsOf<"table">, t: DocumentStrings): string =>
   [
     `<table class="ds-table" data-col-resize="${escapeHtml(t.resizeColumn)}">`,
@@ -81,7 +83,7 @@ const tableHtml = (props: PropsOf<"table">, t: DocumentStrings): string =>
     props.rows
       .map(
         (row) =>
-          `<tr>${row.map((cell, index) => `<td${cellClass(index, props)}>${inlineCode(cell)}</td>`).join("")}</tr>`,
+          `<tr>${row.map((cell, index) => `<td${cellClass(index, props)} data-label="${escapeHtml(props.headers[index] ?? "")}">${inlineCode(cell)}</td>`).join("")}</tr>`,
       )
       .join(""),
     "</tbody>",

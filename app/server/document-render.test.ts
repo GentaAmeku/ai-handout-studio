@@ -68,7 +68,23 @@ describe("documentBody のブロック", () => {
         },
       }),
     ).toBe(
-      '<table class="ds-table" data-col-resize="列の幅を変える"><thead><tr><th>段</th><th class="ds-num">日数</th></tr></thead><tbody><tr><td class="ds-rowlabel">調査</td><td class="ds-num">3</td></tr></tbody></table>',
+      '<table class="ds-table" data-col-resize="列の幅を変える"><thead><tr><th>段</th><th class="ds-num">日数</th></tr></thead><tbody><tr><td class="ds-rowlabel" data-label="段">調査</td><td class="ds-num" data-label="日数">3</td></tr></tbody></table>',
+    );
+  });
+
+  // 狭い画面で行を積むとき、CSS がセルの前に添える列の見出し
+  it("表のセルに列の見出しを data-label で持たせ、属性の中で逃がす", () => {
+    expect(
+      render({
+        id: "b1",
+        type: "table",
+        props: {
+          headers: ['"引用" & <印>', "値"],
+          rows: [["a", "b"]],
+        },
+      }),
+    ).toContain(
+      '<td data-label="&quot;引用&quot; &amp; &lt;印&gt;">a</td><td data-label="値">b</td>',
     );
   });
 
@@ -230,7 +246,9 @@ describe("文中の短いコード", () => {
         type: "table",
         props: { headers: ["見出し"], rows: [["`cell`"]] },
       }),
-    ).toContain('<td><code class="ds-code-inline">cell</code></td>');
+    ).toContain(
+      '<td data-label="見出し"><code class="ds-code-inline">cell</code></td>',
+    );
     expect(
       render({
         id: "b1",

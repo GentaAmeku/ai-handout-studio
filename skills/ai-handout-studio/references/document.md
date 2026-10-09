@@ -99,7 +99,7 @@
 | `text` | 段落 | `text`(改行は `\n`) |
 | `bullets` | 並列の短い要点 | `items`(文字列の配列) |
 | `ordered` | 番号の付く並び。1項目に1行の理由を添える | `items: [{ text, why? }]` |
-| `table` | 短い対応関係、数字の比較 | `headers`・`rows`・`rowLabel?`(先頭列を行見出しに)・`numeric?`(右へ寄せる列の番号。0 から) |
+| `table` | 短い対応関係、数字の比較 | `headers`・`rows`・`rowLabel?`(先頭列を行見出しに。スマホの幅では3列以上の表を1行ずつ縦に積み、この列がその行の見出しになる)・`numeric?`(右へ寄せる列の番号。0 から) |
 | `cards` | 並列の概念を2〜4個 | `columns: 2 \| 3`・`items: [{ title, body }]` |
 | `notice` | 情報・確かめた結果・読み落とすと困る条件 | `kind: "info" \| "success" \| "warning"`・`label?`・`text` |
 | `note` | 読み飛ばしても本筋が通る補足 | `text` |
