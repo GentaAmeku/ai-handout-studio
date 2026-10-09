@@ -971,6 +971,134 @@ ol.ds-ordered {
   }
 }
 
+/* ---------- 狭い画面で横に流さない ----------
+   スマホの幅で、本文の列より広いもの(表・図・長い語)をページの外へ出さない。
+   紙(印刷・PDF)は表の形のまま組むので、画面だけにする */
+
+@media screen and (max-width: 760px) {
+  /* URL・パス・英単語は、入らなければ語の途中で折り返す */
+  .ds-page {
+    overflow-wrap: break-word;
+  }
+
+  /* 注意は種類のラベルを本文の上に置く。横に並べると、縮まないラベルが本文を押し出す。
+     本文は箱の幅に合わせる(中身の幅のままだと、長い語の分だけ箱から出る) */
+  .ds-page .ds-notice {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-xs);
+  }
+
+  /* 2列の表は表の形のまま、セルの中で折り返す。行見出しも折り返すが、語の途中では切らない */
+  .ds-page
+    table.ds-table:not(:has(> thead > tr > th:nth-child(3)))
+    :is(th, td) {
+    overflow-wrap: anywhere;
+  }
+
+  .ds-page
+    table.ds-table:not(:has(> thead > tr > th:nth-child(3)))
+    .ds-rowlabel {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* 3列以上の表は、1行を1つの塊にして縦に積む。行見出しの列(.ds-rowlabel)は塊の見出しにし、
+     ほかのセルは列の見出し(data-label。document-render.ts)を左に添える。見出しの行と列の幅の取っ手は使わない */
+  .ds-page table.ds-table:has(> thead > tr > th:nth-child(3)),
+  .ds-page table.ds-table:has(> thead > tr > th:nth-child(3)) > tbody,
+  .ds-page table.ds-table:has(> thead > tr > th:nth-child(3)) > tbody > tr {
+    display: block;
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > :is(thead, colgroup) {
+    display: none;
+  }
+
+  .ds-page table.ds-table:has(> thead > tr > th:nth-child(3)) > tbody > tr {
+    padding: var(--table-cell-pad-y) var(--table-cell-pad-x);
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr
+    + tr {
+    border-top: var(--table-rule-width) solid var(--color-border);
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr:nth-child(even) {
+    background: var(--table-stripe-bg);
+  }
+
+  /* セルは見出し(::before)と中身の2つの欄に分ける。中身は字と code が混ざるので grid にはせず、
+     table にして、::before のあとに続く字と code を1つの無名の欄にまとめさせる */
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr
+    > td {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+    height: auto;
+    padding: calc(var(--space-xs) / 2) 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr
+    > td::before {
+    content: attr(data-label);
+    display: table-cell;
+    width: 34%;
+    padding-right: var(--space-sm);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr
+    > td.ds-rowlabel {
+    display: block;
+    padding-bottom: var(--space-xs);
+    white-space: normal;
+    color: var(--color-heading);
+  }
+
+  .ds-page
+    table.ds-table:has(> thead > tr > th:nth-child(3))
+    > tbody
+    > tr
+    > td.ds-rowlabel::before {
+    content: none;
+  }
+
+  /* 流れの図は、枠の幅まで縦横そろえて縮める。縮める分を減らすため、枠の内側の余白を詰める
+     (画像の枠は余白を持たないので触らない) */
+  .ds-page .ds-figure:not(.ds-image) > .ds-figure-frame {
+    padding: var(--space-sm);
+  }
+
+  .ds-page .ds-figure-frame svg {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
 /* ---------- 章ごとに読む(document.json の paging: "chapter") ----------
    document-client.ts が、表示しない章に data-paging-hidden、.ds-page に data-paging-active と
    今の章の番号(data-paging-index)を付け、前へ・次へ(.ds-pager)と切り替え(.ds-paging-toggle)を足す。
