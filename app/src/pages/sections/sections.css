@@ -25,6 +25,13 @@
   height: 100vh;
 }
 
+/* 狭い画面(幅 768 未満。app.css)では、上に出る帯の分だけ低くして画面に収める */
+@media (max-width: 767px) {
+  .handout-detail {
+    height: calc(100dvh - var(--app-bar-height));
+  }
+}
+
 /* 上の帯のテンプレート・表示の倍率の欄。HTML 資料の編集画面の帯と同じ形 */
 .handout-bar__field {
   display: flex;

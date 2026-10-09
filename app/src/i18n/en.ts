@@ -21,6 +21,7 @@ export const en: Record<MessageKey, string> = {
   "unit.questions": "{n} questions",
 
   "nav.main": "Main",
+  "nav.menu": "Menu",
   "nav.decks": "Decks",
   "nav.sheets": "Sheets",
   "nav.documents": "Documents",

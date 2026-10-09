@@ -21,6 +21,8 @@
     color-mix(in srgb, var(--color-text) 28%, transparent);
   /* サイト内検索の窓を置く、画面の上端からの間。下端も同じだけ空ける */
   --search-dialog-top: 72px;
+  /* 狭い画面で左のメニューの代わりに出す上の帯の高さ。広い画面では帯を出さないので 0 */
+  --app-bar-height: 0px;
 }
 
 *,
@@ -273,6 +275,115 @@ code {
 
 .app-main {
   min-width: 0;
+}
+
+/* 狭い画面の上の帯と、メニューを広げている間に本文を暗くする幕。広い画面では出さない */
+.app-bar,
+.app-backdrop {
+  display: none;
+}
+
+.app-bar__brand {
+  margin: 0;
+  font-size: calc(var(--fs-card-title) * 0.9);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.app-bar__toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.app-bar__toggle:hover,
+.app-bar__toggle:focus-visible {
+  background: var(--nav-hover);
+}
+
+.app-bar__toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.app-bar__toggle[aria-expanded="true"] {
+  background: var(--color-tint);
+  color: var(--color-primary-strong);
+}
+
+/* 幅 768 未満では、左のメニューを上の帯に畳んで本文に画面の幅を渡す。
+   ≡ を押すと帯のすぐ下にメニューを広げ、資料一覧とテンプレート、使い方と設定を横に並べて縦を詰める。
+   この幅はほかの画面の CSS(sections.css・design.css)にも同じ値で書いてある */
+@media (max-width: 767px) {
+  :root {
+    --app-bar-height: 56px;
+  }
+
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .app-bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    height: var(--app-bar-height);
+    padding: 0 var(--space-sm);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  .sidebar {
+    display: none;
+    position: fixed;
+    top: var(--app-bar-height);
+    right: 0;
+    left: 0;
+    z-index: 30;
+    height: auto;
+    max-height: calc(100dvh - var(--app-bar-height));
+    padding: var(--space-xs) var(--space-sm) var(--space-md);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-dialog);
+  }
+
+  .sidebar.is-open {
+    display: flex;
+  }
+
+  /* 名前は上の帯に出ている */
+  .sidebar__brand {
+    display: none;
+  }
+
+  .sidebar nav > .sidebar__nav,
+  .sidebar__nav--sub {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar__group,
+  .sidebar__rule {
+    grid-column: 1 / -1;
+  }
+
+  .app-backdrop {
+    position: fixed;
+    inset: var(--app-bar-height) 0 0;
+    z-index: 29;
+    display: block;
+    background: color-mix(in srgb, var(--color-text) 40%, transparent);
+  }
 }
 
 /* ページ */

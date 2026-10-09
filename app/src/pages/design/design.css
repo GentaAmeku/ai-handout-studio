@@ -241,6 +241,57 @@
   font-size: var(--fs-small);
 }
 
+/* 狭い画面(幅 768 未満。app.css)では、見本と調整の欄を縦に積み、画面ごとスクロールする。
+   上から見本、スライドの一覧、調整の欄。欄の幅のつまみは使わない */
+@media (max-width: 767px) {
+  .design {
+    height: auto;
+  }
+
+  .design__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 質問票と HTML 資料の見本は、見える高さで枠を取るので高さを決めておく */
+  .design-surface:not(.design-surface--slide) {
+    height: 70dvh;
+  }
+
+  .design-surface--slide {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* スライドの見本は幅に合わせて縮めるので、舞台をスライドと同じ横長にする */
+  .design-stage--slide {
+    aspect-ratio: 16 / 9;
+  }
+
+  .design .viewer__slides {
+    order: 1;
+    overflow: visible;
+    border-top: 1px solid var(--color-border);
+    border-right: 0;
+  }
+
+  .design .thumb-list {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  }
+
+  /* editor.css の .side-panel より強く当てる */
+  .design .design__side {
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
+  .design__side .side-resize-handle {
+    display: none;
+  }
+
+  .design__side .side-panel__body {
+    overflow-y: visible;
+  }
+}
+
 /* ---------- レイアウトの選択(質問票は文字の切り替え、文書は縮図のカード) ---------- */
 
 .skeleton-group {
