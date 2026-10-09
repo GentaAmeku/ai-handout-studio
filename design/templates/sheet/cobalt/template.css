@@ -242,6 +242,30 @@ body:has(> .ds-board) {
   }
 }
 
+/* 強制カラーモード(Windows のハイコントラストなど)では地の色が OS の色に置き換わり、
+   地で描いた選択の印が消える。部品集と同じく、枠と印を OS の色で描く。hover の規則より後に置く */
+@media (forced-colors: active) {
+  .ds-choice input:is([type="radio"], [type="checkbox"]),
+  .ds-choice:hover input:is([type="radio"], [type="checkbox"]) {
+    border-color: ButtonText;
+  }
+
+  .ds-choice input:is([type="radio"], [type="checkbox"]):checked,
+  .ds-choice:hover input:is([type="radio"], [type="checkbox"]):checked {
+    border-color: Highlight;
+  }
+
+  .ds-choice input[type="radio"]:checked::before,
+  .ds-choice input[type="checkbox"]:checked,
+  .ds-choice:hover input[type="checkbox"]:checked {
+    background: Highlight;
+  }
+
+  .ds-choice input[type="checkbox"]:checked::before {
+    background: HighlightText;
+  }
+}
+
 /* ---------- 記入欄 ---------- */
 
 .ds-input {

@@ -59,6 +59,7 @@ build は `template.css` を、そのテンプレートの変数の後ろへ入�
 ### 書き方
 
 - DOM は区分ごとに共通のまま使う。class や要素を足さず、既存の `.ds-*` を CSS だけで変える。新しい並びが要るときは描画側(スライドは `app/src/renderer/`、質問票は `app/server/sheet-sample.ts` と質問票スキルの client.js、文書は見本と文書スキル)の作業にする
+- 強制カラーモード(Windows のハイコントラストなど)では、地・文字・枠の色が OS の色に置き換わる。選択の印や今の状態を地の色だけで描くと消えるので、`@media (forced-colors: active)` の中で OS の色(`Highlight`・`HighlightText`・`ButtonText`・`GrayText`)で描き直す(Cobalt の質問票の選択欄が例)。色の名前は直書きの検査に当たらない。透明の枠(`border: 4px double transparent` など)はこの表示で枠として現れるので、塗りのボタンの境界はそれで足りる
 - 色と大きさは変数(`var(--color-*)`・`var(--space-*)`・`var(--fs-*)`・`var(--radius-*)` など)から引く。値を変えたいときは `template.json` の tokens に書く。色の直書き(`#xxxxxx`)・`@import`・外の `url(http…)`・`</` は build が止める
 - 文書の目次は、章の `ol` の中に節の `ol` が入れ子で入る。共通の CSS は節を隠し(`.ds-toc ol ol`)、節を出すテンプレートは `.ds-toc ol ol` に display を書いて出す。章の並び(横並びなど)を変えるときは `.ds-toc > ol` と書く。専用の CSS は共通より強いので、`.ds-toc ol` に display を書くと節にも効いて節が目次に出る。これは build が止める
 - 入れ子の中なので、根そのものは `&`、根の class との組み合わせは `&.ds-slide--cover` のように書く。要素セレクタ(`body`・`h1`)もそのまま書ける(`:root body` になる)
@@ -71,7 +72,7 @@ build は `template.css` を、そのテンプレートの変数の後ろへ入�
 
 1. `pnpm design:build`(`dist/` と見本を作り直す)
 2. 画面のテンプレートの一覧と編集で見本を見る。質問票と文書の見本は `/api/design/files/samples/<見本>.html?template=<名前>` でも開ける
-3. `pnpm test:export` の `template-css.export.test.ts` が、専用の CSS を当てた見本を実ブラウザで描き、文字の明暗差(本文 4.5・大きい字 3、スライドは 3)とはみ出しを全テンプレートで測る
+3. `pnpm test:export` の `template-css.export.test.ts` が、専用の CSS を当てた見本を実ブラウザで描き、文字の明暗差(本文 4.5・大きい字 3、スライドは 3)とはみ出しを全テンプレートで測る。`forced-colors.export.test.ts` は、強制カラーモードで質問票の選択欄を選んだとき・選んでいないときに撮り比べ、見分けがつくかを全テンプレートで測る
 
 ## 用意したテンプレート
 
