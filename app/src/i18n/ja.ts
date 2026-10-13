@@ -102,6 +102,9 @@ export const ja = {
   "deckCard.unfavorite": "お気に入りから外す",
   "deckCard.favoriteNamed": "{title}をお気に入りにする",
   "list.favorites": "お気に入り",
+  "list.viewLegend": "表示の切り替え",
+  "list.viewCards": "カード表示",
+  "list.viewList": "リスト表示",
   "deckCard.deleteConfirm":
     "「{title}」を削除しますか? この操作は取り消せません。",
   "deckCard.invalidTitle": "読み込めません",

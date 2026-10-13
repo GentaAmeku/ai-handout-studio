@@ -24,7 +24,8 @@ import { DeckListPage } from "./DeckListPage";
 
 // 資料一覧の写真のカード。3区分とも、題名・中央の印・🗑 を出し、外した項目は出さない。
 // お気に入りは ☆ で付け外しし、付いたものは「お気に入り」の区切りに分けて並べる。
-// 残りは見出しを付けずに、その下に並べる
+// 残りは見出しを付けずに、その下に並べる。
+// 見出しの切り替えでリスト表示にすると、絵の無い行に題名・ID・項目・更新日時を出す(184)
 
 const DATE = "2026-09-01T10:00:00.000Z";
 
@@ -155,6 +156,7 @@ afterEach(() => {
   fetchMock.mockClear();
   favorites.ids.clear();
   favorites.fail = false;
+  localStorage.clear();
 });
 
 const Blank = () => null;
@@ -476,5 +478,182 @@ describe("資料一覧のお気に入り", () => {
       favoriteButton(restored, "要件の確認").getAttribute("aria-pressed"),
     ).toBe("false");
     expect(region("お気に入り")).toBeNull();
+  });
+});
+
+const viewButton = (name: "カード表示" | "リスト表示") =>
+  screen.getByRole("button", { name });
+
+const showList = async (title: string) => {
+  await card(title);
+  fireEvent.click(viewButton("リスト表示"));
+  return card(title);
+};
+
+// リスト表示の行に出す、区分ごとの項目
+const rowFacts: Record<(typeof cases)[number]["path"], readonly string[]> = {
+  "/slides": ["3枚", "作成中"],
+  "/sheets": ["4 問", "回答あり"],
+  "/documents": [],
+};
+
+describe("資料一覧のリスト表示(184)", () => {
+  it.each(cases)(
+    "$path の見出しに表示の切り替えがあり、既定はカード",
+    async ({ path, title }) => {
+      renderAt(path);
+      const item = await card(title);
+      expect(item.classList.contains("photo-card")).toBe(true);
+      const header = document.querySelector(".page-header") as HTMLElement;
+      const toggle = within(header).getByRole("group", {
+        name: "表示の切り替え",
+      });
+      expect(
+        within(toggle)
+          .getAllByRole("button")
+          .map((button) => [
+            button.getAttribute("aria-label"),
+            button.getAttribute("aria-pressed"),
+          ]),
+      ).toEqual([
+        ["カード表示", "true"],
+        ["リスト表示", "false"],
+      ]);
+      // Search のボタンの左に置く
+      expect(toggle.nextElementSibling?.getAttribute("aria-label")).toBe(
+        "Search",
+      );
+    },
+  );
+
+  it.each(cases)(
+    "$path をリストにすると、絵の無い行に題名・ID・項目・更新日時・🗑・☆ を出す",
+    async ({ path, title, open, id }) => {
+      renderAt(path);
+      const row = await showList(title);
+      expect(viewButton("リスト表示").getAttribute("aria-pressed")).toBe(
+        "true",
+      );
+      expect(row.classList.contains("list-row")).toBe(true);
+      expect(row.closest(".list-rows")).not.toBeNull();
+      expect(document.querySelector(".photo-card")).toBeNull();
+      expect(document.querySelector(".photo-card-grid")).toBeNull();
+      // 絵(表紙・見本)は描かない
+      expect(document.querySelector("iframe")).toBeNull();
+      expect(within(row).getByRole("link", { name: open }).textContent).toBe(
+        title,
+      );
+      for (const text of [id, ...rowFacts[path], "2026/09/01 19:00"]) {
+        expect(within(row).getByText(text)).toBeTruthy();
+      }
+      expect(
+        [...row.querySelectorAll(".list-row__actions button")].map((button) =>
+          button.getAttribute("aria-label"),
+        ),
+      ).toEqual([`${title}を削除`, `${title}をお気に入りにする`]);
+
+      fireEvent.click(viewButton("カード表示"));
+      expect((await card(title)).classList.contains("photo-card")).toBe(true);
+      expect(document.querySelector(".list-row")).toBeNull();
+    },
+  );
+
+  it.each(cases)(
+    "$path の行の題名を押すと行き先が開く",
+    async ({ path, title, open, to }) => {
+      const router = renderAt(path);
+      const row = await showList(title);
+      fireEvent.click(within(row).getByRole("link", { name: open }));
+      await waitFor(() => expect(router.state.location.pathname).toBe(to));
+    },
+  );
+
+  it("選んだ表示は区分ごとに覚える", async () => {
+    renderAt("/sheets");
+    await showList("要件の確認");
+    expect(localStorage.getItem("ai-handout-studio:list-view:sheet")).toBe(
+      "list",
+    );
+    cleanup();
+
+    renderAt("/sheets");
+    expect((await card("要件の確認")).classList.contains("list-row")).toBe(
+      true,
+    );
+    cleanup();
+
+    renderAt("/documents");
+    expect((await card("設計の説明")).classList.contains("photo-card")).toBe(
+      true,
+    );
+    expect(viewButton("カード表示").getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("読めないスライドの行は、項目の代わりに印と一言を出し、ID を重ねない", async () => {
+    const router = renderAt("/slides");
+    await showList("四半期の報告");
+    const broken = await card("deck-broken");
+    expect(within(broken).getByText("読み込めません")).toBeTruthy();
+    expect(within(broken).getAllByText("deck-broken")).toHaveLength(1);
+    expect(broken.querySelector(".list-row__fact")).toBeNull();
+    fireEvent.click(
+      within(broken).getByRole("link", { name: "deck-brokenを開く" }),
+    );
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe("/decks/deck-broken"),
+    );
+  });
+
+  it.each([
+    ["/sheets", "要件の確認", "壊れた質問票", "sheet-broken"],
+    ["/documents", "設計の説明", "壊れた資料", "doc-broken"],
+  ])(
+    "%s の読めない資料の行は、印と一言を出す",
+    async (path, title, brokenTitle, id) => {
+      renderAt(path);
+      await showList(title);
+      const broken = await card(brokenTitle);
+      expect(within(broken).getByText("中身が読めません")).toBeTruthy();
+      expect(within(broken).getByText(id)).toBeTruthy();
+      expect(broken.querySelector(".list-row__fact")).toBeNull();
+    },
+  );
+
+  it.each(cases)(
+    "$path はリスト表示でも ☆ で「お気に入り」の区切りへ移る",
+    async ({ path, title, other }) => {
+      renderAt(path);
+      const row = await showList(title);
+      fireEvent.click(favoriteButton(row, title));
+      await waitFor(() => expect(region("お気に入り")).not.toBeNull());
+      const favoriteSection = region("お気に入り") as HTMLElement;
+      const moved = within(favoriteSection).getByRole("article", {
+        name: title,
+      });
+      expect(moved.classList.contains("list-row")).toBe(true);
+      expect(favoriteButton(moved, title).getAttribute("aria-pressed")).toBe(
+        "true",
+      );
+      const others = rest() as HTMLElement;
+      expect(others.classList.contains("list-rows")).toBe(true);
+      expect(within(others).queryByRole("article", { name: title })).toBeNull();
+      expect(within(others).getByRole("article", { name: other })).toBeTruthy();
+    },
+  );
+
+  it("リスト表示で付け外しに失敗したら、行に知らせを出す", async () => {
+    favorites.fail = true;
+    renderAt("/sheets");
+    const row = await showList("要件の確認");
+    fireEvent.click(favoriteButton(row, "要件の確認"));
+    const restored = await card("要件の確認");
+    await waitFor(() =>
+      expect(within(restored).getByRole("alert").textContent).toContain(
+        "書き込めない",
+      ),
+    );
+    expect(
+      within(restored).getByRole("alert").classList.contains("list-row__error"),
+    ).toBe(true);
   });
 });
