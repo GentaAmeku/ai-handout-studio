@@ -2,6 +2,7 @@ import { Pencil, Search, TriangleAlert } from "lucide-react";
 import { handoutPreviewUrl, useDeleteHandout } from "../../api/queries";
 import type { HandoutSummary, WithFavorite } from "../../api/types";
 import {
+  type ActionPlace,
   CardActions,
   CardMessage,
   type FavoriteControl,
@@ -13,7 +14,45 @@ import { sectionDetailPath } from "./paths";
 
 // 質問票と HTML 資料の資料一覧の写真のカード。ふだんは見本の頭だけで、
 // 合わせると題名・中央の印・右上の 🗑 と ☆ が出る。質問票は1件のページが開くので 🔍、
-// HTML 資料は編集画面が開くので ✎。お気に入りは塗りの ★ をいつも出す
+// HTML 資料は編集画面が開くので ✎。お気に入りは塗りの ★ をいつも出す。
+// 行き先・🗑 と ☆ は、リスト表示の行(HandoutRow.tsx)も同じものを使う
+
+export const useHandoutLink = (summary: HandoutSummary): PhotoCardLink => {
+  const { t } = useLanguage();
+  // 2つの経路の和は Link の型と重ならないので、いったん unknown を通して PhotoCardLink へゆるめる
+  return {
+    to: sectionDetailPath[summary.kind],
+    params: { id: summary.id },
+    "aria-label": t(
+      summary.kind === "sheet" ? "deckCard.openNamed" : "deckCard.editNamed",
+      { title: summary.title },
+    ),
+  } as unknown as PhotoCardLink;
+};
+
+export const HandoutActions = ({
+  summary,
+  favoriteControl,
+  place,
+}: {
+  summary: WithFavorite<HandoutSummary>;
+  favoriteControl: FavoriteControl;
+  place?: ActionPlace;
+}) => {
+  const remove = useDeleteHandout(summary.kind);
+  return (
+    <CardActions
+      id={summary.id}
+      title={summary.title}
+      favorite={summary.favorite}
+      favoriteControl={favoriteControl}
+      deleting={remove.isPending}
+      deleteError={remove.isError ? remove.error.message : undefined}
+      onDelete={() => remove.mutate(summary.id)}
+      place={place}
+    />
+  );
+};
 
 export const HandoutCard = ({
   summary,
@@ -23,27 +62,14 @@ export const HandoutCard = ({
   favoriteControl: FavoriteControl;
 }) => {
   const { t } = useLanguage();
-  const remove = useDeleteHandout(summary.kind);
+  const link = useHandoutLink(summary);
   const { title } = summary;
   const isSheet = summary.kind === "sheet";
-  // 2つの経路の和は Link の型と重ならないので、いったん unknown を通して PhotoCardLink へゆるめる
-  const detail = {
-    to: sectionDetailPath[summary.kind],
-    params: { id: summary.id },
-  } as unknown as PhotoCardLink;
   return (
     <PhotoCard
       articleLabel={title}
       className={summary.error ? "photo-card--titled" : undefined}
-      link={
-        {
-          ...detail,
-          "aria-label": t(
-            isSheet ? "deckCard.openNamed" : "deckCard.editNamed",
-            { title },
-          ),
-        } as PhotoCardLink
-      }
+      link={link}
       image={
         summary.error ? (
           <CardMessage
@@ -69,15 +95,7 @@ export const HandoutCard = ({
       }
       name={title}
       action={
-        <CardActions
-          id={summary.id}
-          title={title}
-          favorite={summary.favorite}
-          favoriteControl={favoriteControl}
-          deleting={remove.isPending}
-          deleteError={remove.isError ? remove.error.message : undefined}
-          onDelete={() => remove.mutate(summary.id)}
-        />
+        <HandoutActions summary={summary} favoriteControl={favoriteControl} />
       }
     />
   );

@@ -3,6 +3,7 @@ import { deckAssetBase } from "../../api/client";
 import { useDeleteDeck } from "../../api/queries";
 import type { DeckSummary, WithFavorite } from "../../api/types";
 import {
+  type ActionPlace,
   CardActions,
   CardMessage,
   type FavoriteControl,
@@ -13,10 +14,48 @@ import { useLanguage } from "../../i18n/language";
 
 // スライドの資料一覧の写真のカード。ふだんは表紙だけで、合わせると題名・中央の ✎・右上の 🗑 と ☆ が出る。
 // お気に入りは塗りの ★ をいつも出す。
-// 読めた資料は編集画面へ、読めない資料は内容の確認へ(どちらも /decks/<id>)
+// 読めた資料は編集画面へ、読めない資料は内容の確認へ(どちらも /decks/<id>)。
+// 題名・行き先・🗑 と ☆ は、リスト表示の行(DeckRow.tsx)も同じものを使う
 
-const titleOf = (deck: DeckSummary): string =>
+export const titleOf = (deck: DeckSummary): string =>
   deck.state === "invalid" ? deck.deckId : deck.title;
+
+export const useDeckLink = (deck: DeckSummary): PhotoCardLink => {
+  const { t } = useLanguage();
+  // 経路の型は Link の型と重ならないので、いったん unknown を通して PhotoCardLink へゆるめる
+  return {
+    to: "/decks/$deckId",
+    params: { deckId: deck.deckId },
+    "aria-label": t(
+      deck.state === "ready" ? "deckCard.editNamed" : "deckCard.openNamed",
+      { title: titleOf(deck) },
+    ),
+  } as unknown as PhotoCardLink;
+};
+
+export const DeckActions = ({
+  deck,
+  favoriteControl,
+  place,
+}: {
+  deck: WithFavorite<DeckSummary>;
+  favoriteControl: FavoriteControl;
+  place?: ActionPlace;
+}) => {
+  const deleteDeck = useDeleteDeck();
+  return (
+    <CardActions
+      id={deck.deckId}
+      title={titleOf(deck)}
+      favorite={deck.favorite}
+      favoriteControl={favoriteControl}
+      deleting={deleteDeck.isPending}
+      deleteError={deleteDeck.isError ? deleteDeck.error.message : undefined}
+      onDelete={() => deleteDeck.mutate(deck.deckId)}
+      place={place}
+    />
+  );
+};
 
 const DeckImage = ({ deck }: { deck: DeckSummary }) => {
   const { t } = useLanguage();
@@ -56,47 +95,19 @@ export const DeckCard = ({
   deck: WithFavorite<DeckSummary>;
   favoriteControl: FavoriteControl;
 }) => {
-  const { t } = useLanguage();
-  const deleteDeck = useDeleteDeck();
+  const link = useDeckLink(deck);
   const title = titleOf(deck);
   // 読めない資料は絵が無いので、題名をいつも出す
   const always = deck.state !== "ready";
-  // 経路の型は Link の型と重ならないので、いったん unknown を通して PhotoCardLink へゆるめる
-  const open = {
-    to: "/decks/$deckId",
-    params: { deckId: deck.deckId },
-  } as unknown as PhotoCardLink;
   return (
     <PhotoCard
       articleLabel={title}
       className={always ? "photo-card--titled" : undefined}
-      link={
-        {
-          ...open,
-          "aria-label": t(
-            deck.state === "ready"
-              ? "deckCard.editNamed"
-              : "deckCard.openNamed",
-            { title },
-          ),
-        } as PhotoCardLink
-      }
+      link={link}
       image={<DeckImage deck={deck} />}
       icon={<Pencil size={22} strokeWidth={1.75} />}
       name={title}
-      action={
-        <CardActions
-          id={deck.deckId}
-          title={title}
-          favorite={deck.favorite}
-          favoriteControl={favoriteControl}
-          deleting={deleteDeck.isPending}
-          deleteError={
-            deleteDeck.isError ? deleteDeck.error.message : undefined
-          }
-          onDelete={() => deleteDeck.mutate(deck.deckId)}
-        />
-      }
+      action={<DeckActions deck={deck} favoriteControl={favoriteControl} />}
     />
   );
 };

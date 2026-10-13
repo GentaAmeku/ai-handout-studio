@@ -89,6 +89,8 @@ code {
 
 .button:focus-visible,
 .search-button:focus-visible,
+.view-toggle__button:focus-visible,
+.list-row__action:focus-visible,
 .chip:focus-visible,
 .icon-button:focus-visible,
 .thumb__button:focus-visible {
@@ -482,6 +484,61 @@ code {
   border-color: var(--color-primary);
   background: var(--color-bg);
   color: var(--color-primary-strong);
+}
+
+/* ---------- 資料一覧の表示の切り替え(184) ---------- */
+/* 見出しの右、Search のボタンの左に置く(components/ListViewToggle.tsx)。カードとリストの
+   2つのボタンを1つの枠に並べ、高さは Search のボタンにそろえる。選んでいる方を薄い青で塗る */
+.view-toggle {
+  display: inline-flex;
+  flex: none;
+  gap: calc(var(--space-xs) / 4);
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  padding: calc(var(--space-xs) / 2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.view-toggle__button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.view-toggle__button:hover {
+  background: var(--color-chip);
+  color: var(--color-text);
+}
+
+.view-toggle__button[aria-pressed="true"] {
+  background: var(--color-tint);
+  color: var(--color-primary-strong);
+}
+
+/* 狭い画面(幅 768 未満)では、題の行に切り替えまで並べると題と説明が細く折り返す。
+   題の行は Search のボタンだけにして、切り替えは説明の下の行の右端へ落とす */
+@media (max-width: 767px) {
+  .page-header:has(.view-toggle) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .page-header .view-toggle {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
 }
 
 /* ---------- サイト内検索 ---------- */
@@ -1044,6 +1101,214 @@ code {
   border-radius: var(--radius-sm);
   background: var(--color-bg);
   font-size: var(--fs-small);
+}
+
+/* ---------- 資料一覧のリスト表示(184) ---------- */
+/* 絵の無い行の一覧(components/ListRow.tsx)。白い枠の中に、細い線で区切った行を縦に並べる。
+   列(題名・ID・区分ごとの項目・更新日時・右端のボタン)は決まった幅にして、行をまたいで、
+   お気に入りの区切りとその下の並びの間でも、縦にそろえる */
+.list-rows {
+  /* 列の幅。ID は「sheet_20261009_001」、更新日時は「2026/10/09 10:13」が1行に入る幅 */
+  --list-row-id: 11.5em;
+  --list-row-fact: 5.5em;
+  --list-row-date: 8.5em;
+  container: list-rows / inline-size;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-bg);
+}
+
+/* お気に入りの下の並びは枠どうしの間で分かれるので、区切りの線の下の余白は持たない */
+.list-rows.list-rest {
+  padding-top: 0;
+}
+
+.list-row {
+  position: relative;
+  display: grid;
+  align-items: center;
+  column-gap: var(--space-md);
+  min-height: 52px;
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-md);
+}
+
+.list-row--facts-0 {
+  grid-template-columns:
+    minmax(0, 1fr) var(--list-row-id) var(--list-row-date)
+    auto;
+}
+
+.list-row--facts-2 {
+  grid-template-columns:
+    minmax(0, 1fr) var(--list-row-id) repeat(2, var(--list-row-fact))
+    var(--list-row-date) auto;
+}
+
+.list-row + .list-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.list-row:hover,
+.list-row:focus-within {
+  background: var(--color-surface);
+}
+
+/* 題名と、読めない資料の印と一言 */
+.list-row__main {
+  display: flex;
+  flex-wrap: wrap;
+  grid-row: 1;
+  grid-column: 1;
+  align-items: center;
+  gap: calc(var(--space-xs) / 2) var(--space-sm);
+  min-width: 0;
+}
+
+.list-row__title {
+  min-width: 0;
+  color: var(--color-text);
+  font-weight: 600;
+  line-height: var(--lh-heading);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* 行のどこを押しても行き先が開くよう、題名のリンクを行いっぱいに広げる。
+   右端のボタンと読めない理由の吹き出しは、その上に置く */
+.list-row__title::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.list-row:hover .list-row__title {
+  color: var(--color-primary-strong);
+}
+
+/* キーボードで題名を選んだときは、行の内側に輪を出す */
+.list-row__title:focus-visible {
+  outline: none;
+}
+
+.list-row:has(.list-row__title:focus-visible) {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+
+.list-row__warning {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--space-xs) / 2);
+  color: var(--color-danger);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
+/* ID・項目・更新日時。広い一覧では、行の列にそのまま並ぶ */
+.list-row__meta {
+  display: contents;
+}
+
+.list-row__id,
+.list-row__fact,
+.list-row__date {
+  grid-row: 1;
+  color: var(--color-muted);
+  font-size: var(--fs-small);
+}
+
+.list-row__id {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.list-row__fact {
+  grid-column: 3;
+  white-space: nowrap;
+}
+
+.list-row__fact + .list-row__fact {
+  grid-column: 4;
+}
+
+.list-row__date {
+  grid-column: -3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 右端の 🗑 と ☆。カードと違い、合わせなくてもいつも出す */
+.list-row__actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  grid-row: 1;
+  grid-column: -2;
+  gap: calc(var(--space-xs) / 2);
+}
+
+.list-row__action {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.list-row__action:hover {
+  background: var(--color-chip);
+  color: var(--color-primary);
+}
+
+.list-row__action--danger:hover {
+  background: var(--color-danger-tint);
+  color: var(--color-danger);
+}
+
+.list-row__action--favorite[aria-pressed="true"] {
+  color: var(--color-primary);
+}
+
+.list-row__action:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* 消せなかったとき・付け外しできなかったときの知らせ。行の下に出す */
+.list-row__error {
+  position: relative;
+  z-index: 1;
+  grid-row: 2;
+  grid-column: 1 / -1;
+  font-size: var(--fs-small);
+}
+
+/* 幅の狭い一覧では、ID・項目・更新日時を題名の下の行へ落とす */
+@container list-rows (max-width: 800px) {
+  .list-row--facts-0,
+  .list-row--facts-2 {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .list-row__meta {
+    display: flex;
+    flex-wrap: wrap;
+    grid-row: 2;
+    grid-column: 1 / -1;
+    gap: 0 var(--space-md);
+  }
+
+  .list-row__error {
+    grid-row: 3;
+  }
 }
 
 /* 縮小表示 */

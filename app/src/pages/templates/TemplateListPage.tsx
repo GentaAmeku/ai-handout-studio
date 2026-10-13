@@ -222,7 +222,7 @@ export const TemplateListPage = ({ surface }: { surface: Surface }) => {
           items={summaries.map((summary, index) => ({ summary, index }))}
           pinned={({ summary }) => data.selection[surface] === summary.name}
           title={t("templates.isDefault")}
-          renderCard={({ summary, index }) => (
+          renderItem={({ summary, index }) => (
             <TemplateCard
               key={summary.name}
               surface={surface}

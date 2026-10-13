@@ -19,6 +19,8 @@ import type {
 import { FavoriteButton } from "../../components/FavoriteButton";
 import { HandoutExportButton } from "../../components/HandoutExportButton";
 import { favoriteControlOf } from "../../components/ListCardParts";
+import { ListViewToggle } from "../../components/ListViewToggle";
+import { useListView } from "../../components/list-view";
 import { OpenFullLink } from "../../components/OpenFullLink";
 import { PinnedSections } from "../../components/PinnedSections";
 import { ShareButton } from "../../components/ShareButton";
@@ -28,6 +30,7 @@ import { SearchButton } from "../../search/SearchButton";
 import { FrameView } from "../design/SampleStage";
 import { templateEditPath } from "../templates/paths";
 import { HandoutCard } from "./HandoutCard";
+import { HandoutRow } from "./HandoutRow";
 import { sectionListPath } from "./paths";
 
 // 質問票と HTML 資料の資料一覧と、質問票の1件。
@@ -40,6 +43,8 @@ export const SectionListPage = ({ section }: { section: Section }) => {
   const { t } = useLanguage();
   const handouts = useQuery(handoutsQuery(section));
   const setFavorite = useSetHandoutFavorite(section);
+  const [view, setView] = useListView(section);
+  const Item = view === "list" ? HandoutRow : HandoutCard;
 
   return (
     <div className="page">
@@ -48,6 +53,7 @@ export const SectionListPage = ({ section }: { section: Section }) => {
           <h1 className="page-title">{t(`sections.${section}.listTitle`)}</h1>
           <p className="page-lead">{t(`sections.${section}.lead`)}</p>
         </div>
+        <ListViewToggle view={view} onChange={setView} />
         <SearchButton />
       </header>
 
@@ -67,8 +73,9 @@ export const SectionListPage = ({ section }: { section: Section }) => {
           items={handouts.data}
           pinned={(summary) => summary.favorite}
           title={t("list.favorites")}
-          renderCard={(summary) => (
-            <HandoutCard
+          view={view}
+          renderItem={(summary) => (
+            <Item
               key={summary.id}
               summary={summary}
               favoriteControl={favoriteControlOf(setFavorite, summary.id)}
