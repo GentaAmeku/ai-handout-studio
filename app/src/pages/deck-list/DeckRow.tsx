@@ -4,7 +4,7 @@ import { ListRow, RowFact, RowWarning } from "../../components/ListRow";
 import { useLanguage } from "../../i18n/language";
 import { DeckActions, titleOf, useDeckLink } from "./DeckCard";
 
-// スライドの資料一覧のリスト表示の1行(184)。題名・ID・枚数・状態・更新日時・☆ と 🗑。
+// スライドの資料一覧のリスト表示の1行(184)。題名・枚数・状態・更新日時・☆ と 🗑。
 // 行き先と 🗑・☆ は写真のカード(DeckCard.tsx)と同じ
 
 export const DeckRow = ({
@@ -22,7 +22,6 @@ export const DeckRow = ({
       articleLabel={title}
       link={link}
       title={title}
-      id={deck.deckId}
       warning={
         deck.state === "invalid" && (
           <RowWarning text={t("deckCard.invalidTitle")} detail={deck.message} />

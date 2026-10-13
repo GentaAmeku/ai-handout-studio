@@ -25,7 +25,7 @@ import { DeckListPage } from "./DeckListPage";
 // 資料一覧の写真のカード。3区分とも、題名・中央の印・🗑 を出し、外した項目は出さない。
 // お気に入りは ☆ で付け外しし、付いたものは「お気に入り」の区切りに分けて並べる。
 // 残りは見出しを付けずに、その下に並べる。
-// 見出しの切り替えでリスト表示にすると、絵の無い行に題名・ID・項目・更新日時を出す(184)
+// 見出しの切り替えでリスト表示にすると、絵の無い行に題名・項目・更新日時を出す(184)
 
 const DATE = "2026-09-01T10:00:00.000Z";
 
@@ -490,11 +490,11 @@ const showList = async (title: string) => {
   return card(title);
 };
 
-// リスト表示の行に出す、区分ごとの項目。ID はスライドと HTML 資料だけ(質問票は出さない)
+// リスト表示の行に出す、区分ごとの項目。ID はどの区分も出さない
 const rowFacts: Record<(typeof cases)[number]["path"], readonly string[]> = {
-  "/slides": ["deck-ready", "3枚", "作成中"],
+  "/slides": ["3枚", "作成中"],
   "/sheets": ["4 問", "回答あり"],
-  "/documents": ["doc-a"],
+  "/documents": [],
 };
 
 describe("資料一覧のリスト表示(184)", () => {
@@ -528,12 +528,15 @@ describe("資料一覧のリスト表示(184)", () => {
 
   it.each(cases)(
     "$path をリストにすると、絵の無い行に題名・項目・更新日時・☆・🗑 を出す",
-    async ({ path, title, open }) => {
+    async ({ path, title, open, id }) => {
       renderAt(path);
       const row = await showList(title);
       expect(viewButton("リスト表示").getAttribute("aria-pressed")).toBe(
         "true",
       );
+      // ID は出さない(列も持たない)
+      expect(within(row).queryByText(id)).toBeNull();
+      expect(document.querySelector(".list-row__id")).toBeNull();
       expect(row.classList.contains("list-row")).toBe(true);
       expect(row.closest(".list-rows")).not.toBeNull();
       expect(document.querySelector(".photo-card")).toBeNull();
@@ -590,7 +593,7 @@ describe("資料一覧のリスト表示(184)", () => {
     expect(viewButton("カード表示").getAttribute("aria-pressed")).toBe("true");
   });
 
-  it("読めないスライドの行は、項目の代わりに印と一言を出し、ID を重ねない", async () => {
+  it("読めないスライドの行は、題名(ID)の横に印と一言を出し、項目を出さない", async () => {
     const router = renderAt("/slides");
     await showList("四半期の報告");
     const broken = await card("deck-broken");
@@ -618,24 +621,6 @@ describe("資料一覧のリスト表示(184)", () => {
       expect(broken.querySelector(".list-row__fact")).toBeNull();
     },
   );
-
-  it("質問票の行は ID を出さず、HTML 資料の行は出す", async () => {
-    renderAt("/sheets");
-    const sheet = await showList("要件の確認");
-    expect(within(sheet).queryByText("sheet-a")).toBeNull();
-    expect(document.querySelector(".list-row__id")).toBeNull();
-    expect(sheet.classList.contains("list-row--id")).toBe(false);
-    cleanup();
-
-    renderAt("/documents");
-    const doc = await showList("設計の説明");
-    expect(doc.classList.contains("list-row--id")).toBe(true);
-    expect(
-      within(await card("壊れた資料")).getByText("doc-broken", {
-        selector: ".list-row__id",
-      }),
-    ).toBeTruthy();
-  });
 
   it.each(cases)(
     "$path はリスト表示でも ☆ で「お気に入り」の区切りへ移る",

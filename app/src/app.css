@@ -1105,12 +1105,10 @@ code {
 
 /* ---------- 資料一覧のリスト表示(184) ---------- */
 /* 絵の無い行の一覧(components/ListRow.tsx)。白い枠の中に、細い線で区切った行を縦に並べる。
-   列(題名・ID・区分ごとの項目・更新日時・右端のボタン)は決まった幅にして、行をまたいで、
-   お気に入りの区切りとその下の並びの間でも、縦にそろえる。ID の列は、ID を出す区分
-   (.list-row--id。スライドと HTML 資料)だけが持つ */
+   列(題名・区分ごとの項目・更新日時・右端のボタン)は決まった幅にして、行をまたいで、
+   お気に入りの区切りとその下の並びの間でも、縦にそろえる */
 .list-rows {
-  /* 列の幅。ID は「sheet_20261009_001」、更新日時は「2026/10/09 10:13」が1行に入る幅 */
-  --list-row-id: 11.5em;
+  /* 列の幅。更新日時は「2026/10/09 10:13」が1行に入る幅 */
   --list-row-fact: 5.5em;
   --list-row-date: 8.5em;
   container: list-rows / inline-size;
@@ -1146,18 +1144,6 @@ code {
       --list-row-fact
     )
     [date] var(--list-row-date) [actions] auto;
-}
-
-.list-row--id.list-row--facts-0 {
-  grid-template-columns:
-    [main] minmax(0, 1fr) [id] var(--list-row-id) [date] var(--list-row-date)
-    [actions] auto;
-}
-
-.list-row--id.list-row--facts-2 {
-  grid-template-columns:
-    [main] minmax(0, 1fr) [id] var(--list-row-id) [fact1] var(--list-row-fact)
-    [fact2] var(--list-row-fact) [date] var(--list-row-date) [actions] auto;
 }
 
 .list-row + .list-row {
@@ -1221,23 +1207,16 @@ code {
   white-space: nowrap;
 }
 
-/* ID・項目・更新日時。広い一覧では、行の列にそのまま並ぶ */
+/* 項目・更新日時。広い一覧では、行の列にそのまま並ぶ */
 .list-row__meta {
   display: contents;
 }
 
-.list-row__id,
 .list-row__fact,
 .list-row__date {
   grid-row: 1;
   color: var(--color-muted);
   font-size: var(--fs-small);
-}
-
-.list-row__id {
-  grid-column: id;
-  font-family: var(--font-mono);
-  overflow-wrap: anywhere;
 }
 
 .list-row__fact {
@@ -1306,7 +1285,7 @@ code {
   font-size: var(--fs-small);
 }
 
-/* 幅の狭い一覧では、ID・項目・更新日時を題名の下の行へ落とす */
+/* 幅の狭い一覧では、項目・更新日時を題名の下の行へ落とす */
 @container list-rows (max-width: 800px) {
   .list-row.list-row--facts-0,
   .list-row.list-row--facts-2 {
