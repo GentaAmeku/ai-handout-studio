@@ -1106,7 +1106,8 @@ code {
 /* ---------- 資料一覧のリスト表示(184) ---------- */
 /* 絵の無い行の一覧(components/ListRow.tsx)。白い枠の中に、細い線で区切った行を縦に並べる。
    列(題名・ID・区分ごとの項目・更新日時・右端のボタン)は決まった幅にして、行をまたいで、
-   お気に入りの区切りとその下の並びの間でも、縦にそろえる */
+   お気に入りの区切りとその下の並びの間でも、縦にそろえる。ID の列は、ID を出す区分
+   (.list-row--id。スライドと HTML 資料)だけが持つ */
 .list-rows {
   /* 列の幅。ID は「sheet_20261009_001」、更新日時は「2026/10/09 10:13」が1行に入る幅 */
   --list-row-id: 11.5em;
@@ -1135,14 +1136,28 @@ code {
 
 .list-row--facts-0 {
   grid-template-columns:
-    minmax(0, 1fr) var(--list-row-id) var(--list-row-date)
-    auto;
+    [main] minmax(0, 1fr) [date] var(--list-row-date)
+    [actions] auto;
 }
 
 .list-row--facts-2 {
   grid-template-columns:
-    minmax(0, 1fr) var(--list-row-id) repeat(2, var(--list-row-fact))
-    var(--list-row-date) auto;
+    [main] minmax(0, 1fr) [fact1] var(--list-row-fact) [fact2] var(
+      --list-row-fact
+    )
+    [date] var(--list-row-date) [actions] auto;
+}
+
+.list-row--id.list-row--facts-0 {
+  grid-template-columns:
+    [main] minmax(0, 1fr) [id] var(--list-row-id) [date] var(--list-row-date)
+    [actions] auto;
+}
+
+.list-row--id.list-row--facts-2 {
+  grid-template-columns:
+    [main] minmax(0, 1fr) [id] var(--list-row-id) [fact1] var(--list-row-fact)
+    [fact2] var(--list-row-fact) [date] var(--list-row-date) [actions] auto;
 }
 
 .list-row + .list-row {
@@ -1159,7 +1174,7 @@ code {
   display: flex;
   flex-wrap: wrap;
   grid-row: 1;
-  grid-column: 1;
+  grid-column: main;
   align-items: center;
   gap: calc(var(--space-xs) / 2) var(--space-sm);
   min-width: 0;
@@ -1220,33 +1235,33 @@ code {
 }
 
 .list-row__id {
-  grid-column: 2;
+  grid-column: id;
   font-family: var(--font-mono);
   overflow-wrap: anywhere;
 }
 
 .list-row__fact {
-  grid-column: 3;
+  grid-column: fact1;
   white-space: nowrap;
 }
 
 .list-row__fact + .list-row__fact {
-  grid-column: 4;
+  grid-column: fact2;
 }
 
 .list-row__date {
-  grid-column: -3;
+  grid-column: date;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-/* 右端の 🗑 と ☆。カードと違い、合わせなくてもいつも出す */
+/* 右端の ☆ と 🗑(🗑 が端)。カードと違い、合わせなくてもいつも出す */
 .list-row__actions {
   position: relative;
   z-index: 1;
   display: flex;
   grid-row: 1;
-  grid-column: -2;
+  grid-column: actions;
   gap: calc(var(--space-xs) / 2);
 }
 
@@ -1293,9 +1308,9 @@ code {
 
 /* 幅の狭い一覧では、ID・項目・更新日時を題名の下の行へ落とす */
 @container list-rows (max-width: 800px) {
-  .list-row--facts-0,
-  .list-row--facts-2 {
-    grid-template-columns: minmax(0, 1fr) auto;
+  .list-row.list-row--facts-0,
+  .list-row.list-row--facts-2 {
+    grid-template-columns: [main] minmax(0, 1fr) [actions] auto;
   }
 
   .list-row__meta {

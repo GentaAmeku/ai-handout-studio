@@ -490,11 +490,11 @@ const showList = async (title: string) => {
   return card(title);
 };
 
-// リスト表示の行に出す、区分ごとの項目
+// リスト表示の行に出す、区分ごとの項目。ID はスライドと HTML 資料だけ(質問票は出さない)
 const rowFacts: Record<(typeof cases)[number]["path"], readonly string[]> = {
-  "/slides": ["3枚", "作成中"],
+  "/slides": ["deck-ready", "3枚", "作成中"],
   "/sheets": ["4 問", "回答あり"],
-  "/documents": [],
+  "/documents": ["doc-a"],
 };
 
 describe("資料一覧のリスト表示(184)", () => {
@@ -527,8 +527,8 @@ describe("資料一覧のリスト表示(184)", () => {
   );
 
   it.each(cases)(
-    "$path をリストにすると、絵の無い行に題名・ID・項目・更新日時・🗑・☆ を出す",
-    async ({ path, title, open, id }) => {
+    "$path をリストにすると、絵の無い行に題名・項目・更新日時・☆・🗑 を出す",
+    async ({ path, title, open }) => {
       renderAt(path);
       const row = await showList(title);
       expect(viewButton("リスト表示").getAttribute("aria-pressed")).toBe(
@@ -543,14 +543,15 @@ describe("資料一覧のリスト表示(184)", () => {
       expect(within(row).getByRole("link", { name: open }).textContent).toBe(
         title,
       );
-      for (const text of [id, ...rowFacts[path], "2026/09/01 19:00"]) {
+      for (const text of [...rowFacts[path], "2026/09/01 19:00"]) {
         expect(within(row).getByText(text)).toBeTruthy();
       }
+      // 行では ☆ が先で、🗑 が端(カードとは逆)
       expect(
         [...row.querySelectorAll(".list-row__actions button")].map((button) =>
           button.getAttribute("aria-label"),
         ),
-      ).toEqual([`${title}を削除`, `${title}をお気に入りにする`]);
+      ).toEqual([`${title}をお気に入りにする`, `${title}を削除`]);
 
       fireEvent.click(viewButton("カード表示"));
       expect((await card(title)).classList.contains("photo-card")).toBe(true);
@@ -605,19 +606,36 @@ describe("資料一覧のリスト表示(184)", () => {
   });
 
   it.each([
-    ["/sheets", "要件の確認", "壊れた質問票", "sheet-broken"],
-    ["/documents", "設計の説明", "壊れた資料", "doc-broken"],
+    ["/sheets", "要件の確認", "壊れた質問票"],
+    ["/documents", "設計の説明", "壊れた資料"],
   ])(
     "%s の読めない資料の行は、印と一言を出す",
-    async (path, title, brokenTitle, id) => {
+    async (path, title, brokenTitle) => {
       renderAt(path);
       await showList(title);
       const broken = await card(brokenTitle);
       expect(within(broken).getByText("中身が読めません")).toBeTruthy();
-      expect(within(broken).getByText(id)).toBeTruthy();
       expect(broken.querySelector(".list-row__fact")).toBeNull();
     },
   );
+
+  it("質問票の行は ID を出さず、HTML 資料の行は出す", async () => {
+    renderAt("/sheets");
+    const sheet = await showList("要件の確認");
+    expect(within(sheet).queryByText("sheet-a")).toBeNull();
+    expect(document.querySelector(".list-row__id")).toBeNull();
+    expect(sheet.classList.contains("list-row--id")).toBe(false);
+    cleanup();
+
+    renderAt("/documents");
+    const doc = await showList("設計の説明");
+    expect(doc.classList.contains("list-row--id")).toBe(true);
+    expect(
+      within(await card("壊れた資料")).getByText("doc-broken", {
+        selector: ".list-row__id",
+      }),
+    ).toBeTruthy();
+  });
 
   it.each(cases)(
     "$path はリスト表示でも ☆ で「お気に入り」の区切りへ移る",
