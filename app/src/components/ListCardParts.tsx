@@ -7,7 +7,7 @@ import { useRefocusAfterMove } from "./useRefocusAfterMove";
 
 // 資料一覧の写真のカードで3区分が共通に使う部品。
 // 右上の 🗑(確かめるダイアログのあと消す)と ☆(お気に入り)、絵の代わりに出す印と一言。
-// 🗑 と ☆ はリスト表示の行(184)の右端にも置く
+// 🗑 と ☆ はリスト表示の行(184)の右端にも置く(行では並びが逆で、🗑 が端)
 
 // お気に入りの付け外しは一覧に1つ持つ(カードは区切りを移るたびに作り直され、カードの中の状態は消える)。
 // カードには、自分の資料の押している途中と失敗だけを渡す
@@ -116,7 +116,7 @@ const CardDeleteButton = ({
 
 // カードの右上の置き場。🗑 と ☆ を並べ、☆ を角に置く(テンプレートの一覧の ★ と同じ所)。
 // 消せなかったとき・付け外しできなかったときは、カードの上の端に知らせを出す。
-// リスト表示の行(place="row")では右端に並べ、知らせは行の下に出す
+// リスト表示の行(place="row")では右端に ☆・🗑 の順で並べ(🗑 が端。本人の指定)、知らせは行の下に出す
 export const CardActions = ({
   id,
   title,
@@ -138,6 +138,23 @@ export const CardActions = ({
 }) => {
   const error = deleteError ?? favoriteControl.error;
   const cls = ACTION_CLASS[place];
+  const remove = (
+    <CardDeleteButton
+      title={title}
+      pending={deleting}
+      onConfirm={onDelete}
+      className={cls.button}
+    />
+  );
+  const star = (
+    <CardFavoriteButton
+      id={id}
+      title={title}
+      favorite={favorite}
+      control={favoriteControl}
+      className={cls.button}
+    />
+  );
   return (
     <>
       {error && (
@@ -146,19 +163,8 @@ export const CardActions = ({
         </p>
       )}
       <span className={cls.group}>
-        <CardDeleteButton
-          title={title}
-          pending={deleting}
-          onConfirm={onDelete}
-          className={cls.button}
-        />
-        <CardFavoriteButton
-          id={id}
-          title={title}
-          favorite={favorite}
-          control={favoriteControl}
-          className={cls.button}
-        />
+        {place === "row" ? star : remove}
+        {place === "row" ? remove : star}
       </span>
     </>
   );
