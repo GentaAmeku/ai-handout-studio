@@ -6,15 +6,14 @@ import { useLanguage } from "../i18n/language";
 import type { PhotoCardLink } from "./PhotoCard";
 
 // 資料一覧のリスト表示の1行(184)。3区分で共通の部品。
-// 絵は描かず、題名(押すと行き先を開くリンク。行のどこを押しても開く)・ID(出す区分だけ)・
-// 区分ごとの項目・更新日時・右端のボタンの置き場を持つ。
+// 絵は描かず、題名(押すと行き先を開くリンク。行のどこを押しても開く)・
+// 区分ごとの項目・更新日時・右端のボタンの置き場を持つ。ID は本人が要らないとしたので出さない。
 // 列の幅は app.css の .list-row* が決め、行をまたいで縦にそろえる
 
 export const ListRow = ({
   articleLabel,
   link,
   title,
-  id,
   warning,
   factColumns,
   facts,
@@ -26,8 +25,6 @@ export const ListRow = ({
   // 題名を押したとき開く行き先。読み上げの名前は呼ぶ側が aria-label で渡す
   link: PhotoCardLink;
   title: string;
-  // 資料の ID。出さない区分(質問票)は渡さず、列ごと持たない
-  id?: string;
   // 読めない資料の印と一言(RowWarning)。題名の横に出す
   warning?: ReactNode;
   // 区分ごとの項目の列の数。読めない資料で項目が無くても、列は空けておく
@@ -39,10 +36,9 @@ export const ListRow = ({
   action?: ReactNode;
 }) => {
   const { t } = useLanguage();
-  const idColumn = id === undefined ? "" : " list-row--id";
   return (
     <article
-      className={`list-row list-row--facts-${factColumns}${idColumn}`}
+      className={`list-row list-row--facts-${factColumns}`}
       aria-label={articleLabel}
     >
       <div className="list-row__main">
@@ -52,10 +48,6 @@ export const ListRow = ({
         {warning}
       </div>
       <div className="list-row__meta">
-        {/* 読めないスライドは題名に ID を出しているので、重ねない(列は空けておく) */}
-        {id !== undefined && id !== title && (
-          <span className="list-row__id">{id}</span>
-        )}
         {facts}
         <span className="list-row__date">
           <span className="visually-hidden">{t("handouts.updatedAt")}</span>
