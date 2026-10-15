@@ -8,7 +8,8 @@ import { renderDocumentHtml } from "./handout-html.ts";
 
 // HTML 資料の表の列の幅を、読む人が実ブラウザで変えられるかを確かめる。
 // 境目の取っ手をドラッグすると隣り合う2列の間で幅が移り、表全体の幅は変わらない。
-// 左右キーでも動き、ダブルクリックで元に戻る。印刷では取っ手を出さない。pnpm test:export で流す
+// 左右キーでも動き、ダブルクリックで元に戻る。印刷では取っ手を出さない。
+// 行見出しの長い表が本文の列を越えて脇に重ならないことも確かめる。pnpm test:export で流す
 const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
 const ORIGIN = "http://columns.test";
 const AT = "2026-09-25T00:00:00.000Z";
@@ -42,6 +43,52 @@ const doc: DocumentFile = {
   ],
 };
 
+// 脇(用語)があり、行見出しが文になっている表を持つ資料。短い行見出しの表も並べる。
+// 2つめの行見出しは句読点の無い長い一続きを持ち、スマホの幅では字の間で切らないと収まらない
+const longLabelDoc: DocumentFile = {
+  ...doc,
+  id: "doc_long_label",
+  aside: {
+    label: "用語",
+    glossary: [{ term: "BM25", description: "文字の重なりで点を付ける計算" }],
+  },
+  sections: [
+    {
+      id: "s1",
+      heading: "測った結果",
+      blocks: [
+        {
+          id: "b1",
+          type: "table",
+          props: {
+            headers: ["方式", "1位", "3位以内"],
+            rows: [["ハイブリッド検索", "12", "13"]],
+            rowLabel: true,
+          },
+        },
+        {
+          id: "b2",
+          type: "table",
+          props: {
+            headers: ["測ったもの", "値"],
+            rows: [
+              [
+                "1回の検索(26問の中央値。サーバーの中で、打った文を数にする時間を含む。画面に出るまでの時間ではない)",
+                "約74ミリ秒",
+              ],
+              [
+                "インデックスの作成(初回。作り始めてから全部そろうまでを1秒ごとに確かめた)",
+                "約61秒",
+              ],
+            ],
+            rowLabel: true,
+          },
+        },
+      ],
+    },
+  ],
+};
+
 const context: { browser?: Browser } = {};
 
 beforeAll(async () => {
@@ -52,17 +99,17 @@ afterAll(async () => {
   await context.browser?.close();
 });
 
-const open = async (): Promise<Page> => {
+const open = async (source = doc, width = 1440): Promise<Page> => {
   const browser = context.browser;
   if (!browser) throw new Error("ブラウザが起動していない");
   const html = await renderDocumentHtml({
     designDir: join(repoRoot, "design"),
     template: "documentation",
-    title: doc.title,
-    doc,
+    title: source.title,
+    doc: source,
   });
   const page = await browser.newPage({
-    viewport: { width: 1440, height: 900 },
+    viewport: { width, height: 900 },
   });
   await page.route(`${ORIGIN}/**`, (route) =>
     route.fulfill({ contentType: "text/html; charset=utf-8", body: html }),
@@ -153,6 +200,55 @@ describe("HTML 資料の表の列の幅", () => {
     expect(await page.locator(".ds-col-resize").first().isVisible()).toBe(
       false,
     );
+    await page.close();
+  });
+});
+
+// 表ごとの右端、本文の列の右端、行見出しの行数、ページの横のはみ出し
+const fitting = (
+  page: Page,
+): Promise<{
+  tables: number[];
+  main: number;
+  labelLines: number[];
+  overflow: boolean;
+}> =>
+  page.evaluate(() => {
+    const main = document.querySelector(".ds-main");
+    if (!main) throw new Error("本文が無い");
+    const lines = (cell: Element): number => {
+      const range = document.createRange();
+      range.selectNodeContents(cell);
+      return new Set(
+        Array.from(range.getClientRects(), (rect) => Math.round(rect.top)),
+      ).size;
+    };
+    return {
+      tables: Array.from(
+        document.querySelectorAll("table.ds-table"),
+        (table) => table.getBoundingClientRect().right,
+      ),
+      main: main.getBoundingClientRect().right,
+      labelLines: Array.from(document.querySelectorAll(".ds-rowlabel"), lines),
+      overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+    };
+  });
+
+describe("HTML 資料の表の行見出し", () => {
+  it("長い行見出しは本文の列の中で折り返し、脇に重ならない。短い行見出しは1行のまま", async () => {
+    const page = await open(longLabelDoc);
+    const { tables, main, labelLines } = await fitting(page);
+    tables.forEach((right) => {
+      expect(right).toBeLessThanOrEqual(main + 1);
+    });
+    expect(labelLines[0]).toBe(1);
+    expect(labelLines[1]).toBeGreaterThan(1);
+    await page.close();
+  });
+
+  it("スマホの幅でも横にはみ出さない", async () => {
+    const page = await open(longLabelDoc, 390);
+    expect((await fitting(page)).overflow).toBe(false);
     await page.close();
   });
 });

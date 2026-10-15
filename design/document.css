@@ -597,9 +597,10 @@ table.ds-table {
   border-top: var(--table-head-rule-width) solid var(--table-head-rule-color);
 }
 
-/* 行見出しのセル。語中で折り返させない */
+/* 行見出しのセル。語中で折り返させない。日本語は句読点・スペースで区切った一続きを1語として扱い、
+   長い見出しはその切れ目で折り返す(nowrap にすると、表が本文の列を越えて脇に重なる) */
 .ds-rowlabel {
-  white-space: nowrap;
+  word-break: keep-all;
   font-weight: 700;
 }
 
@@ -651,10 +652,6 @@ table.ds-table[data-col-resized] {
 
 table.ds-table[data-col-resized] :is(th, td) {
   overflow-wrap: anywhere;
-}
-
-table.ds-table[data-col-resized] .ds-rowlabel {
-  white-space: normal;
 }
 
 @media print {
@@ -989,7 +986,8 @@ ol.ds-ordered {
     gap: var(--space-xs);
   }
 
-  /* 2列の表は表の形のまま、セルの中で折り返す。行見出しも折り返すが、語の途中では切らない */
+  /* 2列の表は表の形のまま、セルの中で折り返す。行見出しも折り返すが、英単語は語の途中では切らない。
+     日本語は字の間でも切る(句読点までを一続きにすると、スマホの幅を越えることがある) */
   .ds-page
     table.ds-table:not(:has(> thead > tr > th:nth-child(3)))
     :is(th, td) {
@@ -999,7 +997,7 @@ ol.ds-ordered {
   .ds-page
     table.ds-table:not(:has(> thead > tr > th:nth-child(3)))
     .ds-rowlabel {
-    white-space: normal;
+    word-break: normal;
     overflow-wrap: break-word;
   }
 
@@ -1075,7 +1073,6 @@ ol.ds-ordered {
     > td.ds-rowlabel {
     display: block;
     padding-bottom: var(--space-xs);
-    white-space: normal;
     color: var(--color-heading);
   }
 
