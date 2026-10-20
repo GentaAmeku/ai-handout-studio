@@ -93,12 +93,18 @@ type Options = {
   files?: Record<string, string>;
   realPath?: string | null;
   env?: Record<string, string>;
+  // 内蔵ブラウザの道具が開けたか。error ならペインが無い・断られたときの返事
+  browser?: "ok" | "error";
 };
+
+type BrowserCall = { tool: string; args: Record<string, unknown> };
 
 // biome-ignore lint/suspicious/noExplicitAny: スタブは要る項目だけを返すので、エンジンの型は当てない
 const stubEngine = (on: any, options: Options = {}) => {
   const files = options.files ?? filesOf();
   const ran: string[][] = [];
+  const browser: BrowserCall[] = [];
+  const toasts: string[] = [];
   mock.clock(on, { now: NOW });
   mock.env(on, options.env ?? { HOME: "/home/me" });
   on("session.start", () => ({ cwd: "/work" }));
@@ -147,14 +153,54 @@ const stubEngine = (on: any, options: Options = {}) => {
     return { result: "ok" };
   });
   on("ui.open", () => ({ value: { isPlaced: true } }));
-  on("ui.toast", () => ({ value: undefined }));
+  on("ui.toast", (_: unknown, e: { text: string }) => {
+    toasts.push(e.text);
+    return { value: undefined };
+  });
+  // preview_start は呼ぶたびに新しいタブ(tab-<通し番号>)を開く
+  on("mcp.call", (_: unknown, e: BrowserCall & { server: string }) => {
+    browser.push({ tool: e.tool, args: e.args });
+    return options.browser === "error"
+      ? {
+          value: {
+            content: [{ type: "text", text: "Browser pane unavailable" }],
+            isError: true,
+          },
+        }
+      : {
+          value: {
+            content: [
+              {
+                type: "text",
+                text: `{\n  "tabId": "tab-${browser.length}",\n  "navOk": true\n}\nBrowser pane opened.`,
+              },
+            ],
+            isError: false,
+          },
+        };
+  });
   on("ui.render", () => ({
     type: "Text",
     props: {},
     children: ["drawn by Claude Code"],
   }));
-  return { files, ran };
+  return { files, ran, browser, toasts };
 };
+
+// 資料を開く口のラベル。デスクトップでは内蔵ブラウザで開くボタン、ターミナルではリンク
+const OPENER = /^(?:pane-)?(?:read|edit|open)-/;
+const openerLabels = async (
+  // biome-ignore lint/suspicious/noExplicitAny: 描いた木を引く find・findAll だけを使う
+  ui: any,
+  surface: "desktop" | "terminal",
+): Promise<unknown[]> =>
+  surface === "desktop"
+    ? (await ui.findAll({ type: "Button" }))
+        .filter((button: { key?: string }) => OPENER.test(button.key ?? ""))
+        .map((button: { props: { label: unknown } }) => button.props.label)
+    : (await ui.findAll({ type: "Link" })).map(
+        (link: { props: { label: unknown } }) => link.props.label,
+      );
 
 // 投げっぱなしの見直しが終わるまで待つ
 // biome-ignore lint/suspicious/noExplicitAny: コマンドの入力も要る項目だけを渡す
@@ -203,10 +249,11 @@ test("会話の記録から、この会話で作った質問票だけを拾う",
     expect(
       await band.find({ type: "Text", text: "ほかの会話の質問票" }),
     ).toBeUndefined();
-    const link = await band.find({ type: "Link" });
-    expect(link?.props.href).toBe(
-      "http://localhost:5190/api/sheets/sheet_20261005_002/preview",
-    );
+    expect(await openerLabels(band, surface)).toEqual(["回答する"]);
+    if (surface === "terminal")
+      expect((await band.find({ type: "Link" }))?.props.href).toBe(
+        "http://localhost:5190/api/sheets/sheet_20261005_002/preview",
+      );
     await band.unmount();
   }
 });
@@ -407,12 +454,15 @@ test("HTML 資料とスライドも、この会話で作ったものだけを出
       await band.find({ type: "Text", text: "受注から請求までを例に学ぶ。" }),
     ).toBeDefined();
     // 直した新しい順。スライド(10分前)が HTML 資料(30分前)より先
-    const links = await band.findAll({ type: "Link" });
-    expect(links.map((link) => [link.props.label, link.props.href])).toEqual([
-      ["開く", "http://localhost:5190/decks/deck_20261005_001"],
-      ["読む", "http://localhost:5190/api/documents/doc_20261005_001/preview"],
-      ["編集", "http://localhost:5190/documents/doc_20261005_001"],
-    ]);
+    expect(await openerLabels(band, surface)).toEqual(["開く", "読む", "編集"]);
+    if (surface === "terminal")
+      expect(
+        (await band.findAll({ type: "Link" })).map((link) => link.props.href),
+      ).toEqual([
+        "http://localhost:5190/decks/deck_20261005_001",
+        "http://localhost:5190/api/documents/doc_20261005_001/preview",
+        "http://localhost:5190/documents/doc_20261005_001",
+      ]);
     await band.unmount();
   }
 });
@@ -457,8 +507,7 @@ test("正本を書き換えたら拾い、未回答の質問票を先に並べ�
   expect(
     await band.find({ type: "Text", text: /未回答の質問票 1件/ }),
   ).toBeDefined();
-  const links = await band.findAll({ type: "Link" });
-  expect(links.map((link) => link.props.label)).toEqual(["回答する", "開く"]);
+  expect(await openerLabels(band, "desktop")).toEqual(["回答する", "開く"]);
   // スライドの印には数を重ねない。質問票だけに質問の数を重ねる
   const icons = await band.findAll({ type: "Svg" });
   expect(icons[0]?.props.source).toMatch(/>2</);
@@ -553,8 +602,7 @@ test("studio の言語の設定が無く LANG も日本語でなければ、英�
       text: /HTML handout · 3 sections · updated 30 min ago/,
     }),
   ).toBeDefined();
-  const links = await band.findAll({ type: "Link" });
-  expect(links.map((link) => link.props.label)).toEqual([
+  expect(await openerLabels(band, "desktop")).toEqual([
     "Answer",
     "Read",
     "Edit",
@@ -615,4 +663,68 @@ test("clone の外に置かれた mod は帯を出さず、パネルで入れ方
   expect(
     await pane.find({ type: "Text", text: /mods\/handout-watch/ }),
   ).toBeDefined();
+});
+
+test("デスクトップでは内蔵ブラウザに開き、同じ資料の前のタブは閉じる", async ($, on) => {
+  const { browser } = stubEngine(on, {
+    messages: [
+      bashUse(
+        "ai-handout-studio document new --json d.json",
+        "id: doc_20261005_001",
+      ),
+    ],
+  });
+  await $.session.start({
+    surface: "desktop",
+    isInteractive: true,
+    cwd: "/work",
+  });
+  await settle($);
+  const band = await $.ui.mount({ ...BAND, surface: "desktop" });
+  expect(await band.find({ type: "Link" })).toBeUndefined();
+  await band.press({ key: "read-doc_20261005_001" });
+  await band.press({ key: "read-doc_20261005_001" });
+  await band.unmount();
+  const pane = await $.ui.mount({ ...PANE, surface: "desktop" });
+  await pane.press({ key: "pane-edit-doc_20261005_001" });
+
+  const read = "http://localhost:5190/api/documents/doc_20261005_001/preview";
+  expect(browser).toEqual([
+    { tool: "preview_start", args: { url: read } },
+    { tool: "preview_start", args: { url: read } },
+    { tool: "tabs_close", args: { tabId: "tab-1" } },
+    {
+      tool: "preview_start",
+      args: { url: "http://localhost:5190/documents/doc_20261005_001" },
+    },
+  ]);
+});
+
+test("内蔵ブラウザで開けなければ知らせ、この会話の間はリンクに戻す", async ($, on) => {
+  const { browser, toasts } = stubEngine(on, {
+    browser: "error",
+    messages: [
+      bashUse(
+        "ai-handout-studio sheet new --questions q.json",
+        "id: sheet_20261005_002",
+      ),
+    ],
+  });
+  await $.session.start({
+    surface: "desktop",
+    isInteractive: true,
+    cwd: "/work",
+  });
+  await settle($);
+  const band = await $.ui.mount({ ...BAND, surface: "desktop" });
+  await band.press({ key: "read-sheet_20261005_002" });
+  expect(browser).toHaveLength(1);
+  expect(toasts[0]).toMatch(/内蔵ブラウザで開けませんでした/);
+  await band.unmount();
+
+  const again = await $.ui.mount({ ...BAND, surface: "desktop" });
+  expect((await again.find({ type: "Link" }))?.props.href).toBe(
+    "http://localhost:5190/api/sheets/sheet_20261005_002/preview",
+  );
+  expect(await openerLabels(again, "desktop")).toEqual([]);
 });

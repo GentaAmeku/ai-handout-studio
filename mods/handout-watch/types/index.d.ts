@@ -45,6 +45,10 @@ declare module "claude-code" {
       scannedAt: number;
       // studio のアイコン(favicon.svg)。読めなければ null
       icon: string | null;
+      // 内蔵ブラウザで開いた資料のタブ。URL ごとに最後に開いたタブの id
+      browserTabs: Record<string, string>;
+      // デスクトップで内蔵ブラウザに開けるか。開けなかったらこの会話の間はリンクに戻す
+      canOpenBeside: boolean;
     };
   }
 }
