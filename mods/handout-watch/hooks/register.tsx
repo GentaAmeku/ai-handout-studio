@@ -113,6 +113,8 @@ const TEXT = {
     startFailed: (reason: string) => `studio を起動できませんでした: ${reason}`,
     besideFailed:
       "内蔵ブラウザで開けませんでした。この会話の間はブラウザで開くリンクに切り替えます。",
+    besideHidden:
+      "内蔵ブラウザで開きました。横に出ていなければ Cmd+Shift+B(Windows は Ctrl+Shift+B)でブラウザに切り替えてください。",
     command: "この会話で作った資料を横のパネルで一覧する",
     iconAlt: (kind: HandoutKind, count: number) =>
       kind === "sheet"
@@ -158,6 +160,8 @@ const TEXT = {
     startFailed: (reason: string) => `Could not start studio: ${reason}`,
     besideFailed:
       "Could not open it in the built-in browser. Links now open your browser for the rest of this conversation.",
+    besideHidden:
+      "Opened in the built-in browser. If it isn't showing beside the conversation, press Cmd+Shift+B (Ctrl+Shift+B on Windows) to switch to it.",
     command: "List the handouts made in this conversation in a side pane",
     iconAlt: (kind: HandoutKind, count: number) =>
       kind === "sheet"
@@ -498,12 +502,15 @@ async function startStudio($: EngineInterface): Promise<void> {
 // 資料を内蔵ブラウザで開く。preview_start は毎回新しいタブを作るので、同じ URL の前のタブは閉じて1つにする。
 // 開けなければ(ターミナルから操る・内蔵ブラウザが無い・サイトを断られた)、この会話の間はリンクに戻す
 async function openBeside($: EngineInterface, href: string): Promise<void> {
+  const words = TEXT[await read($, locale)];
+  // 横の欄は1つずつしか出せず、このパネルが出ている間はブラウザが裏に隠れる。先にパネルを閉じて欄を空ける
+  await $.ui.close({ id: PANE }).catch(() => undefined);
   const result = await $.mcp
     .call(BROWSER, "preview_start", { url: href })
     .catch(() => null);
   if (!result || result.isError) {
     await update($, canOpenBeside, () => false);
-    $.ui.toast(TEXT[await read($, locale)].besideFailed);
+    $.ui.toast(words.besideFailed);
     return;
   }
   const text = result.content.map((block) => block.text ?? "").join("\n");
@@ -515,6 +522,13 @@ async function openBeside($: EngineInterface, href: string): Promise<void> {
     await $.mcp
       .call(BROWSER, "tabs_close", { tabId: previous })
       .catch(() => undefined);
+  // ほかのもの(アーティファクト・ファイルなど)が欄に出ていれば、ブラウザは表に出てこない。切り替え方を伝える
+  const context = await $.mcp
+    .call(BROWSER, "tabs_context", {})
+    .catch(() => null);
+  const shown = context?.content.map((block) => block.text ?? "").join("\n");
+  if (shown && /pane is currently hidden/i.test(shown))
+    $.ui.toast(words.besideHidden);
 }
 // clone の場所と言葉を決める。session.start と /clear・/resume のあとに呼ぶ
 async function locate($: EngineInterface): Promise<Locale> {

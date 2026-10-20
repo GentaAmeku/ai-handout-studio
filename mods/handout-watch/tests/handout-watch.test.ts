@@ -93,8 +93,9 @@ type Options = {
   files?: Record<string, string>;
   realPath?: string | null;
   env?: Record<string, string>;
-  // 内蔵ブラウザの道具が開けたか。error ならペインが無い・断られたときの返事
-  browser?: "ok" | "error";
+  // 内蔵ブラウザの道具の返事。hidden は開けたが横の欄にほかのものが出ているとき、
+  // error はペインが無い・断られたとき
+  browser?: "ok" | "hidden" | "error";
 };
 
 type BrowserCall = { tool: string; args: Record<string, unknown> };
@@ -105,6 +106,7 @@ const stubEngine = (on: any, options: Options = {}) => {
   const ran: string[][] = [];
   const browser: BrowserCall[] = [];
   const toasts: string[] = [];
+  const closed: string[] = [];
   mock.clock(on, { now: NOW });
   mock.env(on, options.env ?? { HOME: "/home/me" });
   on("session.start", () => ({ cwd: "/work" }));
@@ -157,9 +159,26 @@ const stubEngine = (on: any, options: Options = {}) => {
     toasts.push(e.text);
     return { value: undefined };
   });
-  // preview_start は呼ぶたびに新しいタブ(tab-<通し番号>)を開く
+  on("ui.close", (_: unknown, e: { id: string }) => {
+    closed.push(e.id);
+    return { value: undefined };
+  });
+  // preview_start は呼ぶたびに新しいタブ(tab-<通し番号>)を開く。tabs_context はペインが出ているかを返す
   on("mcp.call", (_: unknown, e: BrowserCall & { server: string }) => {
     browser.push({ tool: e.tool, args: e.args });
+    if (e.tool === "tabs_context")
+      return {
+        value: {
+          content: [
+            {
+              type: "text",
+              text: `{"tabs": []}\nThe Browser pane is currently ${options.browser === "hidden" ? "hidden" : "displayed"}.`,
+            },
+          ],
+          isError: false,
+        },
+      };
+    const started = browser.filter((call) => call.tool === "preview_start");
     return options.browser === "error"
       ? {
           value: {
@@ -172,7 +191,7 @@ const stubEngine = (on: any, options: Options = {}) => {
             content: [
               {
                 type: "text",
-                text: `{\n  "tabId": "tab-${browser.length}",\n  "navOk": true\n}\nBrowser pane opened.`,
+                text: `{\n  "tabId": "tab-${started.length}",\n  "navOk": true\n}\nBrowser pane opened.`,
               },
             ],
             isError: false,
@@ -184,7 +203,7 @@ const stubEngine = (on: any, options: Options = {}) => {
     props: {},
     children: ["drawn by Claude Code"],
   }));
-  return { files, ran, browser, toasts };
+  return { files, ran, browser, toasts, closed };
 };
 
 // 資料を開く口のラベル。デスクトップでは内蔵ブラウザで開くボタン、ターミナルではリンク
@@ -666,7 +685,7 @@ test("clone の外に置かれた mod は帯を出さず、パネルで入れ方
 });
 
 test("デスクトップでは内蔵ブラウザに開き、同じ資料の前のタブは閉じる", async ($, on) => {
-  const { browser } = stubEngine(on, {
+  const { browser, toasts, closed } = stubEngine(on, {
     messages: [
       bashUse(
         "ai-handout-studio document new --json d.json",
@@ -689,7 +708,7 @@ test("デスクトップでは内蔵ブラウザに開き、同じ資料の前�
   await pane.press({ key: "pane-edit-doc_20261005_001" });
 
   const read = "http://localhost:5190/api/documents/doc_20261005_001/preview";
-  expect(browser).toEqual([
+  expect(browser.filter((call) => call.tool !== "tabs_context")).toEqual([
     { tool: "preview_start", args: { url: read } },
     { tool: "preview_start", args: { url: read } },
     { tool: "tabs_close", args: { tabId: "tab-1" } },
@@ -697,6 +716,32 @@ test("デスクトップでは内蔵ブラウザに開き、同じ資料の前�
       tool: "preview_start",
       args: { url: "http://localhost:5190/documents/doc_20261005_001" },
     },
+  ]);
+  // 横の欄を空けるため、開く前にこのパネルを閉じる。ブラウザが出ていれば何も知らせない
+  expect(closed).toContain("handout-watch");
+  expect(toasts).toEqual([]);
+});
+
+test("開いたブラウザが隠れていれば、切り替え方を知らせる", async ($, on) => {
+  const { toasts } = stubEngine(on, {
+    browser: "hidden",
+    messages: [
+      bashUse(
+        "ai-handout-studio document new --json d.json",
+        "id: doc_20261005_001",
+      ),
+    ],
+  });
+  await $.session.start({
+    surface: "desktop",
+    isInteractive: true,
+    cwd: "/work",
+  });
+  await settle($);
+  const band = await $.ui.mount({ ...BAND, surface: "desktop" });
+  await band.press({ key: "read-doc_20261005_001" });
+  expect(toasts).toEqual([
+    "内蔵ブラウザで開きました。横に出ていなければ Cmd+Shift+B(Windows は Ctrl+Shift+B)でブラウザに切り替えてください。",
   ]);
 });
 
