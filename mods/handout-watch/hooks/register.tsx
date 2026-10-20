@@ -46,6 +46,18 @@ const scannedAt = atom(
   0,
 );
 const icon = atom({ plugin: "handout-watch", key: "icon" } as const, null);
+const browserTabs = atom(
+  { plugin: "handout-watch", key: "browserTabs" } as const,
+  {},
+);
+const canOpenBeside = atom(
+  { plugin: "handout-watch", key: "canOpenBeside" } as const,
+  true,
+);
+
+// デスクトップアプリの内蔵ブラウザ(会話の横に開く)。mod からは MCP の道具として呼べる
+const BROWSER = "Claude_Browser";
+const TAB_ID = /"tabId":\s*"([^"]+)"/;
 
 // studio のアイコンの青
 const BLUE = "#2563eb";
@@ -99,6 +111,10 @@ const TEXT = {
     footer:
       "この会話で ai-handout-studio の new・check・document new / update・sheet new / update / answers を実行した資料と、deck.json・document.json を書き換えた資料を数えています。",
     startFailed: (reason: string) => `studio を起動できませんでした: ${reason}`,
+    besideFailed:
+      "内蔵ブラウザで開けませんでした。この会話の間はブラウザで開くリンクに切り替えます。",
+    besideHidden:
+      "内蔵ブラウザで開きました。横に出ていなければ Cmd+Shift+B(Windows は Ctrl+Shift+B)でブラウザに切り替えてください。",
     command: "この会話で作った資料を横のパネルで一覧する",
     iconAlt: (kind: HandoutKind, count: number) =>
       kind === "sheet"
@@ -142,6 +158,10 @@ const TEXT = {
     footer:
       "Counts the handouts this conversation made or changed with ai-handout-studio new, check, document new / update or sheet new / update / answers, or by editing deck.json or document.json.",
     startFailed: (reason: string) => `Could not start studio: ${reason}`,
+    besideFailed:
+      "Could not open it in the built-in browser. Links now open your browser for the rest of this conversation.",
+    besideHidden:
+      "Opened in the built-in browser. If it isn't showing beside the conversation, press Cmd+Shift+B (Ctrl+Shift+B on Windows) to switch to it.",
     command: "List the handouts made in this conversation in a side pane",
     iconAlt: (kind: HandoutKind, count: number) =>
       kind === "sheet"
@@ -479,6 +499,37 @@ async function startStudio($: EngineInterface): Promise<void> {
   await checkServer($);
 }
 
+// 資料を内蔵ブラウザで開く。preview_start は毎回新しいタブを作るので、同じ URL の前のタブは閉じて1つにする。
+// 開けなければ(ターミナルから操る・内蔵ブラウザが無い・サイトを断られた)、この会話の間はリンクに戻す
+async function openBeside($: EngineInterface, href: string): Promise<void> {
+  const words = TEXT[await read($, locale)];
+  // 横の欄は1つずつしか出せず、このパネルが出ている間はブラウザが裏に隠れる。先にパネルを閉じて欄を空ける
+  await $.ui.close({ id: PANE }).catch(() => undefined);
+  const result = await $.mcp
+    .call(BROWSER, "preview_start", { url: href })
+    .catch(() => null);
+  if (!result || result.isError) {
+    await update($, canOpenBeside, () => false);
+    $.ui.toast(words.besideFailed);
+    return;
+  }
+  const text = result.content.map((block) => block.text ?? "").join("\n");
+  const tabId = TAB_ID.exec(text)?.[1];
+  const previous = (await read($, browserTabs))[href];
+  if (tabId)
+    await update($, browserTabs, (tabs) => ({ ...tabs, [href]: tabId }));
+  if (previous && previous !== tabId)
+    await $.mcp
+      .call(BROWSER, "tabs_close", { tabId: previous })
+      .catch(() => undefined);
+  // ほかのもの(アーティファクト・ファイルなど)が欄に出ていれば、ブラウザは表に出てこない。切り替え方を伝える
+  const context = await $.mcp
+    .call(BROWSER, "tabs_context", {})
+    .catch(() => null);
+  const shown = context?.content.map((block) => block.text ?? "").join("\n");
+  if (shown && /pane is currently hidden/i.test(shown))
+    $.ui.toast(words.besideHidden);
+}
 // clone の場所と言葉を決める。session.start と /clear・/resume のあとに呼ぶ
 async function locate($: EngineInterface): Promise<Locale> {
   const found = await findStudio($);
@@ -567,6 +618,7 @@ export const register: Register = (on) => {
     const now = await read($, scannedAt);
     const isUp = await read($, isServerUp);
     const favicon = await read($, icon);
+    const isBeside = e.surface === "desktop" && (await read($, canOpenBeside));
     const theirs = await next(e);
     const { Box, Text, Button, Link } = $.ui.resolve(e);
     const iconOf = (row: HandoutRow) => {
@@ -610,11 +662,20 @@ export const register: Register = (on) => {
                 onPress={() => void startStudio($)}
               />
             ) : (
-              linksOf(row, words).map((link) => (
-                <Text key={`${link.key}-${row.id}`}>
-                  <Link href={link.href} label={link.label} />
-                </Text>
-              ))
+              linksOf(row, words).map((link) =>
+                isBeside ? (
+                  <Button
+                    key={`${link.key}-${row.id}`}
+                    label={link.label}
+                    plain
+                    onPress={() => void openBeside($, link.href)}
+                  />
+                ) : (
+                  <Text key={`${link.key}-${row.id}`}>
+                    <Link href={link.href} label={link.label} />
+                  </Text>
+                ),
+              )
             )}
             <Button
               key={`hide-${row.id}`}
@@ -665,6 +726,7 @@ export const register: Register = (on) => {
     const now = await read($, scannedAt);
     const isUp = await read($, isServerUp);
     const favicon = await read($, icon);
+    const isBeside = e.surface === "desktop" && (await read($, canOpenBeside));
     const { Box, Text, Button, Link } = $.ui.resolve(e);
     const svgOf = (source: string, alt: string) => {
       if (e.surface !== "desktop") return null;
@@ -731,11 +793,20 @@ export const register: Register = (on) => {
                 onPress={() => void startStudio($)}
               />
             ) : (
-              linksOf(row, words).map((link) => (
-                <Text key={`pane-${link.key}-${row.id}`}>
-                  <Link href={link.href} label={link.label} />
-                </Text>
-              ))
+              linksOf(row, words).map((link) =>
+                isBeside ? (
+                  <Button
+                    key={`pane-${link.key}-${row.id}`}
+                    label={link.label}
+                    plain
+                    onPress={() => void openBeside($, link.href)}
+                  />
+                ) : (
+                  <Text key={`pane-${link.key}-${row.id}`}>
+                    <Link href={link.href} label={link.label} />
+                  </Text>
+                ),
+              )
             )}
             {!isDone && isHidden && (
               <Button
