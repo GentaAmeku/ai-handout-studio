@@ -111,7 +111,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 - 縦の連鎖・枝分かれ・合流の流れの図は、同梱の生成器(`<studio>/design/figure/deliver.mjs`)で作る。テンプレートの色で描ける(HTML 資料は `figure` ブロック、質問票は `visual.type: flow`)
 - それ以外の図(構成・シーケンス・データの流れ・状態の移り変わり・戻りのある流れ)は archify で作り、画像にして載せる
   1. `node <studio>/skills/question-sheet/scripts/archify.mjs` で archify の場所を調べる。見つからなければ(exit 1)下の「archify が無いとき」に進む
-  2. 出た場所の `SKILL.md` の手順(Fast authoring path)に従い、種類(`architecture`・`workflow`・`sequence`・`dataflow`・`lifecycle`)に合う schema と例を読んで spec の JSON を書く。`meta.quality_profile` は `"showcase"`。文言は資料の言語で書く
+  2. 出た場所の `SKILL.md` の手順(Fast authoring path)に従い、種類(`architecture`・`workflow`・`sequence`・`dataflow`・`lifecycle`)に合う schema と例を読んで spec の JSON を書く。`meta.quality_profile` は `"showcase"`。`meta.visual_preset` は書かない(archify の標準の見た目で描く。例に書いてあっても写さない。書くと `diagram` が断る)。文言は資料の言語で書く
   3. `ai-handout-studio diagram <種類> <spec.json> --out <名前>.png` を実行する。archify の `deliver` で検査し、ビューアーの Export で図の全体を明るい配色で書き出す(既定は4倍の大きさ)。exit 1 なら何も書き出していない。出た診断に従って spec を直し、通るまで繰り返す(直し方は archify の `SKILL.md`)
   4. 載せる。スライドは `new` の出力の資料フォルダの `assets/` に画像を置き(`--out` にそこを渡してよい)、`image` ブロックの `src` に `assets/<名前>.png` と書く。HTML 資料は `image` ブロック、質問票は `visual.type: images` に画像のパスを書く(保存のとき `assets/` に取り込まれる)
   5. 説明(HTML 資料と質問票は `caption`、質問票の画像は `label` も)に何の図かを書く(「構成図: 注文の受け付けから配送まで」など)。1MB を超えたと警告が出たら、`--out` を `.webp` にして書き出し直す(中身は同じで、PNG の半分ほどになる)
