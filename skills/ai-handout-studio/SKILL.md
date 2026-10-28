@@ -12,7 +12,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | スライド(1280x720 の資料) | このファイル。`deck.json` を書く |
 | 登壇スライド(登壇・LT・講義) | [references/talk.md](references/talk.md)。作る前の聞き取りに登壇の項目(告知ページ・持ち時間・伝えたいこと)を足して質問票で聞く。見た目は登壇用テンプレートの Podium(`--template podium`)。`deck.json` の書き方はこのファイル |
 | HTML 資料(設計書・変更計画・要求要件・調査結果) | [references/document.md](references/document.md)。`document.json` を書く |
-| 質問票 | 同じリポジトリの question-sheet スキル([skills/question-sheet/](../question-sheet/SKILL.md))。保存は同じ `ai-handout-studio sheet new` コマンド。並べ方(レイアウト)は `--layout <focus\|overview\|all\|print>` で選べる。省略するとテンプレートの既定のまま。直すときは `ai-handout-studio sheet update <id> --layout <…>` |
+| 質問票 | 同じリポジトリの question-sheet スキル([skills/question-sheet/](../question-sheet/SKILL.md))。保存は同じ `ai-handout-studio sheet new` コマンドで、`--from "<この会話の名前>"` を付ける(原寸の画面に「質問元」として出る)。並べ方(レイアウト)は `--layout <focus\|overview\|all\|print>` で選べる。省略するとテンプレートの既定のまま。直すときは `ai-handout-studio sheet update <id> --layout <…>` |
 
 以下はスライドの作り方。資料は `deck.json` 1つ。JSON は文章・構造・配置だけを持ち、色・フォント・余白の見た目はアプリのテンプレートが持つ。形の正はこのスキルと同じフォルダの `deck.schema.json`。
 

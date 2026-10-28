@@ -2,7 +2,11 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { HandoutSummary } from "../src/api/types.ts";
 import type { SheetBase } from "../src/schema/design.ts";
-import { type HandoutMeta, handoutMetaSchema } from "../src/schema/handout.ts";
+import {
+  type AskedFrom,
+  type HandoutMeta,
+  handoutMetaSchema,
+} from "../src/schema/handout.ts";
 import type { Locale } from "../src/schema/profile.ts";
 import {
   type SheetAnswers,
@@ -237,6 +241,8 @@ export type CreateSheetInput = {
   layout?: SheetBase;
   // 質問 JSON のファイルの場所。assets/ に無い画像を、ここからの相対パスで取り込む
   baseDir?: string;
+  // 作った場所(asked-from.ts)。原寸の画面とタブ名に「質問元」として出す
+  askedFrom?: AskedFrom;
 };
 
 export const createSheet = async (
@@ -277,6 +283,7 @@ export const createSheet = async (
     createdAt: timestamp,
     updatedAt: timestamp,
     ...(input.layout ? { layout: input.layout } : {}),
+    ...(input.askedFrom ? { askedFrom: input.askedFrom } : {}),
   };
   await writeJsonAtomic(questionsPathOf(root, id), saved);
   await writeMeta(root, "sheet", meta);
@@ -472,6 +479,10 @@ export const renderHandout = async (
       fonts,
       share,
       ...(appActions ? { appActions } : {}),
+      // 質問元は自分が会話を見分けるためのもの。アプリで原寸に開いたときだけ出し、書き出しと共有には入れない
+      ...(appActions && meta.value.askedFrom
+        ? { askedFrom: meta.value.askedFrom }
+        : {}),
     }),
   };
 };

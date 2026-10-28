@@ -135,7 +135,7 @@ ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]
 ai-handout-studio template recolor <name> --key <lightblue|cyan|green|orange|purple> [--from cobalt]
 ai-handout-studio search <query> [--json]
-ai-handout-studio sheet new --questions <questions.json> [--title <title>] [--template <template>] [--layout <focus|overview|all|print>]
+ai-handout-studio sheet new --questions <questions.json> [--title <title>] [--template <template>] [--layout <focus|overview|all|print>] [--from <conversation name>]
 ai-handout-studio sheet update <id> --questions <questions.json> [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --layout <focus|overview|all|print>
 ai-handout-studio sheet answers <id> --answers <answers.json>

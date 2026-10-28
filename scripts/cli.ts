@@ -5,6 +5,7 @@ import { homedir, networkInterfaces, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import { askedFromOf } from "../app/server/asked-from.ts";
 import { formatContentHits } from "../app/server/content-search/format.ts";
 import { createContentIndex } from "../app/server/content-search/index.ts";
 import { createOllama } from "../app/server/content-search/ollama.ts";
@@ -433,6 +434,7 @@ const runHandout = async (command: HandoutCommand): Promise<number> => {
               ...(command.title ? { title: command.title } : {}),
               ...(command.templateId ? { templateId: command.templateId } : {}),
               ...(command.layout ? { layout: command.layout } : {}),
+              askedFrom: askedFromOf(process.cwd(), command.conversation),
             },
             now,
           )

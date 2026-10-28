@@ -2,6 +2,7 @@ import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { SheetBase } from "../src/schema/design.ts";
 import type { DocumentFile } from "../src/schema/document.ts";
+import type { AskedFrom } from "../src/schema/handout.ts";
 import type { Locale } from "../src/schema/profile.ts";
 import type { SheetAnswers, SheetDocument } from "../src/schema/sheet.ts";
 import {
@@ -9,6 +10,7 @@ import {
   appActionsHtml,
   appActionsScript,
 } from "./app-actions.ts";
+import { askedFromShort } from "./asked-from.ts";
 import { readTemplate } from "./design.ts";
 import { documentScript } from "./document-client.ts";
 import { DIFF_MARK_CSS, type DiffMark } from "./document-diff.ts";
@@ -129,6 +131,7 @@ export const renderSheetHtml = async ({
   fonts = "hosted",
   share = false,
   appActions,
+  askedFrom,
 }: {
   designDir: string;
   template: string;
@@ -143,18 +146,21 @@ export const renderSheetHtml = async ({
   share?: boolean;
   // アプリで原寸に開いたときだけ渡す、署名の行の右端の操作(資料一覧・お気に入り)
   appActions?: AppActions;
+  // アプリで原寸に開いたときだけ渡す質問元。題名の右とタブ名の頭に出す
+  askedFrom?: AskedFrom;
 }): Promise<string> => {
   const base = await sheetBaseOf(designDir, template, layout);
   // 画面の文言の言語。資料に無ければ ja で描く
   const lang: Locale = doc.lang ?? "ja";
   return page({
-    title: `${doc.title} — ${HANDOUT_STRINGS[lang].sheet.titleSuffix}`,
+    title: `${askedFrom ? `${askedFromShort(askedFrom)} | ` : ""}${doc.title} — ${HANDOUT_STRINGS[lang].sheet.titleSuffix}`,
     css: await readCss(designDir, "sheet", template),
     body: sheetBody(
       {
         ...sheetView(doc, answers, 0, lang),
         ...(orgName ? { orgName } : {}),
         ...(appActions ? { actions: appActionsHtml(appActions, lang) } : {}),
+        ...(askedFrom ? { askedFrom } : {}),
       },
       base,
       true,
