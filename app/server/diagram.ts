@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, rm, stat } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, extname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -70,6 +70,7 @@ export type Exported = {
 
 export type DiagramOutcome =
   | { readonly kind: "missing" }
+  | { readonly kind: "preset"; readonly preset: string }
   | {
       readonly kind: "failed";
       readonly code: number;
@@ -177,6 +178,24 @@ const deliver = (
     );
   });
 
+// archify の決まり(references/authoring-contract.md の「Visual preset default」)では、見た目の型は
+// 使う人が名指ししたときだけ書く。見本の spec に書いてあるのを写しやすいので、書き出す前に見つける。
+// 読めない spec の誤りは、archify の deliver が伝える
+const visualPresetOf = async (spec: string): Promise<string | undefined> => {
+  try {
+    const parsed: unknown = JSON.parse(await readFile(spec, "utf8"));
+    if (typeof parsed !== "object" || parsed === null || !("meta" in parsed)) {
+      return undefined;
+    }
+    const meta: unknown = parsed.meta;
+    return typeof meta === "object" && meta !== null && "visual_preset" in meta
+      ? String(meta.visual_preset)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 // archify で HTML を作り、ビューアーの Export で画像に書き出す
 export const makeDiagram = async (
   options: DiagramOptions,
@@ -187,6 +206,8 @@ export const makeDiagram = async (
   if (format === undefined) {
     throw new Error("--out は .png・.jpg・.webp のファイルにする");
   }
+  const preset = await visualPresetOf(resolve(context.cwd, options.spec));
+  if (preset !== undefined) return { kind: "preset", preset };
   const archify = findArchify({
     env: context.env,
     cwd: context.cwd,
@@ -244,10 +265,19 @@ const sizeWarnings = (bytes: number): readonly string[] => {
     : [];
 };
 
-// 終了コードと出す文。無い 3、deliver が通らない 1、書き出せた 0
+// 終了コードと出す文。無い 3、見た目の型を書いた・deliver が通らない 1、書き出せた 0
 export const reportDiagram = (outcome: DiagramOutcome): DiagramReport => {
   if (outcome.kind === "missing") {
     return { exitCode: 3, out: [], err: [ARCHIFY_MISSING] };
+  }
+  if (outcome.kind === "preset") {
+    return {
+      exitCode: 1,
+      out: [],
+      err: [
+        `meta.visual_preset("${outcome.preset}")は書かない。archify の見た目の型は、使う人が名指ししたときだけ書く決まり。消して書き出し直す。画像は作っていない`,
+      ],
+    };
   }
   if (outcome.kind === "failed") {
     return {

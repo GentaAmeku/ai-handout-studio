@@ -168,6 +168,25 @@ describe("diagram の archify の探し方", () => {
   });
 });
 
+describe("diagram の spec の検査", () => {
+  it("meta.visual_preset を書いた spec は断って exit 1。archify を呼ばず、撮らない", async () => {
+    const archify = installFake(join(home, ".claude", "skills", "archify"));
+    writeFileSync(
+      join(project, "spec.json"),
+      JSON.stringify({ meta: { title: "図", visual_preset: "editorial" } }),
+    );
+    const seen: ExportRequest[] = [];
+    const report = reportDiagram(
+      await makeDiagram(options, context(), fakeExport(seen)),
+    );
+    expect(report.exitCode).toBe(1);
+    expect(report.out).toEqual([]);
+    expect(report.err.join("\n")).toContain('meta.visual_preset("editorial")');
+    expect(existsSync(join(archify, "args.json"))).toBe(false);
+    expect(seen).toEqual([]);
+  });
+});
+
 describe("diagram の引数", () => {
   it("種類・spec・--out の PNG を受ける", () => {
     expect(
