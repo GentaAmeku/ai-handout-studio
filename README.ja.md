@@ -135,7 +135,7 @@ ai-handout-studio restart [<id>] [--lan|--no-lan]
 ai-handout-studio templates [--kind slide|sheet|document]
 ai-handout-studio template recolor <名前> --key <lightblue|cyan|green|orange|purple> [--from cobalt]
 ai-handout-studio search <探す文> [--json]
-ai-handout-studio sheet new --questions <質問JSON> [--title <題名>] [--template <テンプレート>] [--layout <focus|overview|all|print>]
+ai-handout-studio sheet new --questions <質問JSON> [--title <題名>] [--template <テンプレート>] [--layout <focus|overview|all|print>] [--from <会話の名前>]
 ai-handout-studio sheet update <id> --questions <質問JSON> [--layout <focus|overview|all|print>]
 ai-handout-studio sheet update <id> --layout <focus|overview|all|print>
 ai-handout-studio sheet answers <id> --answers <回答JSON>

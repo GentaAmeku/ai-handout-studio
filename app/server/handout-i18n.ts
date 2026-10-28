@@ -4,6 +4,8 @@ import type { Locale } from "../src/schema/profile.ts";
 // ここに無い言葉(見出し・部品の説明など)は利用者の中身なのでそのまま出す
 
 export type SheetStrings = {
+  // アプリで原寸に開いたとき、題名の右に出す作った場所のラベル
+  readonly askedFromLabel: string;
   readonly noticeWord: Readonly<Record<"success" | "info" | "warning", string>>;
   readonly statusDone: string;
   readonly statusPrefilled: string;
@@ -142,6 +144,7 @@ const ja: HandoutStrings = {
     loadDraftAriaLabel: "下書きJSONを読み込む",
     imageMissingPrefix: "画像が見つからない: ",
     titleSuffix: "質問票",
+    askedFromLabel: "質問元",
     recommendedMark: "（推奨）",
     imageZoomHeading: "画像の拡大",
     imageZoomClose: "画像を閉じる",
@@ -218,6 +221,7 @@ const en: HandoutStrings = {
     loadDraftAriaLabel: "Load draft JSON",
     imageMissingPrefix: "Image not found: ",
     titleSuffix: "Questionnaire",
+    askedFromLabel: "Asked from",
     recommendedMark: " (recommended)",
     imageZoomHeading: "Enlarged image",
     imageZoomClose: "Close image",

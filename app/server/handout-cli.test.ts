@@ -66,6 +66,52 @@ describe("parseCli(sheet / document)", () => {
     });
   });
 
+  it("質問票は --from で作った会話の名前を渡せる。sheet new だけで使う", () => {
+    expect(
+      parseCli([
+        "sheet",
+        "new",
+        "--questions",
+        "q.json",
+        "--from",
+        "  DEV-644 の残りの判断 ",
+      ]),
+    ).toEqual({
+      success: true,
+      command: {
+        name: "handout-new",
+        kind: "sheet",
+        file: "q.json",
+        conversation: "DEV-644 の残りの判断",
+      },
+    });
+    expect(
+      parseCli(["document", "new", "--json", "d.json", "--from", "会話"])
+        .success,
+    ).toBe(false);
+    expect(
+      parseCli([
+        "sheet",
+        "update",
+        "sheet_20260920_001",
+        "--layout",
+        "all",
+        "--from",
+        "会話",
+      ]).success,
+    ).toBe(false);
+    expect(
+      parseCli([
+        "sheet",
+        "new",
+        "--questions",
+        "q.json",
+        "--from",
+        "あ".repeat(101),
+      ]).success,
+    ).toBe(false);
+  });
+
   it("質問票は --layout で並べ方を選べる。質問票ごとに選ぶ", () => {
     expect(
       parseCli(["sheet", "new", "--questions", "q.json", "--layout", "all"]),

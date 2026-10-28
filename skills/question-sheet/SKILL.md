@@ -49,8 +49,10 @@ node <skill>/scripts/sheet.mjs audit <questions.json>
 `ai-handout-studio`コマンドがある環境では、質問票を資料として保存する。資料一覧に並び、あとから意匠を替えて1枚のHTMLに書き出せる。コマンドが無ければこの節は飛ばし、これまでどおり`render`か`serve`で渡す(コマンドを入れるなら、リポジトリのSETUP.mdのとおりに入れる)。
 
 ```bash
-ai-handout-studio sheet new --questions <questions.json> [--template <名前>] [--layout <focus|overview|all|print>]
+ai-handout-studio sheet new --questions <questions.json> --from "<この会話の名前>" [--template <名前>] [--layout <focus|overview|all|print>]
 ```
+
+`--from`には、この会話の名前(セッション名。分からなければ、チケット番号と作業を20字ほどで)を渡す。コマンドは走らせたフォルダ(リポジトリの名前)とブランチも自動で記録する。質問票を原寸で開くと、題名の右に「質問元」として出て、タブ名の頭にも会話の名前が付く。会話を並べて使っても、どの会話の質問票か見分けられる。書き出しと共有のHTMLには出さない。
 
 `--layout` は質問票ごとの並べ方で、`focus`(1問ずつ。一覧を開いて始まる)・`all`(全問を並べる)・`print`(紙に書き込む)から選ぶ。`overview` は `focus` と同じに描く(前からの指定を読めるように残している)。省けばテンプレートのレイアウトになる。あとから替えるなら`ai-handout-studio sheet update <id> --layout <…>`(質問はそのまま)。
 

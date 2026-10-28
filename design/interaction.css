@@ -63,6 +63,32 @@ body:has(> .ds-board) {
   min-width: 0;
 }
 
+/* 質問元(アプリで原寸に開いたときだけ)は題名の右に並べ、狭ければ題名の下へ回す */
+.ds-board-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-md);
+  row-gap: var(--space-xs);
+}
+
+.ds-asked-from {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--fs-ui);
+}
+
+.ds-asked-from-label {
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+
 /* 組織名は横いっぱいの1行に置き、題名と「質問一覧を閉じる」を次の行に並べる。
    組織名の下の空きは、題名の下の説明から区切り線までの空き(テンプレートの .ds-board-heading)とそろえる */
 .ds-board-heading > .ds-signature {

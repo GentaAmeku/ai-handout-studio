@@ -4,6 +4,7 @@ import {
   drawnSheetBase,
   type SheetBase,
 } from "../src/schema/design.ts";
+import type { AskedFrom } from "../src/schema/handout.ts";
 import type { Locale } from "../src/schema/profile.ts";
 import type {
   NoticeKind,
@@ -15,6 +16,7 @@ import type {
   SheetImages,
   SheetQuestion,
 } from "../src/schema/sheet.ts";
+import { askedFromText } from "./asked-from.ts";
 import { HANDOUT_STRINGS, type SheetStrings } from "./handout-i18n.ts";
 import { recommendedMark } from "./sheet-check.ts";
 
@@ -72,6 +74,8 @@ export type SheetView = {
   readonly orgName?: string;
   // アプリで原寸に開いたときだけ、署名の行の右端に置く操作の HTML(app-actions.ts)
   readonly actions?: string;
+  // アプリで原寸に開いたときだけ、題名の右に置く質問元(asked-from.ts)
+  readonly askedFrom?: AskedFrom;
   // 画面の文言の言語。資料に無ければ ja
   readonly lang: Locale;
 };
@@ -331,7 +335,12 @@ const heading = (
     view.orgName || view.actions
       ? `<div class="ds-signature">${view.orgName ? `<span>${escapeHtml(view.orgName)}</span>` : ""}${view.actions ?? ""}</div>`
       : "";
-  const title = `${org}<div class="ds-board-title"><h1>${escapeHtml(doc.title)}</h1>${doc.description ? `<p class="ds-subtle">${escapeHtml(doc.description)}</p>` : ""}</div>`;
+  // 質問元があるときだけ、題名と横に並べる行で包む。無ければ見本やスキルの画面と同じ形のまま
+  const h1 = `<h1>${escapeHtml(doc.title)}</h1>`;
+  const titleLine = view.askedFrom
+    ? `<div class="ds-board-title-row">${h1}<p class="ds-asked-from"><span class="ds-asked-from-label">${escapeHtml(t.askedFromLabel)}</span><span>${escapeHtml(askedFromText(view.askedFrom))}</span></p></div>`
+    : h1;
+  const title = `${org}<div class="ds-board-title">${titleLine}${doc.description ? `<p class="ds-subtle">${escapeHtml(doc.description)}</p>` : ""}</div>`;
   if (layout === "print") {
     return `<header class="ds-board-heading">${title}<p class="ds-print-meta">${t.printMeta(escapeHtml(doc.id), escapeHtml(doc.revision), doc.questions.length)}</p></header>`;
   }

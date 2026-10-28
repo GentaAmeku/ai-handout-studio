@@ -246,6 +246,54 @@ describe("質問票の保存", () => {
     expect(rendered.html).toContain('data-layout="focus"');
   });
 
+  it("質問元はアプリで原寸に開いたときだけ、題名の右とタブ名に出す", async () => {
+    await createSheet(
+      context.root,
+      context.designDir,
+      {
+        questions: questions(),
+        askedFrom: {
+          folder: "ai-handout-studio",
+          branch: "main",
+          conversation: "DEV-644 の残りの判断",
+        },
+      },
+      now,
+    );
+    const app = await renderHandout(
+      context.root,
+      context.designDir,
+      "sheet",
+      "sheet_20260920_001",
+      "hosted",
+      false,
+      false,
+      { id: "sheet_20260920_001", listPath: "/sheets", favorite: false },
+    );
+    expect(app.success).toBe(true);
+    if (!app.success) return;
+    expect(app.html).toContain(
+      "<title>DEV-644 の残りの判断 | 配布の進め方を決める — 質問票</title>",
+    );
+    expect(app.html).toContain(
+      '<p class="ds-asked-from"><span class="ds-asked-from-label">質問元</span><span>DEV-644 の残りの判断 · ai-handout-studio (main)</span></p>',
+    );
+    // 書き出しと共有には入れない
+    const exported = await renderHandout(
+      context.root,
+      context.designDir,
+      "sheet",
+      "sheet_20260920_001",
+      "external",
+    );
+    expect(exported.success).toBe(true);
+    if (!exported.success) return;
+    expect(exported.html).not.toContain('class="ds-asked-from"');
+    expect(exported.html).toContain(
+      "<title>配布の進め方を決める — 質問票</title>",
+    );
+  });
+
   it("質問票ごとにレイアウトを選べる", async () => {
     const created = await createSheet(
       context.root,

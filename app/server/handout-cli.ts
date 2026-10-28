@@ -12,7 +12,7 @@ import {
 // プロセスとファイルの読み書きは scripts/cli.ts と handout-store.ts が持つ
 
 export const HANDOUT_USAGE = [
-  "  ai-handout-studio sheet new --questions <質問JSON> [--title <題名>] [--template <テンプレート>] [--layout <focus|overview|all|print>]",
+  "  ai-handout-studio sheet new --questions <質問JSON> [--title <題名>] [--template <テンプレート>] [--layout <focus|overview|all|print>] [--from <会話の名前>]",
   "  ai-handout-studio sheet update <id> --questions <質問JSON> [--layout <focus|overview|all|print>]",
   "  ai-handout-studio sheet update <id> --layout <focus|overview|all|print>",
   "  ai-handout-studio sheet answers <id> --answers <回答JSON>",
@@ -37,6 +37,8 @@ export type HandoutCommand =
       templateId?: string;
       // 質問票だけ。骨格(レイアウト)を明示に選ぶ
       layout?: SheetBase;
+      // 質問票だけ。作った会話の名前。画面に「質問元」として出す
+      conversation?: string;
     }
   | {
       name: "handout-update";
@@ -73,6 +75,7 @@ const options = {
   json: { type: "string" },
   out: { type: "string" },
   layout: { type: "string" },
+  from: { type: "string" },
   text: { type: "boolean" },
 } as const;
 
@@ -125,6 +128,16 @@ export const parseHandoutCli = (
   const formatPart = format ? { format } : {};
   const layout = parseLayoutArg(kind, values.layout);
   if (!layout.ok) return fail(layout.message);
+  const conversation = cleanTitle(values.from);
+  if (values.from !== undefined && kind !== "sheet") {
+    return fail("--from は質問票だけで使う");
+  }
+  if (values.from !== undefined && action !== "new") {
+    return fail("--from は sheet new だけで使う");
+  }
+  if (conversation && conversation.length > 100) {
+    return fail("--from は100字までにする");
+  }
 
   if (action === "new") {
     if (positionals.length > 0) {
@@ -148,6 +161,7 @@ export const parseHandoutCli = (
         ...(title ? { title } : {}),
         ...(values.template ? { templateId: values.template } : {}),
         ...(layout.layout ? { layout: layout.layout } : {}),
+        ...(conversation ? { conversation } : {}),
       },
     };
   }
