@@ -8,6 +8,7 @@ import {
   archifyInstall,
   findArchify,
 } from "../../skills/question-sheet/scripts/archify.mjs";
+import { launchChromium } from "./chromium.ts";
 import { IMAGE_LIMIT_BYTES, IMAGE_WARN_BYTES } from "./handout-assets.ts";
 
 // 同梱の図の生成器で描けない図(構成・シーケンス・データの流れ・状態の移り変わり)を、
@@ -90,8 +91,7 @@ const formatButtonOf = (format: DiagramFormat): string =>
 export const exportDiagram = async (
   request: ExportRequest,
 ): Promise<Exported> => {
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const page = await browser.newPage({
       viewport: { width: 1440, height: 900 },
