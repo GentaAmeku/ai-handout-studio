@@ -1796,6 +1796,8 @@ code {
   border-radius: var(--radius-card);
   background: var(--color-bg);
   box-shadow: var(--shadow-dialog);
+  /* エラーの文に入る長いパスなど、区切りの無い文字列も枠の中で折り返す */
+  overflow-wrap: anywhere;
 }
 
 /* 上の display: grid が hidden 属性より強いので、隠す指定を明示する */
@@ -1808,8 +1810,10 @@ code {
   font-weight: 600;
 }
 
+/* サーバーのエラーは改行で区切ってあることがあるので、改行を残す */
 .export-notice__title--error {
   color: var(--color-danger);
+  white-space: pre-line;
 }
 
 .export-notice__path {

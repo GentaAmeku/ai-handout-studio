@@ -1,6 +1,7 @@
 import { mkdir, stat } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { launchChromium } from "./chromium.ts";
 import { IMAGE_WARN_BYTES } from "./handout-assets.ts";
 
 // 資料に載せるスクリーンショット。Web の画面か、手元の HTML(見た目の案のモック)を PNG に撮る。
@@ -38,8 +39,7 @@ export const takeShot = async (
   options: ShotOptions,
   cwd: string,
 ): Promise<ShotResult> => {
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch();
+  const browser = await launchChromium();
   try {
     const page = await browser.newPage({
       viewport: { width: options.width, height: options.height },

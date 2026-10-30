@@ -5,6 +5,7 @@ import type { DeckDetail, ExportFormat } from "../src/api/types.ts";
 import { type MeasuredSlide, measureSlides } from "../src/renderer/measure.ts";
 import type { OverflowReport } from "../src/renderer/overflow.ts";
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "../src/schema/deck.ts";
+import { launchChromium } from "./chromium.ts";
 
 export type ExportJob = {
   deckId: string;
@@ -370,11 +371,15 @@ export const createExporter = ({
     queue: Promise.resolve(),
   };
 
+  // 起動に失敗したら持たない。Chromium を入れたあとの書き出しで、再起動せずに起動し直せる
   const getBrowser = (): Promise<Browser> => {
-    state.browser ??= import("playwright").then(({ chromium }) =>
-      chromium.launch(),
-    );
-    return state.browser;
+    if (state.browser) return state.browser;
+    const launching = launchChromium();
+    state.browser = launching;
+    launching.catch(() => {
+      if (state.browser === launching) state.browser = undefined;
+    });
+    return launching;
   };
 
   const run = async ({ deckId, format, outDir, title }: ExportJob) => {
