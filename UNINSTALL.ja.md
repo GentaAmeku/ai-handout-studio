@@ -17,7 +17,7 @@
 2. `status` が `remaining` の項目を、外すものの一覧として利用者に見せる。節6で Playwright の Chromium も外すこと(ほかのプロジェクトが使っているものは残る)と、外さないもの(下の約束)も添える。
 3. 次を1回にまとめて聞く。
    - 一覧のものを外してよいか。共通指示からは ai-handout-studio の段落だけを消し、ほかの行は変えないことを添える。
-   - `archify` が `warn`(入っている)なら、archify も外すか。別の作者のスキルで、ほかの用途で入れたものかもしれない。
+   - `~/.agents/skills/archify` か `~/.claude/skills/archify` があれば、archify も外すか。前のセットアップが勧めていた別の作者のスキルで、今の AI Handout Studio は使わない。ほかの用途で入れたものかもしれない。
    - `vector-model` が `warn`(Ollama にベクトル検索の埋め込みモデルが入っている)なら、そのモデルも外すか。ほかの用途で使っているかもしれない。Ollama 本体は利用者が入れたもので、外さない。
    - 資料と clone をどうするか。`workspace` の detail に資料の場所と件数がある。「clone ごと消す(資料も消える)」「資料を別のフォルダへ移してから clone を消す(移す先も聞く)」「clone は残す(外に置いたものだけ外す)」から選んでもらう。
 
@@ -69,12 +69,12 @@ Cursor CLI の共通指示はファイルではなく、設定画面の User Rul
 
 ## 4. スキル
 
-doctor は、2つのスキルの置き場(`skills-agents` は `~/.agents/skills/` で Codex CLI・OpenCode・Gemini CLI・Cursor CLI が読む。`skills-claude` は `~/.claude/skills/` で Claude Code・Grok CLI が読む)に、このリポジトリを指す `ai-handout-studio`・`question-sheet`・`diagram` のリンクが無いことと、`~/.claude/skills/` に、このリポジトリを指す `handout-watch` のリンク(セットアップの節9の Claude Code の mod)が無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
+doctor は、2つのスキルの置き場(`skills-agents` は `~/.agents/skills/` で Codex CLI・OpenCode・Gemini CLI・Cursor CLI が読む。`skills-claude` は `~/.claude/skills/` で Claude Code・Grok CLI が読む)に、このリポジトリを指す `ai-handout-studio`・`question-sheet` のリンクが無いことと、`~/.claude/skills/` に、このリポジトリを指す `handout-watch` のリンク(セットアップの節9の Claude Code の mod)が無いことを確かめる。指す先の無いリンク(消した clone を指していたもの)も外す。
 
 ```bash
 # detail に挙がったリンクだけを消す
-rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/diagram ~/.claude/skills/handout-watch
-rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet ~/.agents/skills/diagram
+rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/handout-watch
+rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet
 ```
 
 - `rm` にはリンクの名前をそのまま渡す。`-r` と末尾の `/` は付けない。付けるとリンクの先(このリポジトリの `skills/` か `mods/`)を消してしまう。

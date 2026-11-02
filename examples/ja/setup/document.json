@@ -138,7 +138,7 @@
               [
                 "9",
                 "任意の機能",
-                "決まっていない機能・archify・mod を質問票でまとめて聞く"
+                "決まっていない機能・mod を質問票でまとめて聞く"
               ],
               ["10", "5190 番のサーバー", "ai-handout-studio open"]
             ],
@@ -290,7 +290,7 @@
                 "text": "ai-handout-studio コマンドを外す。"
               },
               {
-                "text": "Playwright の Chromium を外し、答えに従って archify・資料・clone を片づける。"
+                "text": "Playwright の Chromium を外し、答えに従って資料・clone を片づける。"
               }
             ]
           }

@@ -1,0 +1,97 @@
+{
+  "type": "structure",
+  "title": "How AI Handout Studio works",
+  "caption": "The agent follows the skill and writes JSON, and the CLI checks it and saves it to the workspace. The local server shows it in the browser, where you read, edit and export. Question sheet answers go back to the agent as Markdown.",
+  "nodes": [
+    {
+      "id": "agent",
+      "label": "AI agent",
+      "sub": "Claude Code, Codex and 4 more",
+      "role": "external"
+    },
+    {
+      "id": "skills",
+      "label": "Skills",
+      "sub": "handouts and question sheets",
+      "role": "output"
+    },
+    {
+      "id": "cli",
+      "label": "CLI",
+      "sub": "check and save",
+      "role": "process"
+    },
+    {
+      "id": "workspace",
+      "label": "Workspace",
+      "sub": "deck.json, document.json, sheets",
+      "role": "data"
+    },
+    {
+      "id": "server",
+      "label": "Local server",
+      "sub": "127.0.0.1:5190",
+      "role": "process"
+    },
+    {
+      "id": "browser",
+      "label": "Browser",
+      "sub": "list, edit, read, answer",
+      "role": "screen"
+    },
+    {
+      "id": "exports",
+      "label": "Exports",
+      "sub": "PDF, PNG, HTML, PPTX",
+      "role": "output"
+    },
+    {
+      "id": "ollama",
+      "label": "Ollama (optional)",
+      "sub": "embeddinggemma-2",
+      "role": "external"
+    }
+  ],
+  "edges": [
+    {
+      "from": "agent",
+      "to": "skills",
+      "label": "Ask in chat"
+    },
+    {
+      "from": "skills",
+      "to": "cli",
+      "label": "JSON"
+    },
+    {
+      "from": "cli",
+      "to": "workspace",
+      "label": "Save"
+    },
+    {
+      "from": "server",
+      "to": "workspace",
+      "label": "Read"
+    },
+    {
+      "from": "server",
+      "to": "browser",
+      "label": "URL"
+    },
+    {
+      "from": "browser",
+      "to": "exports",
+      "label": "Export"
+    },
+    {
+      "from": "browser",
+      "to": "skills",
+      "label": "Answers as Markdown"
+    },
+    {
+      "from": "server",
+      "to": "ollama",
+      "label": "Vectors for search"
+    }
+  ]
+}

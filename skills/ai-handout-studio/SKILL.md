@@ -33,7 +33,7 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 | `ai-handout-studio share <id>` | 質問票・HTML 資料を、Claude の Artifact に配れる束(`share/index.html` と画像のファイルだけ)にする。束の場所・ファイルの一覧・Claude Code への依頼文を返す。スライドはまだ使えない |
 | `ai-handout-studio share <id> --url <URL>` | 公開した Artifact の URL を資料に残す。次の `share <id>` は同じ URL を更新する依頼文になる |
 | `ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>] [--scale 1\|2]` | Web の画面か手元の HTML(見た目の案のモック)を PNG に撮る。撮った場所と大きさを出す。使い方は「画像を用意する」 |
-| `ai-handout-studio diagram <flow\|structure\|compare\|architecture\|workflow\|sequence\|dataflow\|lifecycle> <JSON> --out <画像>` | 図を画像に書き出す。形式は `--out` の拡張子(`.png`・`.jpg`・`.webp`)で選び、書き出した場所と大きさを出す。`flow`・`structure`・`compare` は同梱の diagram スキルの生成器で描く(2倍の大きさで、題と説明は図の中に描かない)。それ以外は archify(別の作者のスキル)で作り、archify のビューアーの Export で図の全体を書き出す。archify が無ければ exit 3。使い方は「図を載せる」 |
+| `ai-handout-studio diagram <flow\|structure\|compare\|sequence\|state> <JSON> --out <画像>` | 図を画像に書き出す。形式は `--out` の拡張子(`.png`・`.jpg`・`.webp`)で選び、書き出した場所と大きさを出す。2倍の大きさで、題と説明は図の中に描かない。使い方は「図を載せる」 |
 
 資料を伝えるときは `ai-handout-studio open <id>` を実行し、出力に `lanReadUrl`(スライドは `lanUrl`)があれば、スマートフォンで読む URL として並べて伝える。LAN に開くかは設定(`features.lan`)で決まるので `--lan` は付けない。`open` が `restart` を促したら、それを実行する。利用者が共有の Wi-Fi にいると言ったときは `--no-lan` を付ける。
 
@@ -109,19 +109,13 @@ description: ai-handout-studio の資料を作る・直す。1280x720 のスラ�
 
 - 図を出すかの判断は今までどおり。本文の言い換えになる図は置かない。一方向の手順は図にせず番号付きの説明にする([references/document.md](references/document.md) の「図を出すか」)
 - 縦の短い流れ(連鎖・枝分かれ・合流)を資料の色で描くなら、同梱の生成器(`<studio>/design/figure/deliver.mjs`)で作る。テンプレートの色で描ける(HTML 資料は `figure` ブロック、質問票は `visual.type: flow`)
-- 横やレーンのある流れ・構成・比較(Before / After)の図は、同梱の diagram スキルで作り、画像にして載せる。別の道具を入れなくても描ける
-  1. `<studio>/skills/diagram/SKILL.md` の「図にするか決める」から「JSON を書く」に従って図の JSON を書く。文言は資料の言語で書く。スライドでは `sub` を書かない
-  2. `ai-handout-studio diagram <flow|structure|compare> <図.json> --out <名前>.png` を実行する。exit 1 なら何も書き出していない。出た指摘に従って JSON を直し、通るまで繰り返す(直し方は `SKILL.md` の「指摘を直す」)
-  3. 開いて線とラベルが読めるかを確かめ、下の archify の 4・5 と同じように載せる。題と説明は図の中に描かないので、`caption` に書く
-- シーケンス・データの流れ・状態の移り変わりの図は archify で作り、画像にして載せる(`architecture`・`workflow` も archify で描けるが、新しく作るなら `structure`・`flow` を使う)
-  1. `node <studio>/skills/question-sheet/scripts/archify.mjs` で archify の場所を調べる。見つからなければ(exit 1)下の「archify が無いとき」に進む
-  2. 出た場所の `SKILL.md` の手順(Fast authoring path)に従い、種類(`architecture`・`workflow`・`sequence`・`dataflow`・`lifecycle`)に合う schema と例を読んで spec の JSON を書く。`meta.quality_profile` は `"showcase"`。`meta.visual_preset` は書かない(archify の標準の見た目で描く。例に書いてあっても写さない。書くと `diagram` が断る)。文言は資料の言語で書く
-  3. `ai-handout-studio diagram <種類> <spec.json> --out <名前>.png` を実行する。archify の `deliver` で検査し、ビューアーの Export で図の全体を明るい配色で書き出す(既定は4倍の大きさ)。exit 1 なら何も書き出していない。出た診断に従って spec を直し、通るまで繰り返す(直し方は archify の `SKILL.md`)
+- それ以外(横やレーンのある流れ・構成・データの流れ・シーケンス・状態の移り変わり・比較)は、diagram スキルの生成器で作り、画像にして載せる。Studio の依存に入っているので、別の道具を入れなくても描ける
+  1. `<studio>/node_modules/diagram-skill/skills/diagram/SKILL.md` の「図にするか決める」から「JSON を書く」に従って図の JSON を書く。文言は資料の言語で書く。スライドでは `sub` を書かない
+  2. `ai-handout-studio diagram <flow|structure|compare|sequence|state> <図.json> --out <名前>.png` を実行する。データの流れは `structure` で描く。exit 1 なら何も書き出していない。出た指摘に従って JSON を直し、通るまで繰り返す(直し方は `SKILL.md` の「指摘を直す」)
+  3. 開いて線とラベルが読めるかを確かめる
   4. 載せる。スライドは `new` の出力の資料フォルダの `assets/` に画像を置き(`--out` にそこを渡してよい)、`image` ブロックの `src` に `assets/<名前>.png` と書く。HTML 資料は `image` ブロック、質問票は `visual.type: images` に画像のパスを書く(保存のとき `assets/` に取り込まれる)
-  5. 説明(HTML 資料と質問票は `caption`、質問票の画像は `label` も)に何の図かを書く(「構成図: 注文の受け付けから配送まで」など)。1MB を超えたと警告が出たら、`--out` を `.webp` にして書き出し直す(中身は同じで、PNG の半分ほどになる)
-- diagram と archify の配色はテンプレートと違う。画像として載せるので、テンプレートの色に合わせなくてよい
-
-**archify が無いとき**(`archify.mjs` が exit 1、または `diagram` が exit 3): シーケンスなどの図を諦め、表・文で済ませるか、流れ・構成の図に描き直す。仕上げの報告の最後に、archify の紹介を1行添える。例:「archify(別の作者のスキル。https://github.com/tt-a1i/archify)を入れると、シーケンス図・データの流れ・状態の移り変わりの図を資料に載せられます。入れるなら `npx skills add tt-a1i/archify -g`」。同じ会話で2回は紹介しない。利用者に頼まれない限り入れない。
+  5. 説明(HTML 資料と質問票は `caption`、質問票の画像は `label` も)に何の図かを書く(「構成図: 注文の受け付けから配送まで」など)。題と説明は図の中に描かないので、ここに書く。1MB を超えたと警告が出たら、`--out` を `.webp` にして書き出し直す(中身は同じで、PNG の半分ほどになる)
+- diagram の配色はテンプレートと違う。画像として載せるので、テンプレートの色に合わせなくてよい
 
 ### 作る
 

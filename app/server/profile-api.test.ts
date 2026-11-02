@@ -139,7 +139,6 @@ describe("設定(言語と任意の機能。141)", () => {
           vectorSearch: true,
         },
         agentInstructions: "ask",
-        archify: "ask",
         mods: { claude: "ask" },
         vectorSearch: "ask",
       });
@@ -226,7 +225,6 @@ describe("設定(言語と任意の機能。141)", () => {
         vectorSearch: true,
       },
       agentInstructions: "ask",
-      archify: "ask",
       mods: { claude: "ask" },
       vectorSearch: "ask",
     });

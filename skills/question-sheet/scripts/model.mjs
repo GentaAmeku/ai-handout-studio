@@ -58,49 +58,7 @@ export const validateDocument = (doc) => {
 		doc.questions.length > 60
 	)
 		fail("質問は1〜60件にしてください");
-	if (doc.explorers !== undefined) {
-		if (!Array.isArray(doc.explorers) || doc.explorers.length > 5)
-			fail("全体図は5件までです");
-		unique(
-			doc.explorers.map((e) => e?.id),
-			"全体図",
-		);
-		doc.explorers.forEach((e) => {
-			keys(e, ["id", "spec"], "全体図");
-			identifier(e.id, "explorer.id");
-			if (
-				!object(e.spec) ||
-				![
-					"architecture",
-					"workflow",
-					"sequence",
-					"dataflow",
-					"lifecycle",
-				].includes(e.spec.diagram_type)
-			)
-				fail("全体図の形式が違います");
-			if (JSON.stringify(e.spec).length > 200000)
-				fail("全体図の情報が多すぎます");
-			const inspect = (value) => {
-				if (Array.isArray(value)) {
-					value.forEach(inspect);
-					return;
-				}
-				if (!object(value)) return;
-				Object.entries(value).forEach(([key, value]) => {
-					if (["sources", "repository", "output"].includes(key))
-						fail("全体図にファイル参照・出力先は指定できません");
-					if (
-						key === "brand" &&
-						(typeof value !== "string" || /https?:/i.test(value))
-					)
-						fail("全体図は同梱ブランドだけ使えます");
-					inspect(value);
-				});
-			};
-			inspect(e.spec);
-		});
-	}
+	// 全体図(explorers)は描かなくなった。前の質問票を読めるよう、項目としては受ける
 	unique(
 		doc.questions.map((q) => q?.id),
 		"質問",
@@ -127,11 +85,6 @@ export const validateDocument = (doc) => {
 			"質問",
 		);
 		identifier(q.id, "question.id");
-		if (
-			q.explorer !== undefined &&
-			!doc.explorers?.some((e) => e.id === q.explorer)
-		)
-			fail("質問が参照する全体図がありません");
 		str(q.title, 60, "title");
 		str(q.summary, 140, "summary", true);
 		str(q.detail, 1200, "detail", true);
@@ -550,7 +503,7 @@ export const completeVisitedAnswer = (question, answer) => {
 export const presentationProblems = (input) => {
 	const doc = validateDocument(input);
 	return doc.questions.flatMap((q) =>
-		q.type !== "text" && !q.visual && !q.explorer && !q.visualRationale
+		q.type !== "text" && !q.visual && !q.visualRationale
 			? [
 					`${q.id}: 選択肢の違いを比較表か図に整理してください。不要なら visualRationale に理由を記してください。`,
 				]

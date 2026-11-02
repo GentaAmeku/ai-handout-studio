@@ -73,12 +73,11 @@ The template-switch frames double as the key frames of the 5-second GIF. The GIF
 
 ## 4. Architecture diagram
 
-`how-it-works.png` is drawn by archify from the spec next to it (`docs/images/<lang>/how-it-works.archify.json`). The spec passes the showcase checks; keep it that way when you edit it.
+`how-it-works.png` is drawn from the JSON next to it (`docs/images/<lang>/how-it-works.diagram.json`).
 
 ```sh
-node ~/.agents/skills/archify/bin/archify.mjs validate architecture docs/images/en/how-it-works.archify.json --quality showcase --json
-ai-handout-studio diagram architecture docs/images/en/how-it-works.archify.json --out docs/images/en/how-it-works.png
-sips --resampleWidth 2440 docs/images/en/how-it-works.png
+ai-handout-studio diagram structure docs/images/en/how-it-works.diagram.json --out docs/images/en/how-it-works.png
+ai-handout-studio diagram structure docs/images/ja/how-it-works.diagram.json --out docs/images/ja/how-it-works.png
 ```
 
 Alt text: How it works: an AI agent follows the skill, the CLI saves JSON to the workspace, the local server shows it in the browser, and the browser exports it or sends answers back as Markdown; for search, the server can ask a local Ollama for vectors.

@@ -6,9 +6,9 @@
 
 ## 要るもの
 
-通常の質問票にはNode.js 22以上とブラウザーが必要です。流れ・構成・比較の図は同じリポジトリのdiagramスキルで描けます。シーケンス図などを載せる場合だけ、別途[Archify](https://github.com/tt-a1i/archify)を使います(どちらも`ai-handout-studio diagram`で画像にして`images`で載せます)。未導入なら比較表や文章で提示し、最後に`npx skills add tt-a1i/archify -g`での導入を1度だけ紹介します。自動インストールはしません。特殊な配置は`ARCHIFY_SKILL_DIR`で指定できます。
+通常の質問票にはNode.js 22以上とブラウザーが必要です。図を画像にして載せるときは、ai-handout-studioの`diagram`コマンドを使います。
 
-画面のスタイルと簡単な図の生成器は、このスキルが入っている ai-handout-studio のリポジトリの `design/dist` を直接読みます(リポジトリで `pnpm install` を実行すると作られます)。Archifyの本体は含めません。生成したHTMLは単体で閲覧でき、図の閲覧時にも外部へ通信しません。
+画面のスタイルと簡単な図の生成器は、このスキルが入っている ai-handout-studio のリポジトリの `design/dist` を直接読みます(リポジトリで `pnpm install` を実行すると作られます)。生成したHTMLは単体で閲覧でき、図の閲覧時にも外部へ通信しません。
 
 ## 入れる
 
@@ -46,6 +46,4 @@ MIT([LICENSE](LICENSE))。同梱物には次の条件も併せて適用されま
 
 - 画面の意匠は ai-handout-studio の `design/dist`(同じリポジトリの生成物。MIT)を読みます。書体ファイルは含みません
 
-Archifyで生成した図には、導入先のライセンスと第三者表記を埋め込みます。
-
-比較表・意味別の注記・全体図・回答欄を組み合わせた見本は [examples/reading.json](examples/reading.json) です。成功は緑、注意は橙、補足は青で表し、記号と文言を併記します。
+比較表・意味別の注記・回答欄を組み合わせた見本は [examples/reading.json](examples/reading.json) です。成功は緑、注意は橙、補足は青で表し、記号と文言を併記します。

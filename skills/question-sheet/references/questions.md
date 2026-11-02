@@ -12,7 +12,7 @@ singleは選択肢のラジオボタンと自由編集欄を表示する。選�
 
 根拠は `evidence: [{label,text}]` で3件まで。labelに時刻や出所を入れる。textは240字まで。引用を作らず、入力元の内容から取る。
 
-visualは主図を1つ持つ。判断点の強調と補助表・全体図は[追加形式](explorers.md)を使う。比較は `{type:"comparison",caption,columns:[列名],rows:[[セル]]}`。2〜4列、1〜4行。流れは `{type:"flow",figure: ...}` とし、figureは [図の形式](../../../design/figure/schema.json)に従う。生成器が文字幅と構造を検査する。案ごとのイメージ画像は `{type:"images",caption?,items:[{src,label,alt}]}`(1〜4枚。label50字、alt200字)。srcは質問JSONからの相対か絶対のパスで、PNG・JPEG・WebPの3MBまで。描くときに埋め込み、ai-handout-studioに保存すると`assets/`へ取り込む。見た目の語があって`images`の無い質問は`audit`が警告する。任意HTML・SVG・URLやdata:の画像は受け付けない。
+visualは主図を1つ持つ。判断点の強調と補助表は[追加形式](decision.md)を使う。比較は `{type:"comparison",caption,columns:[列名],rows:[[セル]]}`。2〜4列、1〜4行。流れは `{type:"flow",figure: ...}` とし、figureは [図の形式](../../../design/figure/schema.json)に従う。生成器が文字幅と構造を検査する。案ごとのイメージ画像は `{type:"images",caption?,items:[{src,label,alt}]}`(1〜4枚。label50字、alt200字)。srcは質問JSONからの相対か絶対のパスで、PNG・JPEG・WebPの3MBまで。描くときに埋め込み、ai-handout-studioに保存すると`assets/`へ取り込む。見た目の語があって`images`の無い質問は`audit`が警告する。任意HTML・SVG・URLやdata:の画像は受け付けない。
 
 回答はschemaVersion、documentId、revision、digest、answersを持つ。answersは `{id,selected:[選択肢ID],text,fields:{欄ID:値},reviewed}`。digestは生成器が質問全体から算出する照合値で、承認の証明ではない。singleのtextが回答の正本。selectedは文が選択肢と完全一致するときだけ入る。自由な文では空配列。下書きはreviewed=falseや未入力を許すが、返却時は全件確認と必須欄を検査する。
 

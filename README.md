@@ -91,6 +91,8 @@ The agent never writes a slide. It writes JSON (`deck.json`, `document.json` or 
 
 Search lives in the same local server. Each handout is split into sections, questions and slides. Full-text search scores two-character pieces with BM25, which needs no dictionary for Japanese. When Ollama has embeddinggemma-2, each piece is also embedded once into 768 numbers and kept in `workspace/search/`; a query is embedded the same way, and the two rankings are merged by reciprocal rank fusion (RRF), with handouts that contain every typed word first. If Ollama is missing or slow, search quietly falls back to full-text search.
 
+Diagrams come from [diagram-skill](https://github.com/GentaAmeku/diagram-skill), a separate skill pinned as a dependency here, so there is nothing extra to install. To use it in conversations that have nothing to do with handouts, run `npx skills add GentaAmeku/diagram-skill -g`.
+
 ## How it differs
 
 Your agent probably already has a skill for PPTX or DOCX files, or an artifact that shows slides. Compared with those, this adds:
@@ -146,11 +148,11 @@ ai-handout-studio document export <id> [--out <path>] [--text]
 ai-handout-studio share <id>
 ai-handout-studio share <id> --url <published Artifact URL>
 ai-handout-studio shot <URL or HTML file> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ms>]
-ai-handout-studio diagram <flow|structure|compare|architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <image (.png, .jpg, .webp)>
+ai-handout-studio diagram <flow|structure|compare|sequence|state> <spec.json> --out <image (.png, .jpg, .webp)>
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <key>=<value> [--set <key>=<value> ...]
-  keys: orgName, locale (ja|en), features.lan, features.imageGeneration, features.share, features.vectorSearch (true|false), agentInstructions, archify, mods.claude, vectorSearch (ask|declined)
+  keys: orgName, locale (ja|en), features.lan, features.imageGeneration, features.share, features.vectorSearch (true|false), agentInstructions, mods.claude, vectorSearch (ask|declined)
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```

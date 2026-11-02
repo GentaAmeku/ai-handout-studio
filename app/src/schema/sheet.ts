@@ -114,8 +114,6 @@ export const sheetQuestionSchema = z
       )
       .max(3)
       .optional(),
-    // 全体図(Archify)。描くのは開く前の見出しだけ
-    explorer: z.union([z.string(), z.boolean()]).optional(),
   })
   .superRefine((question, ctx) => {
     if (question.type === "text") return;

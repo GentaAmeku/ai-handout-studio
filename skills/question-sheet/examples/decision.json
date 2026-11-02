@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "id": "visual-decision-demo",
+  "revision": "1",
+  "title": "判断点を強調して読む",
+  "description": "強調図と表で回答します。",
+  "context": "合成の相談です。回答による外部操作はありません。",
+  "questions": [
+    {
+      "id": "architecture",
+      "title": "保存に失敗した場合、通知先へ送ってよいですか？",
+      "summary": "構成と通知",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "保存成功を確認するまで通知しない"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "保存成功が通知の条件です。回答文を変更しても、この初期案の図は変わりません。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "入力画面"
+          },
+          {
+            "id": "s1",
+            "label": "受付API"
+          },
+          {
+            "id": "s2",
+            "label": "回答保存"
+          },
+          {
+            "id": "s3",
+            "label": "通知先"
+          }
+        ],
+        "focus": [
+          "s2"
+        ],
+        "table": [
+          [
+            "保存成功",
+            "通知する"
+          ],
+          [
+            "保存失敗",
+            "通知しない"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "ownership",
+      "title": "本人が行う作業はどこまでですか？",
+      "summary": "担当と受け渡し",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "仕様整理と結果検証を行い、公開確認は確認担当へ渡す"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "本人の担当は仕様整理と結果検証。公開確認は確認担当へ渡します。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "仕様整理",
+            "role": "本人"
+          },
+          {
+            "id": "s1",
+            "label": "画面実装",
+            "role": "共同担当"
+          },
+          {
+            "id": "s2",
+            "label": "結果検証",
+            "role": "本人"
+          },
+          {
+            "id": "s3",
+            "label": "公開確認",
+            "role": "確認担当"
+          }
+        ],
+        "focus": [
+          "s0",
+          "s2"
+        ],
+        "table": [
+          [
+            "本人",
+            "仕様整理・結果検証"
+          ],
+          [
+            "共同担当",
+            "画面実装"
+          ],
+          [
+            "確認担当",
+            "公開確認"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "dependency",
+      "title": "権限が未発行の間、どこまで進めますか？",
+      "summary": "順序と待ち",
+      "type": "single",
+      "options": [
+        {
+          "id": "proposed",
+          "label": "仮データを準備し、権限発行を待って接続確認へ進む"
+        },
+        {
+          "id": "reconsider",
+          "label": "方針を変更する"
+        }
+      ],
+      "recommended": [
+        "proposed"
+      ],
+      "visual": {
+        "type": "decision",
+        "caption": "仮データは先に準備できます。接続確認は権限発行後です。",
+        "steps": [
+          {
+            "id": "s0",
+            "label": "仮データ準備"
+          },
+          {
+            "id": "s1",
+            "label": "権限発行"
+          },
+          {
+            "id": "s2",
+            "label": "接続確認"
+          },
+          {
+            "id": "s3",
+            "label": "利用開始"
+          }
+        ],
+        "focus": [
+          "s1"
+        ],
+        "table": [
+          [
+            "今できる",
+            "仮データ準備"
+          ],
+          [
+            "待つもの",
+            "相手先の権限発行"
+          ],
+          [
+            "発行後",
+            "接続確認・利用開始"
+          ]
+        ]
+      }
+    }
+  ]
+}

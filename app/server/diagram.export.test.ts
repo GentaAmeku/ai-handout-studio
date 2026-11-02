@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { homedir, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, describe, expect, it } from "vitest";
@@ -9,13 +9,16 @@ import { makeDiagram, reportDiagram } from "./diagram.ts";
 // 生成器の図を Studio の Playwright で撮る。利用者が別の道具を入れなくても画像になることを、実ブラウザで確かめる
 const dir = mkdtempSync(join(tmpdir(), "diagram-export-"));
 const spec = fileURLToPath(
-  new URL("../../skills/diagram/examples/structure.json", import.meta.url),
+  new URL(
+    "../../node_modules/diagram-skill/skills/diagram/examples/structure.json",
+    import.meta.url,
+  ),
 );
 
 const draw = async (name: string) =>
   makeDiagram(
     { type: "structure", spec, out: name },
-    { cwd: dir, env: process.env, home: homedir() },
+    { cwd: dir, env: process.env },
   );
 
 afterAll(() => {

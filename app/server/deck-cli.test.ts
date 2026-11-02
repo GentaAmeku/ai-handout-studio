@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { validateDeck } from "../src/schema/deck";
+import { profileSchema } from "../src/schema/profile.ts";
 import { checkGeneratedDeck } from "./deck-check";
 import {
   applySettingsUpdates,
@@ -342,12 +343,12 @@ describe("parseCli", () => {
     ).toBe(false);
   });
 
-  it("settings は archify と mod(mods.claude)を入れるかも ask か declined で受ける", () => {
+  it("settings は mod(mods.claude)とベクトル検索を入れるかも ask か declined で受ける", () => {
     expect(
       parseCli([
         "settings",
         "--set",
-        "archify=declined",
+        "vectorSearch=declined",
         "--set",
         "mods.claude=ask",
       ]),
@@ -356,7 +357,7 @@ describe("parseCli", () => {
       command: {
         name: "settings",
         updates: [
-          { key: "archify", value: "declined" },
+          { key: "vectorSearch", value: "declined" },
           { key: "mods.claude", value: "ask" },
         ],
       },
@@ -701,7 +702,6 @@ describe("formatSettings / applySettingsUpdates", () => {
         vectorSearch: true,
       },
       agentInstructions: "ask" as const,
-      archify: "declined" as const,
       mods: { claude: "ask" as const },
       vectorSearch: "ask" as const,
     };
@@ -714,7 +714,6 @@ describe("formatSettings / applySettingsUpdates", () => {
         "features.share: false",
         "features.vectorSearch: true",
         "agentInstructions: ask",
-        "archify: declined",
         "mods.claude: ask",
         "vectorSearch: ask",
       ].join("\n"),
@@ -745,6 +744,10 @@ describe("formatSettings / applySettingsUpdates", () => {
         { key: "agentInstructions", value: "declined" },
       ]),
     ).toEqual({ orgName: "", agentInstructions: "declined" });
+    // 前のセットアップが残した archify は、読めて、触らない
+    expect(
+      profileSchema.safeParse({ orgName: "", archify: "declined" }).success,
+    ).toBe(true);
     expect(
       applySettingsUpdates({ orgName: "", archify: "declined" }, [
         { key: "mods.claude", value: "declined" },

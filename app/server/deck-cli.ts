@@ -75,7 +75,7 @@ export const USAGE = [
   "  ai-handout-studio design build",
   "  ai-handout-studio settings",
   "  ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]",
-  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・archify・mods.claude・vectorSearch(ask|declined)",
+  "    キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・mods.claude・vectorSearch(ask|declined)",
   "  ai-handout-studio examples [--lang ja|en]",
   "  ai-handout-studio doctor [--uninstall] [--json|--checklist]",
 ].join("\n");
@@ -113,7 +113,7 @@ export type CliCommand =
       wait: number;
       scale: 1 | 2;
     }
-  // 図を画像にする。形式は --out の拡張子で選ぶ。archify の図で archify が無ければ exit 3
+  // 図を画像にする。形式は --out の拡張子で選ぶ
   | { name: "diagram"; type: DiagramType; spec: string; out: string }
   | { name: "design-build" }
   // 設定(言語・任意の機能)。--set が無ければ今の値を出すだけ
@@ -132,7 +132,6 @@ export type SettingsUpdate =
   | { key: "features.share"; value: boolean }
   | { key: "features.vectorSearch"; value: boolean }
   | { key: "agentInstructions"; value: Offer }
-  | { key: "archify"; value: Offer }
   | { key: "mods.claude"; value: Offer }
   | { key: "vectorSearch"; value: Offer };
 
@@ -462,7 +461,6 @@ const parseSettingsOptions = (args: readonly string[]) => {
 // セットアップが勧め、利用者が断れるもの。値は ask か declined
 const SETTINGS_OFFER_KEYS = [
   "agentInstructions",
-  "archify",
   "mods.claude",
   "vectorSearch",
 ] as const;
@@ -832,7 +830,6 @@ export const formatSettings = (settings: ResolvedSettings): string =>
     `features.share: ${settings.features.share}`,
     `features.vectorSearch: ${settings.features.vectorSearch}`,
     `agentInstructions: ${settings.agentInstructions}`,
-    `archify: ${settings.archify}`,
     `mods.claude: ${settings.mods.claude}`,
     `vectorSearch: ${settings.vectorSearch}`,
   ].join("\n");
@@ -853,7 +850,6 @@ const applySettingsUpdate = (
   if (update.key === "agentInstructions") {
     return { ...profile, agentInstructions: update.value };
   }
-  if (update.key === "archify") return { ...profile, archify: update.value };
   if (update.key === "mods.claude") {
     return { ...profile, mods: { ...profile.mods, claude: update.value } };
   }

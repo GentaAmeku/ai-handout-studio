@@ -1,6 +1,5 @@
 // @vitest-environment node
 import {
-  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -13,227 +12,83 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { parseCli } from "./deck-cli";
 import {
-  ARCHIFY_MISSING,
   type DiagramContext,
-  type ExportRequest,
+  GENERATOR_MISSING,
   makeDiagram,
   reportDiagram,
   type ShootRequest,
 } from "./diagram";
 
-// archify は別の作者のスキルなので、一時のフォルダに偽物を置いて探し方と終了コードを確かめる。
-// 実物で撮る確かめは手で行う
+// 生成器は依存の diagram-skill の本物を動かす。撮るところだけ置き換える。実ブラウザで撮る確かめは diagram.export.test.ts
 
 let root: string;
-let home: string;
 let project: string;
 
-// 偽の archify。受け取った引数を args.json に残し、FAKE_DELIVER が fail なら診断を出して exit 2
-const FAKE_BIN = `
-import { writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-const args = process.argv.slice(2);
-const here = dirname(dirname(fileURLToPath(import.meta.url)));
-writeFileSync(join(here, "args.json"), JSON.stringify({ args, updateCheck: process.env.ARCHIFY_UPDATE_CHECK_DISABLED }));
-if (process.env.FAKE_DELIVER === "fail") {
-  console.log(JSON.stringify({ ok: false, errors: [{ rule: "label-collision", subject: "api" }] }));
-  console.error("composition failed");
-  process.exit(2);
-}
-writeFileSync(args[3], "<html><body><div class=diagram-container><svg viewBox='0 0 10 10'></svg></div></body></html>");
-`;
+const context = (more: Partial<DiagramContext> = {}): DiagramContext => ({
+  cwd: project,
+  env: process.env,
+  ...more,
+});
 
-const installFake = (dir: string): string => {
-  mkdirSync(join(dir, "bin"), { recursive: true });
-  writeFileSync(join(dir, "SKILL.md"), "fake archify");
-  writeFileSync(join(dir, "bin", "archify.mjs"), FAKE_BIN);
-  return dir;
+const specOf = (name: string): string =>
+  fileURLToPath(
+    new URL(
+      `../../node_modules/diagram-skill/skills/diagram/examples/${name}.json`,
+      import.meta.url,
+    ),
+  );
+
+type Shot = { request: ShootRequest; svg: string };
+
+const fakeShoot = (seen: Shot[]) => async (request: ShootRequest) => {
+  seen.push({ request, svg: readFileSync(request.svg, "utf8") });
+  return { path: request.out, bytes: 24, width: 2000, height: 1000 };
 };
-
-const argsOf = (archify: string): { args: string[]; updateCheck: string } =>
-  JSON.parse(readFileSync(join(archify, "args.json"), "utf8"));
-
-const context = (
-  env: Record<string, string | undefined> = {},
-): DiagramContext => ({ cwd: project, env, home });
-
-const options = {
-  type: "architecture",
-  spec: "spec.json",
-  out: "out/diagram.png",
-} as const;
-
-// ビューアーの Export の代わり。受け取った依頼を残し、決まった大きさを返す
-const fakeExport =
-  (seen: ExportRequest[]) => async (request: ExportRequest) => {
-    seen.push(request);
-    mkdirSync(join(request.out, ".."), { recursive: true });
-    writeFileSync(request.out, "image");
-    return { path: request.out, bytes: 24, width: 4200, height: 2208 };
-  };
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), "diagram-"));
-  home = join(root, "home");
   project = join(root, "project", "nested");
-  mkdirSync(home, { recursive: true });
   mkdirSync(project, { recursive: true });
-  writeFileSync(join(project, "spec.json"), "{}");
 });
 
 afterEach(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-describe("diagram の archify の探し方", () => {
-  it("ホームのスキルの置き場から見つけ、deliver を showcase の検査で呼ぶ", async () => {
-    const archify = installFake(join(home, ".claude", "skills", "archify"));
-    const seen: ExportRequest[] = [];
-    const outcome = await makeDiagram(options, context(), fakeExport(seen));
-    const { args, updateCheck } = argsOf(archify);
-    expect(args.slice(0, 3)).toEqual([
-      "deliver",
-      "architecture",
-      join(project, "spec.json"),
-    ]);
-    expect(args.slice(4)).toEqual(["--quality", "showcase", "--json"]);
-    expect(updateCheck).toBe("1");
-    // 書き出すのは deliver が書いた HTML。形式は --out の拡張子で決まる
-    expect(seen).toEqual([
-      {
-        html: args[3],
-        out: join(project, "out", "diagram.png"),
-        format: "png",
-      },
-    ]);
-    expect(reportDiagram(outcome)).toEqual({
-      exitCode: 0,
-      out: [
-        `path: ${join(project, "out", "diagram.png")}`,
-        "size: 4200x2208",
-        "bytes: 24",
-      ],
-      err: [],
-    });
-    // deliver に渡した一時の HTML は残さない
-    expect(existsSync(args[3] ?? "")).toBe(false);
-  });
-
-  it("作業フォルダの親と ARCHIFY_SKILL_DIR からも見つける", async () => {
-    const parent = installFake(
-      join(root, "project", ".agents", "skills", "archify"),
-    );
-    await makeDiagram(options, context(), fakeExport([]));
-    expect(argsOf(parent).args[0]).toBe("deliver");
-
-    const explicit = installFake(join(root, "elsewhere"));
-    await makeDiagram(
-      options,
-      context({ ARCHIFY_SKILL_DIR: explicit }),
-      fakeExport([]),
-    );
-    expect(argsOf(explicit).args[0]).toBe("deliver");
-  });
-
-  it("見つからなければ exit 3 で入れ方を出す。ARCHIFY_SKILL_DIR が違えばほかは探さない", async () => {
-    const missing = reportDiagram(await makeDiagram(options, context()));
-    expect(missing).toEqual({ exitCode: 3, out: [], err: [ARCHIFY_MISSING] });
-    expect(ARCHIFY_MISSING).toBe(
-      "archify が見つからない。入れるなら: npx skills add tt-a1i/archify -g(https://github.com/tt-a1i/archify)",
-    );
-
-    installFake(join(home, ".claude", "skills", "archify"));
-    const outcome = await makeDiagram(
-      options,
-      context({ ARCHIFY_SKILL_DIR: join(root, "not-installed") }),
-    );
-    expect(reportDiagram(outcome).exitCode).toBe(3);
-  });
-
-  it("deliver が失敗したら診断をそのまま出して exit 1。撮らない", async () => {
-    installFake(join(home, ".agents", "skills", "archify"));
-    const seen: ExportRequest[] = [];
-    const outcome = await makeDiagram(
-      options,
-      context({ FAKE_DELIVER: "fail" }),
-      fakeExport(seen),
-    );
-    const report = reportDiagram(outcome);
-    expect(report.exitCode).toBe(1);
-    expect(report.out).toEqual([]);
-    expect(report.err.join("\n")).toContain('"rule":"label-collision"');
-    expect(report.err.join("\n")).toContain("composition failed");
-    expect(report.err.at(-1)).toContain("exit 2");
-    expect(seen).toEqual([]);
-    expect(existsSync(join(project, "out", "diagram.png"))).toBe(false);
-  });
-});
-
-describe("diagram の spec の検査", () => {
-  it("meta.visual_preset を書いた spec は断って exit 1。archify を呼ばず、撮らない", async () => {
-    const archify = installFake(join(home, ".claude", "skills", "archify"));
-    writeFileSync(
-      join(project, "spec.json"),
-      JSON.stringify({ meta: { title: "図", visual_preset: "editorial" } }),
-    );
-    const seen: ExportRequest[] = [];
-    const report = reportDiagram(
-      await makeDiagram(options, context(), fakeExport(seen)),
-    );
-    expect(report.exitCode).toBe(1);
-    expect(report.out).toEqual([]);
-    expect(report.err.join("\n")).toContain('meta.visual_preset("editorial")');
-    expect(existsSync(join(archify, "args.json"))).toBe(false);
-    expect(seen).toEqual([]);
-  });
-});
-
-describe("diagram の生成器の図", () => {
-  const specOf = (name: string): string =>
-    fileURLToPath(
-      new URL(`../../skills/diagram/examples/${name}.json`, import.meta.url),
-    );
-  const fakeShoot =
-    (seen: { request: ShootRequest; svg: string }[]) =>
-    async (request: ShootRequest) => {
-      seen.push({ request, svg: readFileSync(request.svg, "utf8") });
-      return { path: request.out, bytes: 24, width: 2000, height: 1000 };
-    };
-
-  it("archify が無くても描ける。題と説明は図の中に描かない", async () => {
-    const seen: { request: ShootRequest; svg: string }[] = [];
-    const outcome = await makeDiagram(
-      {
-        type: "structure",
-        spec: specOf("structure"),
-        out: "out/diagram.webp",
-      },
-      context(),
-      fakeExport([]),
-      fakeShoot(seen),
-    );
-    expect(seen.map(({ request }) => request.format)).toEqual(["webp"]);
-    expect(seen[0]?.request.out).toBe(join(project, "out", "diagram.webp"));
-    expect(seen[0]?.svg).toContain("<svg");
-    expect(seen[0]?.svg).not.toContain('class="title"');
-    expect(reportDiagram(outcome).exitCode).toBe(0);
-  });
-
-  it("archify の種類には生成器を使わない", async () => {
-    const shots: { request: ShootRequest; svg: string }[] = [];
-    const outcome = await makeDiagram(
-      options,
-      context(),
-      fakeExport([]),
-      fakeShoot(shots),
-    );
-    expect(outcome.kind).toBe("missing");
-    expect(shots).toEqual([]);
-  });
+describe("diagram の図", () => {
+  it.each([
+    ["flow", "flow-lanes"],
+    ["structure", "structure"],
+    ["compare", "compare"],
+    ["sequence", "sequence"],
+    ["state", "state"],
+  ] as const)(
+    "%s を描いて撮る。題と説明は図の中に描かない",
+    async (type, example) => {
+      const seen: Shot[] = [];
+      const outcome = await makeDiagram(
+        { type, spec: specOf(example), out: "out/diagram.webp" },
+        context(),
+        fakeShoot(seen),
+      );
+      expect(seen.map(({ request }) => request.format)).toEqual(["webp"]);
+      expect(seen[0]?.request.out).toBe(join(project, "out", "diagram.webp"));
+      expect(seen[0]?.svg).toContain("<svg");
+      expect(seen[0]?.svg).not.toContain('class="title"');
+      expect(reportDiagram(outcome)).toEqual({
+        exitCode: 0,
+        out: [
+          `path: ${join(project, "out", "diagram.webp")}`,
+          "size: 2000x1000",
+          "bytes: 24",
+        ],
+        err: [],
+      });
+    },
+  );
 
   it("検査に通らなければ指摘をそのまま出して exit 1。撮らない", async () => {
-    const seen: { request: ShootRequest; svg: string }[] = [];
+    const seen: Shot[] = [];
     writeFileSync(
       join(project, "broken.json"),
       JSON.stringify({ type: "flow", title: "題", nodes: [], edges: [] }),
@@ -242,13 +97,29 @@ describe("diagram の生成器の図", () => {
       await makeDiagram(
         { type: "flow", spec: "broken.json", out: "a.png" },
         context(),
-        fakeExport([]),
         fakeShoot(seen),
       ),
     );
     expect(report.exitCode).toBe(1);
     expect(report.err.join("\n")).toContain("caption");
     expect(report.err.join("\n")).toContain("生成器の検査に通らなかった");
+    expect(seen).toEqual([]);
+  });
+
+  it("生成器が入っていなければ exit 3 で入れ方を出す。撮らない", async () => {
+    const seen: Shot[] = [];
+    const report = reportDiagram(
+      await makeDiagram(
+        { type: "flow", spec: specOf("flow-lanes"), out: "a.png" },
+        context({ generator: join(root, "not-installed.mjs") }),
+        fakeShoot(seen),
+      ),
+    );
+    expect(report).toEqual({
+      exitCode: 3,
+      out: [],
+      err: [GENERATOR_MISSING],
+    });
     expect(seen).toEqual([]);
   });
 });
@@ -268,20 +139,17 @@ describe("diagram の引数", () => {
     });
   });
 
-  it("--out の拡張子で Export の形式を選ぶ", async () => {
-    installFake(join(home, ".claude", "skills", "archify"));
-    const seen: ExportRequest[] = [];
-    await makeDiagram(
-      { ...options, out: "a.webp" },
-      context(),
-      fakeExport(seen),
-    );
-    await makeDiagram(
-      { ...options, out: "b.JPG" },
-      context(),
-      fakeExport(seen),
-    );
-    expect(seen.map((request) => request.format)).toEqual(["webp", "jpeg"]);
+  it("--out の拡張子で形式を選ぶ", async () => {
+    const seen: Shot[] = [];
+    const draw = (out: string) =>
+      makeDiagram(
+        { type: "state", spec: specOf("state"), out },
+        context(),
+        fakeShoot(seen),
+      );
+    await draw("a.webp");
+    await draw("b.JPG");
+    expect(seen.map(({ request }) => request.format)).toEqual(["webp", "jpeg"]);
   });
 
   it("1MB を超えたら .webp を勧め、3MB を超えたら取り込めないと知らせる", () => {
@@ -304,9 +172,14 @@ describe("diagram の引数", () => {
     expect(
       parseCli(["diagram", "gantt", "spec.json", "--out", "a.png"]).success,
     ).toBe(false);
+    // 前は別の道具で描いていた種類の名前は、もう受けない
     expect(
-      parseCli(["diagram", "workflow", "spec.json", "--out", "a.svg"]).success,
+      parseCli(["diagram", "architecture", "spec.json", "--out", "a.png"])
+        .success,
     ).toBe(false);
-    expect(parseCli(["diagram", "workflow", "spec.json"]).success).toBe(false);
+    expect(
+      parseCli(["diagram", "flow", "spec.json", "--out", "a.svg"]).success,
+    ).toBe(false);
+    expect(parseCli(["diagram", "flow", "spec.json"]).success).toBe(false);
   });
 });

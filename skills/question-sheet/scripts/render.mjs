@@ -1,4 +1,3 @@
-import { renderExplorer } from "./explorer.mjs";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
@@ -101,9 +100,6 @@ export const render = (
 ) => {
 	checkLayout(layout);
 	const doc = validateDocument(input);
-	const explorers = Object.fromEntries(
-		(doc.explorers ?? []).map((e) => [e.id, renderExplorer(e.spec)]),
-	);
 	const visuals = Object.fromEntries(
 		doc.questions
 			.filter((q) => q.visual)
@@ -141,7 +137,6 @@ export const render = (
 		doc,
 		digest: digestOf(doc),
 		visuals,
-		explorers,
 		endpoint,
 		layout,
 	})

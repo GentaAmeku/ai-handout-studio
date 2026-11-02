@@ -42,7 +42,6 @@ const makeClone = (): void => {
   touch(join(repo, "scripts", "cli.mjs"), "#!/usr/bin/env node\n");
   touch(join(repo, "skills", "ai-handout-studio", "SKILL.md"));
   touch(join(repo, "skills", "question-sheet", "SKILL.md"));
-  touch(join(repo, "skills", "diagram", "SKILL.md"));
   ["ja", "en"].forEach((locale) => {
     const name = `agent-instructions.${locale}.md`;
     mkdirSync(join(repo, "setup"), { recursive: true });
@@ -69,7 +68,7 @@ const linkCommand = (): void => {
 
 const linkSkills = (skillsDir: string): void => {
   mkdirSync(skillsDir, { recursive: true });
-  ["ai-handout-studio", "question-sheet", "diagram"].forEach((skill) => {
+  ["ai-handout-studio", "question-sheet"].forEach((skill) => {
     symlinkSync(join(repo, "skills", skill), join(skillsDir, skill));
   });
 };
@@ -89,18 +88,17 @@ const writeProfile = (profile: object): void => {
 const instructionsBlock = (): string =>
   readFileSync(join(realRepo, "setup", "agent-instructions.en.md"), "utf8");
 
-// 選ぶところを全部決めた profile。archify・mod・ベクトル検索は断ったことにする(入れる形は各テストで作る)
+// 選ぶところを全部決めた profile。mod・ベクトル検索は断ったことにする(入れる形は各テストで作る)
 const DECIDED = {
   orgName: "",
   locale: "en",
   features: { lan: false, imageGeneration: false, share: false },
-  archify: "declined",
   mods: { claude: "declined" },
   vectorSearch: "declined",
 };
 
-// mod が加わる前に済ませたセットアップの profile(archify と mod を決めていない)
-const { archify: _archify, mods: _mods, ...BEFORE_OFFERS } = DECIDED;
+// mod が加わる前に済ませたセットアップの profile(mod を決めていない)
+const { mods: _mods, ...BEFORE_OFFERS } = DECIDED;
 
 // ハーネスのほかはそろった環境
 const makeBase = (): void => {
@@ -322,7 +320,6 @@ describe("doctor の各項目", () => {
       join(repo, "skills", "question-sheet"),
       join(skillsDir, "question-sheet"),
     );
-    symlinkSync(join(repo, "skills", "diagram"), join(skillsDir, "diagram"));
     const result = await runDoctor(context());
     const codex = result.checks.find((item) => item.id === "skills-agents");
     expect(codex?.status).toBe("outdated");
@@ -469,31 +466,9 @@ describe("doctor の各項目", () => {
     expect(declined.report.ok).toBe(true);
   });
 
-  it("archify は入れるか断るまで節9の missing で入れ方と断り方を出し、断れば skipped、あれば ok", async () => {
-    makeReady();
-    writeProfile({ ...BEFORE_OFFERS, mods: { claude: "declined" } });
-    const without = await runDoctor(context());
-    expect(statusOf(without, "archify")).toBe("missing");
-    const detail = without.checks.find((item) => item.id === "archify")?.detail;
-    expect(detail).toContain("npx skills add tt-a1i/archify -g");
-    expect(detail).toContain("settings --set archify=declined");
-    expect(without.next?.section).toBe(9);
-
-    writeProfile(DECIDED);
-    const declined = await runDoctor(context());
-    expect(statusOf(declined, "archify")).toBe("skipped");
-    expect(declined.ok).toBe(true);
-
-    const archify = join(home, ".agents", "skills", "archify");
-    touch(join(archify, "SKILL.md"));
-    touch(join(archify, "bin", "archify.mjs"));
-    const withArchify = await runDoctor(context());
-    expect(statusOf(withArchify, "archify")).toBe("ok");
-  });
-
   it("Claude Code の mod は入れるか断るまで節9の missing で入れ方と断り方を出し、断れば skipped、あれば ok", async () => {
     makeReady();
-    writeProfile({ ...BEFORE_OFFERS, archify: "declined" });
+    writeProfile(BEFORE_OFFERS);
     const without = await runDoctor(context());
     expect(statusOf(without, "mod-claude")).toBe("missing");
     const detail = without.checks.find(
@@ -1059,21 +1034,14 @@ describe("doctor --uninstall", () => {
     expect(none?.status).toBe("ok");
   });
 
-  it("clone の外に何も無ければ ok。archify と資料は warn で伝え、止めない", async () => {
+  it("clone の外に何も無ければ ok。資料は warn で伝え、止めない", async () => {
     makeUninstalled();
     mkdirSync(join(workspace, "decks", "deck_1"), { recursive: true });
     mkdirSync(join(workspace, "documents", "doc_1"), { recursive: true });
     mkdirSync(join(workspace, "documents", "doc_2"), { recursive: true });
-    const archify = join(home, ".agents", "skills", "archify");
-    touch(join(archify, "SKILL.md"));
-    touch(join(archify, "bin", "archify.mjs"));
     const result = await runUninstallDoctor(down());
     expect(result.ok).toBe(true);
     expect(result.next).toBeNull();
-    expect(statusOf(result, "archify")).toBe("warn");
-    expect(detailOf(result, "archify")).toContain(
-      "npx skills remove archify archify-review -g -y",
-    );
     expect(statusOf(result, "workspace")).toBe("warn");
     expect(detailOf(result, "workspace")).toContain(
       "slides: 1, HTML handouts: 2, question sheets: 0",
@@ -1103,7 +1071,7 @@ describe("doctor のチェックリスト", () => {
     expect(lines.slice(2)).toHaveLength(9);
     expect(lines[2]).toBe("- [x] 2. Prerequisites");
     expect(lines).toContain(
-      "- [ ] 9. Optional features (to do: archify, mod-claude) ← next",
+      "- [ ] 9. Optional features (to do: mod-claude) ← next",
     );
     expect(lines).toContain("- [x] 10. Start and check");
   });
