@@ -1,0 +1,26 @@
+{
+  "type": "flow",
+  "title": "注文の流れで変わるところ",
+  "caption": "注文の流れがどう変わるかを示す例。調べる範囲を全店に広げ、発送できるかの判定と入荷待ちの案内を足す。",
+  "nodes": [
+    { "id": "order", "label": "注文を受け取る", "role": "external" },
+    { "id": "check", "label": "注文の中身を確かめる", "role": "process" },
+    { "id": "old", "label": "本店の在庫だけ調べる", "role": "process", "change": "removed" },
+    { "id": "stock", "label": "全店の在庫を調べる", "role": "process", "change": "new" },
+    { "id": "judge", "label": "すぐ発送できる？", "role": "decision", "change": "new" },
+    { "id": "ng", "label": "入荷待ちの案内を書く", "role": "output", "change": "new" },
+    { "id": "mail", "label": "注文者にメールを送る", "sub": "メールの型を変える", "role": "output", "change": "changed" },
+    { "id": "read", "label": "注文者が確認する", "role": "user" }
+  ],
+  "edges": [
+    { "from": "order", "to": "check" },
+    { "from": "check", "to": "stock", "change": "new" },
+    { "from": "check", "to": "old", "change": "removed" },
+    { "from": "stock", "to": "judge", "change": "new" },
+    { "from": "judge", "to": "mail", "label": "できる", "change": "new" },
+    { "from": "judge", "to": "ng", "label": "できない", "change": "new" },
+    { "from": "ng", "to": "mail", "change": "new" },
+    { "from": "old", "to": "mail", "change": "removed" },
+    { "from": "mail", "to": "read" }
+  ]
+}

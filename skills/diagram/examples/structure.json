@@ -1,0 +1,32 @@
+{
+  "type": "structure",
+  "title": "注文の処理に関わる部品",
+  "caption": "注文を処理する仕組みの部品と、そのつながりの例。新しく足すのは在庫の引き当てだけで、文面の雛形とメールの型を直す。",
+  "nodes": [
+    { "id": "shop", "label": "店舗のサイト", "role": "external" },
+    { "id": "mail", "label": "注文者へのメール", "role": "output", "change": "changed" },
+    { "id": "accept", "label": "注文の受け付け", "role": "process" },
+    { "id": "worker", "label": "注文の処理", "role": "process" },
+    { "id": "template", "label": "文面の雛形", "sub": "template.md", "role": "output", "change": "changed" },
+    { "id": "payment", "label": "支払いの確認", "sub": "payment.py", "role": "process" },
+    { "id": "alloc", "label": "在庫の引き当て", "sub": "stock.py", "role": "process", "change": "new" },
+    { "id": "stock", "label": "在庫のデータ", "role": "data" },
+    { "id": "arrival", "label": "入荷の予定", "sub": "arrivals/", "role": "data" }
+  ],
+  "boundaries": [
+    { "label": "外部", "nodes": ["shop", "mail"] },
+    { "label": "注文サーバー", "nodes": ["accept", "worker"] },
+    { "label": "処理の部品", "nodes": ["template", "payment", "alloc"] },
+    { "label": "データ", "nodes": ["stock", "arrival"] }
+  ],
+  "edges": [
+    { "from": "shop", "to": "accept", "label": "注文時に起動" },
+    { "from": "accept", "to": "worker" },
+    { "from": "worker", "to": "template", "label": "読む" },
+    { "from": "worker", "to": "payment", "label": "実行" },
+    { "from": "worker", "to": "alloc", "label": "実行", "change": "new" },
+    { "from": "alloc", "to": "stock", "change": "new" },
+    { "from": "alloc", "to": "arrival", "change": "new" },
+    { "from": "worker", "to": "mail", "label": "送信" }
+  ]
+}

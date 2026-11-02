@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { parseCli } from "./deck-cli";
 import {
@@ -17,6 +18,7 @@ import {
   type ExportRequest,
   makeDiagram,
   reportDiagram,
+  type ShootRequest,
 } from "./diagram";
 
 // archify は別の作者のスキルなので、一時のフォルダに偽物を置いて探し方と終了コードを確かめる。
@@ -183,6 +185,70 @@ describe("diagram の spec の検査", () => {
     expect(report.out).toEqual([]);
     expect(report.err.join("\n")).toContain('meta.visual_preset("editorial")');
     expect(existsSync(join(archify, "args.json"))).toBe(false);
+    expect(seen).toEqual([]);
+  });
+});
+
+describe("diagram の生成器の図", () => {
+  const specOf = (name: string): string =>
+    fileURLToPath(
+      new URL(`../../skills/diagram/examples/${name}.json`, import.meta.url),
+    );
+  const fakeShoot =
+    (seen: { request: ShootRequest; svg: string }[]) =>
+    async (request: ShootRequest) => {
+      seen.push({ request, svg: readFileSync(request.svg, "utf8") });
+      return { path: request.out, bytes: 24, width: 2000, height: 1000 };
+    };
+
+  it("archify が無くても描ける。題と説明は図の中に描かない", async () => {
+    const seen: { request: ShootRequest; svg: string }[] = [];
+    const outcome = await makeDiagram(
+      {
+        type: "structure",
+        spec: specOf("structure"),
+        out: "out/diagram.webp",
+      },
+      context(),
+      fakeExport([]),
+      fakeShoot(seen),
+    );
+    expect(seen.map(({ request }) => request.format)).toEqual(["webp"]);
+    expect(seen[0]?.request.out).toBe(join(project, "out", "diagram.webp"));
+    expect(seen[0]?.svg).toContain("<svg");
+    expect(seen[0]?.svg).not.toContain('class="title"');
+    expect(reportDiagram(outcome).exitCode).toBe(0);
+  });
+
+  it("archify の種類には生成器を使わない", async () => {
+    const shots: { request: ShootRequest; svg: string }[] = [];
+    const outcome = await makeDiagram(
+      options,
+      context(),
+      fakeExport([]),
+      fakeShoot(shots),
+    );
+    expect(outcome.kind).toBe("missing");
+    expect(shots).toEqual([]);
+  });
+
+  it("検査に通らなければ指摘をそのまま出して exit 1。撮らない", async () => {
+    const seen: { request: ShootRequest; svg: string }[] = [];
+    writeFileSync(
+      join(project, "broken.json"),
+      JSON.stringify({ type: "flow", title: "題", nodes: [], edges: [] }),
+    );
+    const report = reportDiagram(
+      await makeDiagram(
+        { type: "flow", spec: "broken.json", out: "a.png" },
+        context(),
+        fakeExport([]),
+        fakeShoot(seen),
+      ),
+    );
+    expect(report.exitCode).toBe(1);
+    expect(report.err.join("\n")).toContain("caption");
+    expect(report.err.join("\n")).toContain("生成器の検査に通らなかった");
     expect(seen).toEqual([]);
   });
 });

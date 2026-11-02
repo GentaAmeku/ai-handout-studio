@@ -16,7 +16,8 @@
       "!design/sheet-sample.html",
       "!mocks",
       "!workspace",
-      "!skills/question-sheet"
+      "!skills/question-sheet",
+      "!skills/diagram"
     ]
   },
   "formatter": {

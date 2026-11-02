@@ -1,0 +1,18 @@
+{
+  "type": "flow",
+  "title": "記事が公開されるまで(縦)",
+  "caption": "縦にするのは、このくらい短い流れだけにする例。編集長の確認を通った記事だけが公開される。",
+  "direction": "down",
+  "nodes": [
+    { "id": "write", "label": "編集者が記事を書く", "role": "user" },
+    { "id": "review", "label": "編集長が確認する", "role": "decision" },
+    { "id": "publish", "label": "記事を公開する", "role": "process" },
+    { "id": "notify", "label": "公開を知らせる", "role": "output" }
+  ],
+  "edges": [
+    { "from": "write", "to": "review" },
+    { "from": "review", "to": "publish", "label": "問題なし" },
+    { "from": "review", "to": "write", "label": "直す" },
+    { "from": "publish", "to": "notify" }
+  ]
+}

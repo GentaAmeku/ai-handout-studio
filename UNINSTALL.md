@@ -69,12 +69,12 @@ Cursor CLI keeps its instructions in User Rules in its settings, not in a file. 
 
 ## 4. Skills
 
-doctor checks that both skill folders (`skills-agents`: `~/.agents/skills/`, read by Codex CLI, OpenCode, Gemini CLI and Cursor CLI; `skills-claude`: `~/.claude/skills/`, read by Claude Code and Grok CLI) have no `ai-handout-studio` or `question-sheet` link pointing to this repository, and that `~/.claude/skills/` has no `handout-watch` link (the Claude Code mod from setup section 9) pointing to it. Broken links (left behind by a deleted clone) are removed too.
+doctor checks that both skill folders (`skills-agents`: `~/.agents/skills/`, read by Codex CLI, OpenCode, Gemini CLI and Cursor CLI; `skills-claude`: `~/.claude/skills/`, read by Claude Code and Grok CLI) have no `ai-handout-studio`, `question-sheet` or `diagram` link pointing to this repository, and that `~/.claude/skills/` has no `handout-watch` link (the Claude Code mod from setup section 9) pointing to it. Broken links (left behind by a deleted clone) are removed too.
 
 ```bash
 # remove only the links named in the detail
-rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/handout-watch
-rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet
+rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/diagram ~/.claude/skills/handout-watch
+rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet ~/.agents/skills/diagram
 ```
 
 - Pass `rm` the link name as it is. Never add `-r` or a trailing `/`: that would delete what the link points to (this repository's `skills/` or `mods/`).

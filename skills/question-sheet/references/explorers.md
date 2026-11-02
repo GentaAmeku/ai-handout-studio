@@ -2,7 +2,7 @@
 
 動く例は[explorer.json](../examples/explorer.json)。通常はdecisionの強調図で判断する。
 
-全体図(`explorers`)は古い質問票を読むために残している形で、新しく作る質問票では使わない。ai-handout-studioに保存した質問票では中身が描かれないため。構成や経路の図が要るときは、Archifyの図を画像にして`visual.type: images`で載せる(SKILL.mdの「Archifyの図を載せる」)。下の全体図の説明は、古い質問票を読み直すときのためのもの。
+全体図(`explorers`)は古い質問票を読むために残している形で、新しく作る質問票では使わない。ai-handout-studioに保存した質問票では中身が描かれないため。構成や経路の図が要るときは、図を画像にして`visual.type: images`で載せる(SKILL.mdの「図を画像で載せる」)。下の全体図の説明は、古い質問票を読み直すときのためのもの。
 
 visualのtypeをdecisionにし、caption（140字）、steps（2〜6段）、focus（強調する段ID）、任意のtable（2列×1〜4行）を置く。stepsは{id,label,role?}で、label40字、role30字。tableの各セルは80字まで。focusは選択値ではなく説明上の判断点。推奨案の欠点を隠したり、全項目を強調したりしない。
 

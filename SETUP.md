@@ -82,7 +82,7 @@ If doctor says `outdated`, the command points to another clone. Replace the link
 
 ## 6. Skills
 
-doctor finds the agents that are set up (their configuration folder exists: `~/.claude` for Claude Code, `$CODEX_HOME` or `~/.codex` for Codex CLI, `$XDG_CONFIG_HOME/opencode` or `~/.config/opencode` for OpenCode, `~/.gemini` for Gemini CLI, `~/.cursor` for Cursor CLI, `~/.grok` for Grok CLI). Every agent reads one of two skills folders. For each folder an installed agent reads, doctor checks that both skills are linked there and point to this repository. A folder no installed agent reads is `skipped`. If none of the folders exists, ask the user to install one of the agents and start it once.
+doctor finds the agents that are set up (their configuration folder exists: `~/.claude` for Claude Code, `$CODEX_HOME` or `~/.codex` for Codex CLI, `$XDG_CONFIG_HOME/opencode` or `~/.config/opencode` for OpenCode, `~/.gemini` for Gemini CLI, `~/.cursor` for Cursor CLI, `~/.grok` for Grok CLI). Every agent reads one of two skills folders. For each folder an installed agent reads, doctor checks that all three skills are linked there and point to this repository. A folder no installed agent reads is `skipped`. If none of the folders exists, ask the user to install one of the agents and start it once.
 
 | Skills folder (check) | Read by |
 | --- | --- |
@@ -94,11 +94,13 @@ doctor finds the agents that are set up (their configuration folder exists: `~/.
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
+ln -sfn "$PWD/skills/diagram" ~/.agents/skills/diagram
 
 # ~/.claude/skills (Claude Code, Grok CLI)
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
+ln -sfn "$PWD/skills/diagram" ~/.claude/skills/diagram
 ```
 
 - A `~/.claude` that holds nothing but `skills` (made by the links above for Grok CLI) does not count as Claude Code.
@@ -170,7 +172,7 @@ Record what the user declined, so that doctor stops asking (to be asked again la
 ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
 ```
 
-With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw architecture, sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; diagrams fall back to tables, text and the bundled flow figures. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, record `archify=declined`.
+With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; flow, structure and before/after diagrams come from the bundled `diagram` skill, and the rest fall back to tables and text. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, record `archify=declined`.
 
 ```bash
 npx skills add tt-a1i/archify -g

@@ -19,7 +19,7 @@
     "format": "biome check --write .",
     "start": "vite preview",
     "test:export": "vitest run --config vitest.export.config.ts",
-    "test:skills": "node --test skills/question-sheet/tests/*.test.mjs",
+    "test:skills": "node --test skills/question-sheet/tests/*.test.mjs skills/diagram/tests/*.test.mjs",
     "test:mod": "node scripts/test-mod.mjs",
     "deck:check": "tsx scripts/deck-check.ts",
     "schema:export": "tsx scripts/export-schema.ts && biome format --write skills/ai-handout-studio/deck.schema.json skills/ai-handout-studio/patch.schema.json skills/ai-handout-studio/document.schema.json skills/ai-handout-studio/document-patch.schema.json",
