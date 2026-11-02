@@ -23,7 +23,7 @@
 
 `ok` が `true` になったら、この回で済ませた節があればチェックリストをもう一度見せる。`warn` の項目があれば、1つずつ利用者に伝える(止めないが、利用者が手を打ちたいことがある)。
 
-`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い、またはまだ決めていない)・`outdated`(古い・別の場所を指す)・`skipped`(入っているエージェントが読まないスキルの置き場、共通指示をファイルに置けないエージェント、利用者が断ったもの: 共通指示の段落・archify・mod)・`warn`(伝えておくが止めない)。
+`checks` は項目ごとの `status` を持つ。`ok`・`missing`(無い、またはまだ決めていない)・`outdated`(古い・別の場所を指す)・`skipped`(入っているエージェントが読まないスキルの置き場、共通指示をファイルに置けないエージェント、利用者が断ったもの: 共通指示の段落・mod)・`warn`(伝えておくが止めない)。
 
 利用者への約束:
 
@@ -82,7 +82,7 @@ ln -sfn "$PWD/scripts/cli.mjs" ~/.local/bin/ai-handout-studio
 
 ## 6. スキル
 
-doctor は、入っているエージェント(設定のフォルダがあるもの。Claude Code は `~/.claude`、Codex CLI は `$CODEX_HOME` か `~/.codex`、OpenCode は `$XDG_CONFIG_HOME/opencode` か `~/.config/opencode`、Gemini CLI は `~/.gemini`、Cursor CLI は `~/.cursor`、Grok CLI は `~/.grok`)を調べる。どのエージェントも、2つあるスキルの置き場のどちらかを読む。入っているエージェントが読む置き場ごとに、3つのスキルのリンクがあり、このリポジトリを指すことを確かめる。どのエージェントも読まない置き場は `skipped`。設定のフォルダが1つも無ければ、どれかのエージェントを入れて一度起動してもらう。
+doctor は、入っているエージェント(設定のフォルダがあるもの。Claude Code は `~/.claude`、Codex CLI は `$CODEX_HOME` か `~/.codex`、OpenCode は `$XDG_CONFIG_HOME/opencode` か `~/.config/opencode`、Gemini CLI は `~/.gemini`、Cursor CLI は `~/.cursor`、Grok CLI は `~/.grok`)を調べる。どのエージェントも、2つあるスキルの置き場のどちらかを読む。入っているエージェントが読む置き場ごとに、2つのスキルのリンクがあり、このリポジトリを指すことを確かめる。どのエージェントも読まない置き場は `skipped`。設定のフォルダが1つも無ければ、どれかのエージェントを入れて一度起動してもらう。
 
 | スキルの置き場(検査) | 読むエージェント |
 | --- | --- |
@@ -94,13 +94,11 @@ doctor は、入っているエージェント(設定のフォルダがあるも
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
-ln -sfn "$PWD/skills/diagram" ~/.agents/skills/diagram
 
 # ~/.claude/skills(Claude Code・Grok CLI)
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
-ln -sfn "$PWD/skills/diagram" ~/.claude/skills/diagram
 ```
 
 - `skills` しか無い `~/.claude`(Grok CLI のために上のリンクを張るとできる)は、Claude Code とみなさない。
@@ -150,7 +148,7 @@ ai-handout-studio settings --set agentInstructions=declined
 
 ## 9. 任意の機能
 
-doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。archify(別の作者のスキル)と、Claude Code が入っていればこのリポジトリの Claude Code の mod(`mod-claude`)、ベクトル検索(`vector-search`。Ollama と埋め込みモデル)も見る。どれも、入っていれば `ok`、利用者が断っていれば `skipped`、そのどちらでもないうちは `missing`。更新のあとに流し直したセットアップは、新しい版で項目が増えるとこの節に戻る。
+doctor は `features.lan`・`features.imageGeneration`・`features.share` が決まっている(`true` か `false`)ことを確かめる。Claude Code が入っていればこのリポジトリの Claude Code の mod(`mod-claude`)、ベクトル検索(`vector-search`。Ollama と埋め込みモデル)も見る。どれも、入っていれば `ok`、利用者が断っていれば `skipped`、そのどちらでもないうちは `missing`。更新のあとに流し直したセットアップは、新しい版で項目が増えるとこの節に戻る。
 
 この節で doctor が `missing` と返した項目を、1枚の質問票でまとめて聞く。決まっている項目は聞き直さない(question-sheet スキル。質問の JSON を書いて `ai-handout-studio sheet new` で保存し、`readUrl` を伝える。貼られた回答は `ai-handout-studio sheet answers` で残す)。危うさは質問の中に書く。
 
@@ -169,13 +167,7 @@ ai-handout-studio settings --set features.lan=false --set features.imageGenerati
 利用者が断ったものは記録し、doctor がもう聞かないようにする(あとでまた聞いてほしくなったら `ask` に戻す)。
 
 ```bash
-ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
-```
-
-archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントがシーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、流れ・構成・比較の図は同梱の `diagram` スキルで描き、残りは表や文で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら `archify=declined` を記録する。
-
-```bash
-npx skills add tt-a1i/archify -g
+ai-handout-studio settings --set mods.claude=declined --set vectorSearch=declined
 ```
 
 Claude Code の mod `handout-watch`(このリポジトリの `mods/`)を入れると、Claude Code(ターミナルとデスクトップアプリの Code タブ)の入力欄の上に、その会話で作った・直した資料(HTML 資料・スライド・質問票)が、読む・直す・回答するリンクつきで出る。`/handout-watch` で横のパネルに一覧も開ける。入れなくても資料は作れる。`mod-claude` が `missing` のときだけ聞く(Claude Code が入っていないか、利用者が断っていれば `skipped`)。質問では、何を出すかと、何を読むか(会話で Claude が走らせる `ai-handout-studio` のコマンドと書く資料のファイル、`workspace/` の資料)を書く。利用者の権限で Claude Code の中で動き、この PC の外へは何も送らない。Claude Code 2.1.287 以降が要る(`claude --version` が古ければ doctor の detail に出る)。入れると答えたときだけ、次を実行する。断られたら `mods.claude=declined` を記録する。節6のスキルと同じくリンクで入れるので、`git pull` でそのまま新しくなる。次に起こした Claude Code の会話から効く(開いているターミナルの会話では `/reload-plugins`)。

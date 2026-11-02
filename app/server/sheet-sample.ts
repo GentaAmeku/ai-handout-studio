@@ -70,7 +70,6 @@ const sample: SheetDocument = {
           text: "案Aだけでは処理時間は短くなりません。速さも求める場合は、追加作業を別途判断します。",
         },
       ],
-      explorer: true,
       evidence: [
         {
           label: "図の位置づけ",

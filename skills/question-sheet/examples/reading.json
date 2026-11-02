@@ -5,92 +5,6 @@
   "title": "更新の進め方を決める",
   "description": "合成の見本です。検証結果と変更範囲を確認してから、回答を選んでください。",
   "context": "合成の相談です。回答による外部操作はありません。",
-  "explorers": [
-    {
-      "id": "architecture",
-      "spec": {
-        "schema_version": 1,
-        "diagram_type": "architecture",
-        "meta": {
-          "title": "更新範囲を3案で比較する",
-          "animation": "none",
-          "quality_profile": "showcase",
-          "visual_preset": "signal-flow",
-          "legend": {
-            "mode": "auto"
-          }
-        },
-        "components": [
-          {
-            "id": "start",
-            "type": "frontend",
-            "label": "現状",
-            "pos": [
-              50,
-              210
-            ],
-            "size": [
-              150,
-              70
-            ]
-          },
-          {
-            "id": "a",
-            "type": "backend",
-            "label": "案A：設定を修正",
-            "pos": [
-              300,
-              60
-            ],
-            "size": [
-              220,
-              70
-            ]
-          },
-          {
-            "id": "b",
-            "type": "backend",
-            "label": "案B：環境を分ける",
-            "pos": [
-              300,
-              210
-            ],
-            "size": [
-              220,
-              70
-            ]
-          },
-          {
-            "id": "c",
-            "type": "backend",
-            "label": "案C：実行ツールも移行",
-            "pos": [
-              300,
-              360
-            ],
-            "size": [
-              220,
-              70
-            ]
-          }
-        ],
-        "connections": [
-          {
-            "from": "start",
-            "to": "a"
-          },
-          {
-            "from": "start",
-            "to": "b"
-          },
-          {
-            "from": "start",
-            "to": "c"
-          }
-        ]
-      }
-    }
-  ],
   "questions": [
     {
       "id": "version",
@@ -153,7 +67,6 @@
           ]
         ]
       },
-      "explorer": "architecture",
       "detail": "案Aは、設定の修正と不要なコメントの削除で検証が通った想定です。変更範囲を限定できますが、処理時間の短縮は今回の対象に含みません。\n\n案Bは、型チェック用の環境を分ける想定です。実行方法を保てる一方、複数の環境を管理する手順が必要になります。案Cは、実行ツールも移行する想定です。関連するスクリプトの動作確認を含めて範囲を決めます。",
       "notices": [
         {

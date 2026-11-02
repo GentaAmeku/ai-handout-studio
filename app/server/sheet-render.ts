@@ -192,9 +192,6 @@ const questionCard = (
       : "",
     visual ? `<div class="ds-inline-visual">${visual}</div>` : "",
     rest,
-    question.explorer
-      ? `<h3 class="ds-section-heading">${escapeHtml(t.explorerHeading)}</h3><details class="ds-explorer"><summary>${escapeHtml(t.explorerOpen)}</summary></details>`
-      : "",
     (question.evidence ?? [])
       .map(
         (item) =>

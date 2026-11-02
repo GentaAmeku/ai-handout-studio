@@ -23,7 +23,7 @@ Then repeat this loop until `ok` is `true`:
 
 When `ok` is `true`, show the checklist again if you finished any section in this run, and tell the user about each `warn` check (it does not block, but the user may want to act on it).
 
-`checks` lists every item with `status`: `ok`, `missing` (not there, or a choice not made yet), `outdated`, `skipped` (a skills folder no installed agent reads, an agent whose instructions cannot live in a file, or something the user declined: the instructions block, archify or the mod) or `warn` (worth mentioning, but it does not block).
+`checks` lists every item with `status`: `ok`, `missing` (not there, or a choice not made yet), `outdated`, `skipped` (a skills folder no installed agent reads, an agent whose instructions cannot live in a file, or something the user declined: the instructions block or the mod) or `warn` (worth mentioning, but it does not block).
 
 Promises to the user:
 
@@ -82,7 +82,7 @@ If doctor says `outdated`, the command points to another clone. Replace the link
 
 ## 6. Skills
 
-doctor finds the agents that are set up (their configuration folder exists: `~/.claude` for Claude Code, `$CODEX_HOME` or `~/.codex` for Codex CLI, `$XDG_CONFIG_HOME/opencode` or `~/.config/opencode` for OpenCode, `~/.gemini` for Gemini CLI, `~/.cursor` for Cursor CLI, `~/.grok` for Grok CLI). Every agent reads one of two skills folders. For each folder an installed agent reads, doctor checks that all three skills are linked there and point to this repository. A folder no installed agent reads is `skipped`. If none of the folders exists, ask the user to install one of the agents and start it once.
+doctor finds the agents that are set up (their configuration folder exists: `~/.claude` for Claude Code, `$CODEX_HOME` or `~/.codex` for Codex CLI, `$XDG_CONFIG_HOME/opencode` or `~/.config/opencode` for OpenCode, `~/.gemini` for Gemini CLI, `~/.cursor` for Cursor CLI, `~/.grok` for Grok CLI). Every agent reads one of two skills folders. For each folder an installed agent reads, doctor checks that both skills are linked there and point to this repository. A folder no installed agent reads is `skipped`. If none of the folders exists, ask the user to install one of the agents and start it once.
 
 | Skills folder (check) | Read by |
 | --- | --- |
@@ -94,13 +94,11 @@ doctor finds the agents that are set up (their configuration folder exists: `~/.
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
-ln -sfn "$PWD/skills/diagram" ~/.agents/skills/diagram
 
 # ~/.claude/skills (Claude Code, Grok CLI)
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
-ln -sfn "$PWD/skills/diagram" ~/.claude/skills/diagram
 ```
 
 - A `~/.claude` that holds nothing but `skills` (made by the links above for Grok CLI) does not count as Claude Code.
@@ -150,7 +148,7 @@ To be asked again later: `ai-handout-studio settings --set agentInstructions=ask
 
 ## 9. Optional features
 
-doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks archify (a skill by another author), this repository's Claude Code mod (`mod-claude`) when Claude Code is set up, and vector search (`vector-search`: Ollama and an embedding model): each is `ok` when installed, `skipped` when the user declined it, and `missing` until then. A setup run again after an update comes back here when a newer version adds an item.
+doctor checks that `features.lan`, `features.imageGeneration` and `features.share` are decided (`true` or `false`). It also checks this repository's Claude Code mod (`mod-claude`) when Claude Code is set up, and vector search (`vector-search`: Ollama and an embedding model): each is `ok` when installed, `skipped` when the user declined it, and `missing` until then. A setup run again after an update comes back here when a newer version adds an item.
 
 Ask about every item in this section that doctor reports as `missing`, at once with a question sheet, and leave out the ones already decided (question-sheet skill: write the questions JSON, save it with `ai-handout-studio sheet new`, and give the user the `readUrl`; record the pasted answers with `ai-handout-studio sheet answers`). Write the risks into each question:
 
@@ -169,13 +167,7 @@ ai-handout-studio settings --set features.lan=false --set features.imageGenerati
 Record what the user declined, so that doctor stops asking (to be asked again later, set it back to `ask`):
 
 ```bash
-ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
-```
-
-With archify ([tt-a1i/archify](https://github.com/tt-a1i/archify), MIT), the agent can draw sequence, data-flow and lifecycle diagrams and put them into slides, HTML documents and question sheets as images (`ai-handout-studio diagram`). Handouts work without it; flow, structure and before/after diagrams come from the bundled `diagram` skill, and the rest fall back to tables and text. In the question, say what it adds and that it is a skill by another author that this repository does not bundle. Install it only if the user says yes; if they decline, record `archify=declined`.
-
-```bash
-npx skills add tt-a1i/archify -g
+ai-handout-studio settings --set mods.claude=declined --set vectorSearch=declined
 ```
 
 The Claude Code mod `handout-watch` (in this repository's `mods/`) shows, above the prompt in Claude Code (the terminal and the desktop app's Code tab), the handouts made or changed in the current conversation (HTML handouts, slides and question sheets), with links to read, edit or answer them; `/handout-watch` lists them in a side pane. Handouts work without it. Ask only when `mod-claude` is `missing` (it is `skipped` when Claude Code is not set up or the user declined it). In the question, say what it shows and what it reads: the `ai-handout-studio` commands and the handout files that Claude writes in the conversation, and the handouts in `workspace/`. It runs with the user's permissions inside Claude Code and sends nothing outside this computer. It needs Claude Code 2.1.287 or later (doctor's detail says so when `claude --version` is older). Install it only if the user says yes; if they decline, record `mods.claude=declined`. It is linked like the skills in section 6, so `git pull` keeps it current. It loads in new Claude Code sessions (in an open terminal session, `/reload-plugins`).

@@ -1,6 +1,9 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import type { SheetDocument } from "../src/schema/sheet.ts";
+import {
+  type SheetDocument,
+  sheetDocumentSchema,
+} from "../src/schema/sheet.ts";
 import { sheetBody, sheetView } from "./sheet-render.ts";
 
 const doc: SheetDocument = {
@@ -20,6 +23,23 @@ const doc: SheetDocument = {
     },
   ],
 };
+
+// 全体図は描かなくなった。前に保存した質問票は、項目が残っていても読める
+describe("前の質問票の全体図", () => {
+  it("explorer の項目があっても読めて、何も描かない", () => {
+    const old = sheetDocumentSchema.parse({
+      ...doc,
+      explorers: [{ id: "map", spec: {} }],
+      questions: doc.questions.map((question) => ({
+        ...question,
+        explorer: "map",
+      })),
+    });
+    expect(sheetBody(sheetView(old, undefined), "focus", true)).not.toContain(
+      "ds-explorer",
+    );
+  });
+});
 
 // 設定の組織名は題名の上に、HTML 資料の署名の行と同じ形で出す
 describe("質問票の組織名", () => {

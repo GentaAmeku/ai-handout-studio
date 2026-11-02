@@ -10,7 +10,6 @@
 .ds-board {
   --board-table-min: 40em;
   --board-visual-height: 320px;
-  --board-explorer-height: 600px;
   --board-choice-min: 16em;
   --board-wide: 1200px;
   --control-height: 40px;
@@ -968,7 +967,6 @@ body:has(> .ds-board) {
   .ds-page-navigation,
   .ds-copy-fallback,
   .ds-board-tools,
-  .ds-explorer,
   .ds-section-heading {
     display: none;
   }
@@ -1015,31 +1013,6 @@ body:has(> .ds-board) {
 
 .ds-cell-warning {
   color: var(--color-warning);
-}
-
-/* ---------- 全体図 ---------- */
-
-.ds-explorer {
-  margin: var(--space-gap) 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-sm);
-  background: var(--color-surface);
-}
-
-.ds-explorer > summary {
-  color: var(--color-primary-strong);
-  font-weight: 700;
-}
-
-.ds-explorer iframe {
-  display: block;
-  width: 100%;
-  height: var(--board-explorer-height);
-  margin-top: var(--space-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
 }
 
 /* ---------- 動き ---------- */

@@ -14,7 +14,7 @@ export const featuresSchema = z.strictObject({
 });
 export type Features = z.infer<typeof featuresSchema>;
 
-// セットアップが勧め、利用者が断れるもの(共通指示への段落・archify・mod)。
+// セットアップが勧め、利用者が断れるもの(共通指示への段落・mod)。
 // 断ったら declined を残し、doctor は以後聞かない。ask に戻すとまた聞く
 export const offerName = z.enum(["ask", "declined"]);
 export type Offer = z.infer<typeof offerName>;
@@ -32,7 +32,7 @@ export const profileSchema = z.strictObject({
   features: featuresSchema.optional(),
   // 共通指示(~/.claude/CLAUDE.md など)へ段落を足すか
   agentInstructions: offerName.optional(),
-  // archify(別の作者のスキル)を入れるか
+  // もう使わない(前は別の作者のスキルを入れるかを聞いていた)。前のセットアップが残した profile.json を読めるように受ける
   archify: offerName.optional(),
   mods: modsSchema.optional(),
   // ベクトル検索(Ollama と埋め込みのモデル)を入れるか(180)
@@ -47,7 +47,6 @@ export type ResolvedSettings = {
   locale: Locale;
   features: Required<Features>;
   agentInstructions: Offer;
-  archify: Offer;
   mods: Required<Mods>;
   vectorSearch: Offer;
 };

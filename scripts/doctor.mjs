@@ -16,15 +16,9 @@ import {
 import { homedir, release, tmpdir } from "node:os";
 import { delimiter, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  archifyHome,
-  archifyInstall,
-  archifyUninstall,
-  findArchify,
-} from "../skills/question-sheet/scripts/archify.mjs";
 import { harnessesOf, skillPlacesOf } from "./harnesses.mjs";
 
-const SKILLS = ["ai-handout-studio", "question-sheet", "diagram"];
+const SKILLS = ["ai-handout-studio", "question-sheet"];
 // Claude Code の mod。clone の mods/ に置き、Claude Code のスキルの置き場へ symlink で入れる(節9)
 const MOD = "handout-watch";
 // mod が正式に動く Claude Code の版
@@ -703,37 +697,6 @@ const featureChecks = (ctx, t, harnesses, profile) => {
   });
 };
 
-// 節9: archify(別の作者のスキル)。入っていればシーケンス図などを資料に載せられる。
-// 入れるかは利用者が決める。入れるか断るまでは missing にして、あとから流したセットアップでも聞く
-const archifyCheck = (ctx, t, profile) => {
-  const found = findArchify({
-    env: ctx.env,
-    cwd: ctx.repoRoot,
-    home: ctx.home,
-  });
-  if (found) return check("archify", 9, "ok", found);
-  if (isDeclined(profile, ["archify"])) {
-    return check(
-      "archify",
-      9,
-      "skipped",
-      t(
-        "archify は断られている(archify: declined)",
-        "archify was declined (archify: declined)",
-      ),
-    );
-  }
-  return check(
-    "archify",
-    9,
-    "missing",
-    t(
-      `archify を入れるか決まっていない。入れるとシーケンス図・データの流れ・状態の移り変わりの図を資料に載せられる。利用者に聞き、入れるなら: ${archifyInstall}(${archifyHome})。断られたら: ai-handout-studio settings --set archify=declined`,
-      `archify is not installed and not declined. With it, handouts can include sequence, data-flow and lifecycle diagrams. Ask the user; to install it: ${archifyInstall} (${archifyHome}); if declined: ai-handout-studio settings --set archify=declined`,
-    ),
-  );
-};
-
 // 節9: ベクトル検索(180)。Ollama(0.40.0 以降)に埋め込みモデル embeddinggemma-2 があれば、サイト内検索に重ねる。
 // Ollama 本体は利用者に入れてもらい、モデルはエージェントが落とす。入れるか断るまでは missing にして、あとから流したセットアップでも聞く
 const vectorSearchCheck = (ctx, t, profile) => {
@@ -1003,7 +966,6 @@ export const runDoctor = async (context = defaultContext()) => {
     ...profileChecks(profile, t),
     ...instructionChecks(context, t, locale, harnesses, profile),
     ...featureChecks(context, t, harnesses, profile),
-    archifyCheck(context, t, profile),
     modCheck(context, t, harnesses, profile),
     vectorSearchCheck(context, t, profile),
   ];
@@ -1315,31 +1277,6 @@ const uninstallCommandCheck = (ctx, t) => {
       );
 };
 
-// 節6: archify(別の作者のスキル)。外すかは利用者が決めるので止めない(warn)
-const uninstallArchifyCheck = (ctx, t) => {
-  const found = findArchify({
-    env: ctx.env,
-    cwd: ctx.repoRoot,
-    home: ctx.home,
-  });
-  return found
-    ? check(
-        "archify",
-        6,
-        "warn",
-        t(
-          `archify が入っている(${found})。外すと決めたら: ${archifyUninstall}`,
-          `archify is installed (${found}). If the user chose to remove it: ${archifyUninstall}`,
-        ),
-      )
-    : check(
-        "archify",
-        6,
-        "ok",
-        t("archify は無い", "archify is not installed"),
-      );
-};
-
 // 節6: ベクトル検索の埋め込みモデル(180。セットアップの節9でエージェントが落としたもの)。
 // Ollama 本体は利用者が入れたもので外さない。モデルも外すかは利用者が決めるので止めない(warn)
 const uninstallVectorModelCheck = (ctx, t) => {
@@ -1428,7 +1365,6 @@ export const runUninstallDoctor = async (context = defaultContext()) => {
     ...uninstallInstructionChecks(t, locale, harnesses),
     ...uninstallSkillChecks(context, t),
     uninstallCommandCheck(context, t),
-    uninstallArchifyCheck(context, t),
     uninstallVectorModelCheck(context, t),
     uninstallWorkspaceCheck(context, t),
   ];

@@ -2,7 +2,7 @@
 // class や並びを変えるときは、先に ai-handout-studio の見本を直してから合わせる。
 // 骨格(layout): focus = 1問ずつ・広い画面では一覧を開いて始める / overview = focus と同じ /
 // all = 全問を縦に並べてその場で答える / print = 全問を縦に並べ、紙に書き込む
-const { doc, digest, visuals, explorers, endpoint, layout } = payload;
+const { doc, digest, visuals, endpoint, layout } = payload;
 const paged = layout === "focus" || layout === "overview";
 const count = doc.questions.length;
 const storageKey = `question-sheet:${doc.id}:${doc.revision}:${digest}`;
@@ -453,28 +453,6 @@ const setUpImageZoom = () => {
 };
 // 印刷では画像を押せる印にもダイアログを作りもしない(setUpImageZoom を呼ばない)
 const wireImageZoom = layout === "print" ? () => {} : setUpImageZoom();
-const explorerView = (q) => {
-	const panel = el("details", { class: "ds-explorer" }, [
-		el("summary", { text: "全体図を開く · Archify" }),
-	]);
-	panel.addEventListener("toggle", () => {
-		if (!panel.isConnected) return;
-		panel.querySelector("summary").textContent = panel.open
-			? "全体図を閉じる · Archify"
-			: "全体図を開く · Archify";
-		if (panel.open && !panel.querySelector("iframe")) {
-			const frame = el("iframe", {
-				title: `${q.title}の全体図`,
-				sandbox: "allow-scripts allow-downloads",
-				referrerpolicy: "no-referrer",
-			});
-			frame.srcdoc = explorers[q.explorer];
-			panel.append(frame);
-		}
-		growAll();
-	});
-	return panel;
-};
 // 問いの本文(説明・図表・注意・根拠)。白いカード1枚
 const questionCard = (q, index, headingId) => {
 	const visual = el("div", { class: "ds-inline-visual" });
@@ -517,15 +495,6 @@ const questionCard = (q, index, headingId) => {
 					el("p", { text: notice.text }),
 				]),
 			),
-		...(q.explorer
-			? [
-					el("h3", {
-						class: "ds-section-heading",
-						text: "全体図で関係を確認する",
-					}),
-					explorerView(q),
-				]
-			: []),
 		...(q.evidence ?? []).map((e) =>
 			el("blockquote", { class: "ds-quote" }, [
 				el("p", { text: e.text }),

@@ -14,9 +14,8 @@ test('symlink で見せたスキルから生成・検査・回答受領ができ
     await symlink(fileURLToPath(new URL('../', import.meta.url)), skill, 'dir');
     const cli = join(skill, 'scripts/sheet.mjs');
     const run = (...args) => execFileSync(process.execPath, [cli, ...args], {
-      cwd: dir, env: { PATH: process.env.PATH, ARCHIFY_SKILL_DIR: join(dir, 'not-installed') }, encoding: 'utf8',
+      cwd: dir, env: { PATH: process.env.PATH }, encoding: 'utf8',
     });
-    assert.throws(() => run('render', join(skill, 'examples/explorer.json'), '--out', join(dir, 'missing.html')), /Archify が必要/);
     const { initialAnswer, responseFor } = await import(pathToFileURL(join(skill, 'scripts/model.mjs')));
     const { digestOf } = await import(pathToFileURL(join(skill, 'scripts/render.mjs')));
     const { startServer } = await import(pathToFileURL(join(skill, 'scripts/server.mjs')));

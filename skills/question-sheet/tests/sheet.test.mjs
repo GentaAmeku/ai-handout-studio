@@ -24,7 +24,6 @@ import {
 	layoutOf,
 } from "../scripts/render.mjs";
 import { startServer } from "../scripts/server.mjs";
-import { findArchify } from "../scripts/archify.mjs";
 const sample = JSON.parse(
 	await readFile(
 		new URL(
@@ -308,42 +307,11 @@ test("強調図と補助表は構造を検査し、文をHTMLとして実行し�
 	doc.questions[0].visual.focus = ["missing"];
 	assert.throws(() => render(doc), /強調する段/);
 });
-test("全体図は質問ID参照で結び、未検証のHTML・ファイル参照を受け付けない", () => {
+test("前の質問票の全体図は、読めるが描かない", () => {
 	const doc = structuredClone(sample);
 	doc.questions[0].explorer = "map";
-	assert.throws(() => validateDocument(doc), /全体図がありません/);
-	doc.explorers = [
-		{
-			id: "map",
-			spec: { diagram_type: "architecture", meta: { output: "/tmp/unwanted" } },
-		},
-	];
-	assert.throws(() => validateDocument(doc), /ファイル参照/);
-	doc.explorers[0].spec = {
-		diagram_type: "architecture",
-		components: [{ brand: "https://example.test/logo" }],
-	};
-	assert.throws(() => validateDocument(doc), /同梱ブランド/);
-	doc.explorers = [{ id: "map", spec: "<script>alert(1)</script>" }];
-	assert.throws(() => validateDocument(doc), /形式が違います/);
-});
-test("導入済みArchifyでFlowとLightの全体図を生成する", {
-	skip: !findArchify(),
-}, async () => {
-	const doc = JSON.parse(
-		await readFile(
-			new URL(
-				"../examples/explorer.json",
-				import.meta.url,
-			),
-		),
-	);
-	const html = render(doc);
-	assert.ok(html.includes("signal-flow"));
-	assert.ok(!html.includes('<link href=\\"https://fonts.googleapis'));
-	const broken = structuredClone(doc);
-	broken.explorers[0].spec.connections[0].to = "missing";
-	assert.throws(() => render(broken), /全体図の検査に失敗/);
+	doc.explorers = [{ id: "map", spec: { diagram_type: "architecture" } }];
+	assert.ok(!render(doc).includes("ds-explorer"));
 });
 
 test("意味別の注記は許可した種類と文字列だけを扱う", () => {
@@ -391,7 +359,6 @@ test("比較不足を検出し、図を使わない理由と自由入力を許�
 	const doc = structuredClone(sample);
 	doc.questions.forEach((q) => {
 		delete q.visual;
-		delete q.explorer;
 		delete q.visualRationale;
 	});
 	assert.equal(
@@ -413,7 +380,7 @@ test("配布する見本は比較の組み立て検査を満たす", async () =>
 		"general",
 		"reading",
 		"visual-demo",
-		"explorer",
+		"decision",
 	]) {
 		const doc = JSON.parse(
 			await readFile(

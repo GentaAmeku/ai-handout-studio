@@ -17,7 +17,7 @@ Like [SETUP.md](SETUP.md), it is a game book. `doctor --uninstall` checks what i
 2. Show the user the items whose `status` is `remaining` as the list of what will be removed. Add that section 6 also removes Playwright's Chromium (anything another project uses stays), and what will not be removed (see the promises below).
 3. Ask these together, once:
    - May you remove everything on the list? Say that only the ai-handout-studio block is deleted from the agent instructions, and no other line changes.
-   - If `archify` is `warn` (installed): should archify go too? It is another author's skill, and the user may have installed it for something else.
+   - If `~/.agents/skills/archify` or `~/.claude/skills/archify` exists: should archify go too? It is another author's skill that earlier setups recommended, and AI Handout Studio no longer uses it. The user may have installed it for something else.
    - If `vector-model` is `warn` (Ollama has the vector search embedding model): should the model go too? The user may use it for something else. Ollama itself is the user's and stays.
    - What should happen to the handouts and the clone? The `workspace` detail has the handouts' location and counts. Offer: "delete the clone, handouts included", "move the handouts to another folder, then delete the clone" (ask where), or "keep the clone (remove only what lives outside it)".
 
@@ -69,12 +69,12 @@ Cursor CLI keeps its instructions in User Rules in its settings, not in a file. 
 
 ## 4. Skills
 
-doctor checks that both skill folders (`skills-agents`: `~/.agents/skills/`, read by Codex CLI, OpenCode, Gemini CLI and Cursor CLI; `skills-claude`: `~/.claude/skills/`, read by Claude Code and Grok CLI) have no `ai-handout-studio`, `question-sheet` or `diagram` link pointing to this repository, and that `~/.claude/skills/` has no `handout-watch` link (the Claude Code mod from setup section 9) pointing to it. Broken links (left behind by a deleted clone) are removed too.
+doctor checks that both skill folders (`skills-agents`: `~/.agents/skills/`, read by Codex CLI, OpenCode, Gemini CLI and Cursor CLI; `skills-claude`: `~/.claude/skills/`, read by Claude Code and Grok CLI) have no `ai-handout-studio` or `question-sheet` link pointing to this repository, and that `~/.claude/skills/` has no `handout-watch` link (the Claude Code mod from setup section 9) pointing to it. Broken links (left behind by a deleted clone) are removed too.
 
 ```bash
 # remove only the links named in the detail
-rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/diagram ~/.claude/skills/handout-watch
-rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet ~/.agents/skills/diagram
+rm ~/.claude/skills/ai-handout-studio ~/.claude/skills/question-sheet ~/.claude/skills/handout-watch
+rm ~/.agents/skills/ai-handout-studio ~/.agents/skills/question-sheet
 ```
 
 - Pass `rm` the link name as it is. Never add `-r` or a trailing `/`: that would delete what the link points to (this repository's `skills/` or `mods/`).

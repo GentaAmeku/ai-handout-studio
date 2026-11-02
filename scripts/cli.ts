@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import { openSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
-import { homedir, networkInterfaces, tmpdir } from "node:os";
+import { networkInterfaces, tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
@@ -549,7 +549,7 @@ const runShot = async (
   }
 };
 
-// 図を画像にする。archify の図で archify が無ければ exit 3(資料は図なしで作る)
+// 図を画像にする
 const runDiagram = async (
   command: Extract<CliCommand, { name: "diagram" }>,
 ): Promise<number> => {
@@ -558,7 +558,6 @@ const runDiagram = async (
       await makeDiagram(command, {
         cwd: process.cwd(),
         env: process.env,
-        home: homedir(),
       }),
     );
     report.out.forEach((line) => {

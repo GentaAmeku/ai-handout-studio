@@ -11,8 +11,6 @@ export type SheetStrings = {
   readonly statusPrefilled: string;
   readonly statusEmpty: string;
   readonly questionCounter: (index: number, total: number) => string;
-  readonly explorerHeading: string;
-  readonly explorerOpen: string;
   readonly copyAnswers: string;
   readonly answerTextLabel: string;
   readonly noteOptionalLabel: string;
@@ -109,8 +107,6 @@ const ja: HandoutStrings = {
     statusPrefilled: "初期値あり",
     statusEmpty: "未入力",
     questionCounter: (index, total) => `質問 ${index} / ${total}`,
-    explorerHeading: "全体図で関係を確認する",
-    explorerOpen: "全体図を開く · Archify",
     copyAnswers: "回答をコピー",
     answerTextLabel: "回答文",
     noteOptionalLabel: "補足（任意）",
@@ -184,8 +180,6 @@ const en: HandoutStrings = {
     statusPrefilled: "Prefilled",
     statusEmpty: "Not answered",
     questionCounter: (index, total) => `Question ${index} / ${total}`,
-    explorerHeading: "See how everything fits together",
-    explorerOpen: "Open the map · Archify",
     copyAnswers: "Copy answers",
     answerTextLabel: "Answer text",
     noteOptionalLabel: "Notes (optional)",

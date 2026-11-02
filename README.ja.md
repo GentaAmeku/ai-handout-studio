@@ -91,6 +91,8 @@ Claude Code では、同梱の mod が入力欄の上に帯を出す。*この�
 
 検索も同じローカルサーバーで動く。資料を章・質問・スライドに区切り、全文検索は 2 文字ずつ重ねて切った片を BM25 で数える(日本語でも辞書が要らない)。Ollama に embeddinggemma-2 があれば、区切りを 1 度だけ 768 個の数(ベクトル)にして `workspace/search/` に控える。打った文も同じように数にし、2 つの順位を RRF(Reciprocal Rank Fusion)で合わせる。打った語を全部含む資料は先に出す。Ollama が無いか遅いときは、黙って全文検索だけで並べる。
 
+図は、別のリポジトリのスキル [diagram-skill](https://github.com/GentaAmeku/diagram-skill) で描く。このリポジトリの依存に版を固定して入れているので、別に入れるものはない。資料と関係のない会話でも使いたければ、`npx skills add GentaAmeku/diagram-skill -g` で入れられる。
+
 ## 何が違うか
 
 エージェントには、PPTX や DOCX を書くスキルや、スライドを見せる Artifact がたぶんもう付いている。それに比べて増えるのは次の 4 つ。
@@ -146,11 +148,11 @@ ai-handout-studio document export <id> [--out <書き出し先>] [--text]
 ai-handout-studio share <id>
 ai-handout-studio share <id> --url <公開した Artifact の URL>
 ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>]
-ai-handout-studio diagram <flow|structure|compare|architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <画像(.png・.jpg・.webp)>
+ai-handout-studio diagram <flow|structure|compare|sequence|state> <spec.json> --out <画像(.png・.jpg・.webp)>
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]
-  キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・archify・mods.claude・vectorSearch(ask|declined)
+  キー: orgName・locale(ja|en)・features.lan・features.imageGeneration・features.share・features.vectorSearch(true|false)・agentInstructions・mods.claude・vectorSearch(ask|declined)
 ai-handout-studio examples [--lang ja|en]
 ai-handout-studio doctor [--uninstall] [--json|--checklist]
 ```
