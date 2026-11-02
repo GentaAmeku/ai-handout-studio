@@ -1,0 +1,37 @@
+{
+  "type": "flow",
+  "title": "注文を受けてから知らせるまで(レーンと段階)",
+  "caption": "誰が動くかをレーン(行)、どの段階かを見出し(列)で示した例。",
+  "lanes": [
+    { "label": "店舗のサイト", "nodes": ["order", "mail"] },
+    { "label": "注文サーバー", "nodes": ["job", "check", "stock", "judge", "ok", "ng"] },
+    { "label": "注文者", "nodes": ["read"] }
+  ],
+  "phases": [
+    { "label": "受け取る", "nodes": ["order", "job"] },
+    { "label": "調べる", "nodes": ["check", "stock", "judge"] },
+    { "label": "伝える", "nodes": ["ok", "ng", "mail", "read"] }
+  ],
+  "nodes": [
+    { "id": "order", "label": "注文を受け取る", "sub": "店舗のサイト", "role": "external" },
+    { "id": "job", "label": "注文の処理が動く", "sub": "注文サーバー", "role": "process" },
+    { "id": "check", "label": "注文の中身を確かめる", "role": "process" },
+    { "id": "stock", "label": "在庫と配送先を調べる", "role": "process" },
+    { "id": "judge", "label": "すぐ発送できる？", "role": "decision" },
+    { "id": "ok", "label": "発送の予定を書く", "role": "output" },
+    { "id": "ng", "label": "入荷待ちの案内を書く", "role": "output" },
+    { "id": "mail", "label": "注文者にメールを送る", "role": "output" },
+    { "id": "read", "label": "読んで確認する", "role": "user" }
+  ],
+  "edges": [
+    { "from": "order", "to": "job" },
+    { "from": "job", "to": "check" },
+    { "from": "check", "to": "stock" },
+    { "from": "stock", "to": "judge" },
+    { "from": "judge", "to": "ok", "label": "できる" },
+    { "from": "judge", "to": "ng", "label": "できない" },
+    { "from": "ok", "to": "mail" },
+    { "from": "ng", "to": "mail" },
+    { "from": "mail", "to": "read" }
+  ]
+}

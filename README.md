@@ -146,7 +146,7 @@ ai-handout-studio document export <id> [--out <path>] [--text]
 ai-handout-studio share <id>
 ai-handout-studio share <id> --url <published Artifact URL>
 ai-handout-studio shot <URL or HTML file> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ms>]
-ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <image (.png, .jpg, .webp)>
+ai-handout-studio diagram <flow|structure|compare|architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <image (.png, .jpg, .webp)>
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <key>=<value> [--set <key>=<value> ...]

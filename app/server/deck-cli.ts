@@ -113,7 +113,7 @@ export type CliCommand =
       wait: number;
       scale: 1 | 2;
     }
-  // archify の図を画像にする。形式は --out の拡張子で選ぶ。archify が無ければ exit 3
+  // 図を画像にする。形式は --out の拡張子で選ぶ。archify の図で archify が無ければ exit 3
   | { name: "diagram"; type: DiagramType; spec: string; out: string }
   | { name: "design-build" }
   // 設定(言語・任意の機能)。--set が無ければ今の値を出すだけ

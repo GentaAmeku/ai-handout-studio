@@ -146,7 +146,7 @@ ai-handout-studio document export <id> [--out <書き出し先>] [--text]
 ai-handout-studio share <id>
 ai-handout-studio share <id> --url <公開した Artifact の URL>
 ai-handout-studio shot <URL か HTML のファイル> --out <PNG> [--width 1440] [--height 900] [--full] [--wait <ミリ秒>]
-ai-handout-studio diagram <architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <画像(.png・.jpg・.webp)>
+ai-handout-studio diagram <flow|structure|compare|architecture|workflow|sequence|dataflow|lifecycle> <spec.json> --out <画像(.png・.jpg・.webp)>
 ai-handout-studio design build
 ai-handout-studio settings
 ai-handout-studio settings --set <キー>=<値> [--set <キー>=<値> ...]

@@ -42,6 +42,7 @@ const makeClone = (): void => {
   touch(join(repo, "scripts", "cli.mjs"), "#!/usr/bin/env node\n");
   touch(join(repo, "skills", "ai-handout-studio", "SKILL.md"));
   touch(join(repo, "skills", "question-sheet", "SKILL.md"));
+  touch(join(repo, "skills", "diagram", "SKILL.md"));
   ["ja", "en"].forEach((locale) => {
     const name = `agent-instructions.${locale}.md`;
     mkdirSync(join(repo, "setup"), { recursive: true });
@@ -68,7 +69,7 @@ const linkCommand = (): void => {
 
 const linkSkills = (skillsDir: string): void => {
   mkdirSync(skillsDir, { recursive: true });
-  ["ai-handout-studio", "question-sheet"].forEach((skill) => {
+  ["ai-handout-studio", "question-sheet", "diagram"].forEach((skill) => {
     symlinkSync(join(repo, "skills", skill), join(skillsDir, skill));
   });
 };
@@ -321,6 +322,7 @@ describe("doctor の各項目", () => {
       join(repo, "skills", "question-sheet"),
       join(skillsDir, "question-sheet"),
     );
+    symlinkSync(join(repo, "skills", "diagram"), join(skillsDir, "diagram"));
     const result = await runDoctor(context());
     const codex = result.checks.find((item) => item.id === "skills-agents");
     expect(codex?.status).toBe("outdated");

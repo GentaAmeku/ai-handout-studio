@@ -1,0 +1,25 @@
+{
+  "type": "structure",
+  "title": "Parts that process an order",
+  "caption": "An example in English. The legend and the change badges follow the language of the title and caption.",
+  "nodes": [
+    { "id": "shop", "label": "Web shop", "role": "external" },
+    { "id": "mail", "label": "Order email", "role": "output", "change": "changed" },
+    { "id": "accept", "label": "Accept order", "role": "process" },
+    { "id": "worker", "label": "Process order", "role": "process" },
+    { "id": "alloc", "label": "Allocate stock", "sub": "stock.py", "role": "process", "change": "new" },
+    { "id": "stock", "label": "Stock data", "role": "data" }
+  ],
+  "boundaries": [
+    { "label": "External", "nodes": ["shop", "mail"] },
+    { "label": "Order server", "nodes": ["accept", "worker", "alloc"] },
+    { "label": "Data", "nodes": ["stock"] }
+  ],
+  "edges": [
+    { "from": "shop", "to": "accept", "label": "On order" },
+    { "from": "accept", "to": "worker" },
+    { "from": "worker", "to": "alloc", "change": "new" },
+    { "from": "alloc", "to": "stock", "label": "Read", "change": "new" },
+    { "from": "worker", "to": "mail", "label": "Send" }
+  ]
+}

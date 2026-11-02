@@ -549,7 +549,7 @@ const runShot = async (
   }
 };
 
-// archify の図を画像にする。archify が無ければ exit 3(資料は図なしで作る)
+// 図を画像にする。archify の図で archify が無ければ exit 3(資料は図なしで作る)
 const runDiagram = async (
   command: Extract<CliCommand, { name: "diagram" }>,
 ): Promise<number> => {

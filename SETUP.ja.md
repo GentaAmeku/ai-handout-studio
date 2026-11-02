@@ -82,7 +82,7 @@ ln -sfn "$PWD/scripts/cli.mjs" ~/.local/bin/ai-handout-studio
 
 ## 6. スキル
 
-doctor は、入っているエージェント(設定のフォルダがあるもの。Claude Code は `~/.claude`、Codex CLI は `$CODEX_HOME` か `~/.codex`、OpenCode は `$XDG_CONFIG_HOME/opencode` か `~/.config/opencode`、Gemini CLI は `~/.gemini`、Cursor CLI は `~/.cursor`、Grok CLI は `~/.grok`)を調べる。どのエージェントも、2つあるスキルの置き場のどちらかを読む。入っているエージェントが読む置き場ごとに、2つのスキルのリンクがあり、このリポジトリを指すことを確かめる。どのエージェントも読まない置き場は `skipped`。設定のフォルダが1つも無ければ、どれかのエージェントを入れて一度起動してもらう。
+doctor は、入っているエージェント(設定のフォルダがあるもの。Claude Code は `~/.claude`、Codex CLI は `$CODEX_HOME` か `~/.codex`、OpenCode は `$XDG_CONFIG_HOME/opencode` か `~/.config/opencode`、Gemini CLI は `~/.gemini`、Cursor CLI は `~/.cursor`、Grok CLI は `~/.grok`)を調べる。どのエージェントも、2つあるスキルの置き場のどちらかを読む。入っているエージェントが読む置き場ごとに、3つのスキルのリンクがあり、このリポジトリを指すことを確かめる。どのエージェントも読まない置き場は `skipped`。設定のフォルダが1つも無ければ、どれかのエージェントを入れて一度起動してもらう。
 
 | スキルの置き場(検査) | 読むエージェント |
 | --- | --- |
@@ -94,11 +94,13 @@ doctor は、入っているエージェント(設定のフォルダがあるも
 mkdir -p ~/.agents/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.agents/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.agents/skills/question-sheet
+ln -sfn "$PWD/skills/diagram" ~/.agents/skills/diagram
 
 # ~/.claude/skills(Claude Code・Grok CLI)
 mkdir -p ~/.claude/skills
 ln -sfn "$PWD/skills/ai-handout-studio" ~/.claude/skills/ai-handout-studio
 ln -sfn "$PWD/skills/question-sheet" ~/.claude/skills/question-sheet
+ln -sfn "$PWD/skills/diagram" ~/.claude/skills/diagram
 ```
 
 - `skills` しか無い `~/.claude`(Grok CLI のために上のリンクを張るとできる)は、Claude Code とみなさない。
@@ -170,7 +172,7 @@ ai-handout-studio settings --set features.lan=false --set features.imageGenerati
 ai-handout-studio settings --set archify=declined --set mods.claude=declined --set vectorSearch=declined
 ```
 
-archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントが構成図・シーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、図は表や文、同梱の流れの図で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら `archify=declined` を記録する。
+archify([tt-a1i/archify](https://github.com/tt-a1i/archify)。MIT)を入れると、エージェントがシーケンス図・データの流れ・状態の移り変わりの図を作り、画像にしてスライド・HTML 資料・質問票に載せられる(`ai-handout-studio diagram`)。入れなくても資料は作れ、流れ・構成・比較の図は同梱の `diagram` スキルで描き、残りは表や文で済ませる。質問では、何ができるかと、別の作者のスキルで、このリポジトリには同梱しないことを書く。入れると答えたときだけ、次を実行する。断られたら `archify=declined` を記録する。
 
 ```bash
 npx skills add tt-a1i/archify -g

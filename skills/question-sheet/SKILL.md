@@ -15,11 +15,11 @@ description: 複数の質問を一覧と1問ずつの画面で提示し、選択
 
 画面のスタイル(ai-handout-studio の質問票のテンプレート)と簡単な図の生成器は、このスキルが入っているリポジトリの `design/dist` から読む(リポジトリで `pnpm install` を実行したあとに使える。無ければ `render`・`serve`・`audit` がそう伝えて止まる)。`render`・`serve` の見た目は `--template <名前か tokens の CSS のパス>` で選べ(`cobalt`: Cobalt、`default`: Default、`paper`: Paperなど。一覧は `design/dist/sheet/templates.json`)、省くと ai-handout-studio で質問票の既定に選ばれたテンプレートを使う。画面の骨格は `--layout` で選ぶ。省くとテンプレートの骨格(既定のテンプレートの Cobalt なら `focus`、1問ずつ)。長い説明や図を1問ずつ読ませたいときや、質問が多く(8件以上)進捗を見せ続けたいときは `focus`(1問ずつ。広い画面では質問一覧を開いて始まる)、短い確認は `all`(全問を縦に並べてその場で答える)、紙やPDFで渡す・読み合わせるときは `print`(書き込み用紙。`render` だけで使い、回答は画面から返せない)。Node.js 22以降とブラウザーが必要。以下の`<skill>`は、このSKILL.mdがあるディレクトリの絶対パスへ置き換える。
 
-## Archifyの図を載せる
+## 図を画像で載せる
 
-Archifyは別作者のスキルとして利用し、同梱しない。構成・シーケンス・データの流れ・状態の移り変わり・戻りのある流れの図が要るときは、`ai-handout-studio`コマンドの`diagram`でArchifyの図を画像に書き出し、`visual.type: images`で載せる。手順(Archifyの場所の調べ方・specの書き方・`ai-handout-studio diagram <種類> <spec.json> --out <画像>`)はai-handout-studioスキルの「図を載せる」に従う。`caption`と画像の`label`に何の図かを書く。単純な分岐・合流の流れは、従来どおり`visual.type: flow`(同梱の生成器)を使う。
+流れ(レーン・戻りのあるものを含む)・構成・比較の図は、同じリポジトリのdiagramスキルで作る。シーケンス・データの流れ・状態の移り変わりの図はArchifyで作る。Archifyは別作者のスキルとして利用し、同梱しない。どちらも`ai-handout-studio`コマンドの`diagram`で画像に書き出し、`visual.type: images`で載せる。手順(図のJSONやspecの書き方・`ai-handout-studio diagram <種類> <JSON> --out <画像>`)はai-handout-studioスキルの「図を載せる」に従う。`caption`と画像の`label`に何の図かを書く。単純な分岐・合流の流れは、従来どおり`visual.type: flow`(同梱の生成器)を使う。
 
-Archifyが無い(`node <skill>/scripts/archify.mjs`がexit 1、または`diagram`がexit 3)ときと、`ai-handout-studio`コマンドが無いときは、図なしで作る(比較表や文章にする)。Archifyが無いときは、仕上げの報告の最後にArchifyの紹介を1行添える(入れ方`npx skills add tt-a1i/archify -g`と、入れると載せられる図の種類)。同じ会話で2回は紹介しない。無断でインストールしない。
+Archifyの図が要るのにArchifyが無い(`node <skill>/scripts/archify.mjs`がexit 1、または`diagram`がexit 3)ときと、`ai-handout-studio`コマンドが無いときは、図なしで作る(比較表や文章にする)。Archifyが無いときは、仕上げの報告の最後にArchifyの紹介を1行添える(入れ方`npx skills add tt-a1i/archify -g`と、入れると載せられる図の種類)。同じ会話で2回は紹介しない。無断でインストールしない。
 
 操作できる全体図(`explorers`。HTMLを埋め込む形)は、ai-handout-studioに保存した質問票では中身が描かれない。新しく作る質問票では使わない。古い質問票を読めるよう、形式と描画は残している([全体図の形式](references/explorers.md))。
 

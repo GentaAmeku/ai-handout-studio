@@ -1,0 +1,27 @@
+{
+  "type": "flow",
+  "title": "商品を探して購入するまで(例)",
+  "caption": "誰が何をするかをレーンで分けた例。利用者・店舗のサイト・外部の決済の間を行き来する。",
+  "lanes": [
+    { "label": "利用者", "nodes": ["search", "filter", "click"] },
+    { "label": "店舗のサイト", "nodes": ["list", "table", "detail"] },
+    { "label": "外部の決済", "nodes": ["pay"] }
+  ],
+  "nodes": [
+    { "id": "search", "label": "検索して店舗を開く", "role": "user" },
+    { "id": "list", "label": "おすすめの一覧", "sub": "人気順に並ぶ", "role": "screen" },
+    { "id": "filter", "label": "条件で絞り込む", "role": "user" },
+    { "id": "table", "label": "比較表", "sub": "価格・評価を並べる", "role": "screen" },
+    { "id": "detail", "label": "商品の詳細", "role": "screen" },
+    { "id": "click", "label": "購入ボタンを押す", "role": "user" },
+    { "id": "pay", "label": "決済のページ", "sub": "外部のサービス", "role": "external" }
+  ],
+  "edges": [
+    { "from": "search", "to": "list" },
+    { "from": "list", "to": "filter" },
+    { "from": "filter", "to": "table" },
+    { "from": "table", "to": "detail", "label": "商品名を押す" },
+    { "from": "detail", "to": "click" },
+    { "from": "click", "to": "pay", "label": "別タブで開く" }
+  ]
+}
