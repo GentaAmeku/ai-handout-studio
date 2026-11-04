@@ -36,8 +36,8 @@ importers:
         specifier: ^1.170.36
         version: 1.170.36(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       diagram-skill:
-        specifier: github:GentaAmeku/diagram-skill#v0.1.1
-        version: https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/b8e50a2623c23fb4af6094ff412d783e0abdc633
+        specifier: github:GentaAmeku/diagram-skill#v0.1.2
+        version: https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/f90d7d69cd20674b7274573654acf426a6c501cd
       highlight.js:
         specifier: ^11.12.0
         version: 11.12.0
@@ -822,9 +822,9 @@ packages:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
 
-  diagram-skill@https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/b8e50a2623c23fb4af6094ff412d783e0abdc633:
-    resolution: {gitHosted: true, integrity: sha512-VIqC/XpUNXZpccF25lzvzHMavZxVa7JEuiUPA3NRI+zv52u3o86Ks4ZfWyC8dUNssRy9SSxu++Z0yozHjyKcmA==, tarball: https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/b8e50a2623c23fb4af6094ff412d783e0abdc633}
-    version: 0.1.1
+  diagram-skill@https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/f90d7d69cd20674b7274573654acf426a6c501cd:
+    resolution: {gitHosted: true, integrity: sha512-EkNtljE0xbQ9flUpXGI62mWlK8RGV7zlH9FXGkMwFcy1DVAtagE0VOEokwxcqK3LB5tu6JFFiWDnewRK2xMe2w==, tarball: https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/f90d7d69cd20674b7274573654acf426a6c501cd}
+    version: 0.1.2
     engines: {node: '>=22'}
 
   dom-accessibility-api@0.5.16:
@@ -1776,7 +1776,7 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  diagram-skill@https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/b8e50a2623c23fb4af6094ff412d783e0abdc633: {}
+  diagram-skill@https://codeload.github.com/GentaAmeku/diagram-skill/tar.gz/f90d7d69cd20674b7274573654acf426a6c501cd: {}
 
   dom-accessibility-api@0.5.16: {}
 
